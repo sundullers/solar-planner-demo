@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>太陽光ライフタイムプランナー - B2B2C営業支援モックアップ</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --accent-color: #10b981; /* Emerald */
+            --accent-hover: #059669;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ホワイトレーベル用ヘッダー */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .partner-logo {
+            background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #fff;
+            font-size: 1.2rem;
+        }
+
+        .logo-text h1 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .logo-text span {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .header-meta {
+            text-align: right;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .header-meta strong {
+            color: var(--text-primary);
+        }
+
+        /* レイアウトグリッド */
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 25px;
+        }
+
+        /* 左カラム：パラメータ調整パネル */
+        .panel-controls {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            height: fit-content;
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group label span {
+            float: right;
+            color: var(--accent-color);
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--border-color);
+            outline: none;
+            margin-top: 5px;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .input-text {
+            width: 100%;
+            padding: 10px 15px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-text:focus {
+            border-color: var(--accent-color);
+        }
+
+        .btn-action {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: var(--accent-color);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: 15px;
+            text-decoration: none;
+        }
+
+        .btn-action:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-action:active {
+            transform: scale(0.98);
+        }
+
+        /* 右カラム：ダッシュボード表示 */
+        .dashboard-main {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* 基本スペック要約 */
+        .spec-summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .spec-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spec-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent-color);
+        }
+
+        .spec-card.danger::before { background: var(--danger-color); }
+        .spec-card.info::before { background: var(--info-color); }
+
+        .spec-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .spec-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .spec-unit {
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+            margin-left: 3px;
+        }
+
+        /* グラフ・ビジュアルエリア */
+        .visual-area {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .chart-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .chart-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        /* 右サイド：提案結果・ROIサマリー */
+        .roi-summary {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.8) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .roi-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--accent-color);
+        }
+
+        .roi-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .metric-val {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .metric-val.highlight {
+            color: var(--accent-color);
+            font-size: 1.3rem;
+        }
+
+        /* 通知・ハザードアラート */
+        .alert-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .alert-icon {
+            font-weight: 700;
+            background: var(--danger-color);
+            color: #fff;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        /* 印刷プレビュー用スタイル（非表示制御） */
+        @media print {
+            body {
+                background: #fff;
+                color: #000;
+                padding: 0;
+            }
+            .panel-controls {
+                display: none;
+            }
+            .layout-grid {
+                grid-template-columns: 1fr;
+            }
+            header, .chart-container, .roi-summary, .spec-card {
+                border: 1px solid #ccc;
+                background: #fff;
+                color: #000;
+                box-shadow: none;
+            }
+            .spec-card::before {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- ホワイトレーベルヘッダー -->
+    <header>
+        <div class="logo-area">
+            <div class="partner-logo">WE</div>
+            <div class="logo-text">
+                <h1>ソーラーライフタイム・プランナー</h1>
+                <span>Powered by そらスコ B2B2Cモジュール</span>
+            </div>
+        </div>
+        <div class="header-meta">
+            提案元: <strong>株式会社ワイヤーエナジー 営業部</strong><br>
+            作成日: <span id="current-date">2026-05-27</span>
+        </div>
+    </header>
+
+    <!-- メインレイアウト -->
+    <div class="layout-grid">
+        
+        <!-- 左：シミュレーション設定パネル -->
+        <div class="panel-controls">
+            <div class="panel-title">
+                <span>シミュレーション設定</span>
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">※営業担当者入力用</span>
+            </div>
+
+            <div class="form-group">
+                <label for="solar-id">そらスコID連携</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="solar-id" class="input-text" value="SR-78901">
+                    <button type="button" class="btn-action" style="margin: 0; width: auto; padding: 0 15px;" onclick="loadDemoData()">読込</button>
+                </div>
+            </div>
+
+            <!-- スライダーパラメータ -->
+            <div class="form-group">
+                <label for="repower-cost">リパワリング投資額 <span id="repower-cost-val">800</span>万円</label>
+                <input type="range" id="repower-cost" class="slider" min="100" max="2500" step="50" value="800" oninput="updateSimulation()">
+            </div>
+
+            <div class="form-group">
+                <label for="generation-boost">想定発電量改善率 <span id="generation-boost-val">15</span>%</label>
+                <input type="range" id="generation-boost" class="slider" min="5" max="30" step="1" value="15" oninput="updateSimulation()">
+            </div>
+
+            <div class="form-group">
+                <label for="pcs-cost">パワコン更新費用 <span id="pcs-cost-val">150</span>万円</label>
+                <input type="range" id="pcs-cost" class="slider" min="50" max="800" step="10" value="150" oninput="updateSimulation()">
+            </div>
+
+            <div class="form-group">
+                <label for="pcs-year">想定パワコン更新年 <span id="pcs-year-val">12</span>年目</label>
+                <input type="range" id="pcs-year" class="slider" min="10" max="15" step="1" value="12" oninput="updateSimulation()">
+            </div>
+
+            <div class="form-group">
+                <label for="post-fit-price">卒FIT後想定買取単価 <span id="post-fit-price-val">8.5</span>円/kWh</label>
+                <input type="range" id="post-fit-price" class="slider" min="5.0" max="12.0" step="0.5" value="8.5" oninput="updateSimulation()">
+            </div>
+
+            <button type="button" class="btn-action" onclick="window.print()">提案用PDFレポート印刷</button>
+        </div>
+
+        <!-- 右：シミュレーションダッシュボード -->
+        <div class="dashboard-main">
+            
+            <!-- ハザードアラート -->
+            <div class="alert-box" id="hazard-alert">
+                <span class="alert-icon">!</span>
+                <span><strong>ハザードリスク警告:</strong> この発電所は「土砂災害警戒区域（イエローゾーン）」に近接しています。撤去・解体時の予備費＋50万円を自動で見積もっています。</span>
+            </div>
+
+            <!-- 基本スペック要約 -->
+            <div class="spec-summary">
+                <div class="spec-card">
+                    <div class="spec-label">発電所名 / 所在地</div>
+                    <div class="spec-value" style="font-size: 1.1rem; line-height: 1.3;" id="spec-name">高松第3太陽光発電所<br><span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: normal;">香川県高松市</span></div>
+                </div>
+                <div class="spec-card info">
+                    <div class="spec-label">システム容量</div>
+                    <div class="spec-value" id="spec-capacity">49.5<span class="spec-unit">kW</span></div>
+                </div>
+                <div class="spec-card info">
+                    <div class="spec-label">FIT売電単価</div>
+                    <div class="spec-value" id="spec-fit-price">24.0<span class="spec-unit">円</span></div>
+                </div>
+                <div class="spec-card danger">
+                    <div class="spec-label">経過年数 / 残存FIT</div>
+                    <div class="spec-value" id="spec-years">10年<span class="spec-unit">/ 残り10年</span></div>
+                </div>
+            </div>
+
+            <!-- グラフ ＆ ROI -->
+            <div class="visual-area">
+                
+                <!-- 20年間累積キャッシュフロー推移 -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <div class="chart-title">20年間の累積キャッシュフロー予測（維持 vs リパワリング）</div>
+                        <span style="font-size: 0.75rem; color: var(--text-secondary);">※開始年＝連系日より10年目時点</span>
+                    </div>
+                    <div style="height: 320px; position: relative;">
+                        <canvas id="cfChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- ROIサマリー -->
+                <div class="roi-summary">
+                    <div>
+                        <div class="roi-title">リパワリング提案概要</div>
+                        <div class="roi-metrics">
+                            <div class="metric-row">
+                                <span class="metric-label">初期投資額</span>
+                                <span class="metric-val" id="roi-investment">800万円</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">20年間の累積増収額</span>
+                                <span class="metric-val" id="roi-additional-revenue" style="color: var(--accent-color);">1,450万円</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">実質純増収（ROI）</span>
+                                <span class="metric-val highlight" id="roi-net-gain">+650万円</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">投資回収期間</span>
+                                <span class="metric-val" id="roi-payback" style="color: #fbbf24;">6.8年</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 10px;">
+                        ※シミュレーションは過去の気象データおよび標準的劣化モデル（年0.5%劣化）に基づき算出しています。
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // デモデータ定義
+    const demoData = {
+        "SR-78901": {
+            name: "高松第3太陽光発電所",
+            location: "香川県高松市",
+            capacity: 49.5,
+            fitPrice: 24,
+            elapsedYears: 10,
+            hazard: "土砂災害警戒区域（イエローゾーン）に近接。撤去・解体時の予備費＋50万円を自動で見積もり。"
+        },
+        "SR-12345": {
+            name: "岡山吉備太陽光ファーム",
+            location: "岡山県岡山市",
+            capacity: 85.0,
+            fitPrice: 32,
+            elapsedYears: 8,
+            hazard: "ハザードマップ上、災害リスクは極めて低いです（浸水・土砂災害区域外）。"
+        }
+    };
+
+    // チャートの初期化
+    let cfChart;
+    const ctx = document.getElementById('cfChart').getContext('2d');
+    
+    function initChart() {
+        cfChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 11}, (_, i) => `${10 + i}年目`),
+                datasets: [
+                    {
+                        label: '現状維持（ベースライン）',
+                        data: [],
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        fill: false
+                    },
+                    {
+                        label: 'リパワリング実施',
+                        data: [],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.1,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#94a3b8'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: '#334155' },
+                        ticks: { color: '#94a3b8' }
+                    },
+                    y: {
+                        grid: { color: '#334155' },
+                        ticks: {
+                            color: '#94a3b8',
+                            callback: function(value) { return value + '万円'; }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // デモデータのロード
+    function loadDemoData() {
+        const id = document.getElementById('solar-id').value;
+        const data = demoData[id];
+        if (data) {
+            document.getElementById('spec-name').innerHTML = `${data.name}<br><span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: normal;">${data.location}</span>`;
+            document.getElementById('spec-capacity').innerHTML = `${data.capacity}<span class="spec-unit">kW</span>`;
+            document.getElementById('spec-fit-price').innerHTML = `${data.fitPrice.toFixed(1)}<span class="spec-unit">円</span>`;
+            document.getElementById('spec-years').innerHTML = `${data.elapsedYears}年<span class="spec-unit">/ 残り${20 - data.elapsedYears}年</span>`;
+            
+            const alertBox = document.getElementById('hazard-alert');
+            alertBox.querySelector('span:last-child').innerHTML = `<strong>ハザードリスク情報:</strong> ${data.hazard}`;
+            if (data.hazard.includes("警戒")) {
+                alertBox.style.background = "rgba(239, 68, 68, 0.1)";
+                alertBox.style.borderColor = "rgba(239, 68, 68, 0.2)";
+                alertBox.style.color = "#fca5a5";
+                alertBox.querySelector('.alert-icon').style.background = "var(--danger-color)";
+            } else {
+                alertBox.style.background = "rgba(16, 185, 129, 0.1)";
+                alertBox.style.borderColor = "rgba(16, 185, 129, 0.2)";
+                alertBox.style.color = "#a7f3d0";
+                alertBox.querySelector('.alert-icon').style.background = "var(--accent-color)";
+            }
+
+            // 初期値を岡山や高松に合わせて少し調整
+            if (id === "SR-12345") {
+                document.getElementById('repower-cost').value = 1200;
+                document.getElementById('pcs-cost').value = 250;
+            } else {
+                document.getElementById('repower-cost').value = 800;
+                document.getElementById('pcs-cost').value = 150;
+            }
+            
+            updateSimulation();
+        } else {
+            alert('そらスコIDが見つかりません。（デモ用ID: SR-78901 または SR-12345 をご利用ください）');
+        }
+    }
+
+    // シミュレーション計算と描画のアップデート
+    function updateSimulation() {
+        // パラメータ取得
+        const repowerCost = parseFloat(document.getElementById('repower-cost').value);
+        const generationBoost = parseFloat(document.getElementById('generation-boost').value) / 100;
+        const pcsCost = parseFloat(document.getElementById('pcs-cost').value);
+        const pcsYear = parseInt(document.getElementById('pcs-year').value);
+        const postFitPrice = parseFloat(document.getElementById('post-fit-price').value);
+
+        // スライダー表示更新
+        document.getElementById('repower-cost-val').innerText = repowerCost;
+        document.getElementById('generation-boost-val').innerText = Math.round(generationBoost * 100);
+        document.getElementById('pcs-cost-val').innerText = pcsCost;
+        document.getElementById('pcs-year-val').innerText = pcsYear;
+        document.getElementById('post-fit-price-val').innerText = postFitPrice.toFixed(1);
+
+        // 現在表示されているスペック取得
+        const id = document.getElementById('solar-id').value;
+        const data = demoData[id] || demoData["SR-78901"];
+
+        const capacity = data.capacity;
+        const fitPrice = data.fitPrice;
+        const startYear = data.elapsedYears; // 10年目など
+
+        const baseLabels = [];
+        const baseCF = [];
+        const repowerCF = [];
+
+        let currentBaseSum = 0;
+        let currentRepowerSum = -repowerCost; // 初期投資
+
+        // 年間標準発電量推定（高松：約1,100kWh/kW/年）
+        const stdGen = capacity * 1150; 
+        const simYears = 20; // シミュレーション期間を20年間に拡張
+
+        for (let i = 0; i <= simYears; i++) {
+            const year = startYear + i;
+            baseLabels.push(`${year}年目`);
+
+            // 年毎のFIT売電単価（FIT期間内か卒FITか）
+            const isFit = year <= 20;
+            const price = isFit ? fitPrice : postFitPrice;
+
+            // 経年劣化モデル（ベースは毎年0.5%低下）
+            const baseEfficiency = 1 - (year * 0.005);
+            const baseIncome = (stdGen * baseEfficiency * price) / 10000; // 万円
+
+            // パワコン交換費用発生（現状維持シナリオでも発生）
+            let baseExpense = 0;
+            if (year === pcsYear) {
+                baseExpense = pcsCost;
+            }
+            currentBaseSum += (baseIncome - baseExpense);
+            baseCF.push(Math.round(currentBaseSum));
+
+            // リパワリングモデル（リパワリング後は効率が改善し、劣化がリセットされると想定）
+            // リパワリング実施を「連系日より10年目（シミュレーション開始時点）」と仮定
+            const repowerEfficiency = (1 + generationBoost) * (1 - (i * 0.003)); // 劣化スピードも緩やかに
+            const repowerIncome = (stdGen * repowerEfficiency * price) / 10000;
+
+            // リパワリングした場合は、すでに最新のパワコンが組み込まれているため、途中でのPCS交換は不要とする
+            currentRepowerSum += repowerIncome;
+            repowerCF.push(Math.round(currentRepowerSum));
+        }
+
+        // チャート更新
+        cfChart.data.labels = baseLabels;
+        cfChart.data.datasets[0].data = baseCF;
+        cfChart.data.datasets[1].data = repowerCF;
+        cfChart.update();
+
+        // ROI数値の更新
+        const finalBase = baseCF[baseCF.length - 1];
+        const finalRepower = repowerCF[repowerCF.length - 1];
+        const additionalRevenue = finalRepower - finalBase + repowerCost; // 累積の増収額
+        const netGain = finalRepower - finalBase; // 実質純増
+
+        document.getElementById('roi-investment').innerText = `${repowerCost}万円`;
+        document.getElementById('roi-additional-revenue').innerText = `${Math.round(additionalRevenue)}万円`;
+        
+        const netGainElem = document.getElementById('roi-net-gain');
+        if (netGain >= 0) {
+            netGainElem.innerText = `+${Math.round(netGain)}万円`;
+            netGainElem.style.color = "var(--accent-color)";
+        } else {
+            netGainElem.innerText = `${Math.round(netGain)}万円`;
+            netGainElem.style.color = "var(--danger-color)";
+        }
+
+        // 簡易投資回収年数
+        const annualDiff = additionalRevenue / simYears; // 平均年間増収
+        const payback = repowerCost / annualDiff;
+        document.getElementById('roi-payback').innerText = netGain > 0 ? `${payback.toFixed(1)}年` : '回収不能';
+    }
+
+    // 起動処理
+    window.onload = function() {
+        // 現在日付
+        const today = new Date();
+        document.getElementById('current-date').innerText = today.toISOString().split('T')[0];
+        
+        initChart();
+        updateSimulation();
+    };
+</script>
+
+</body>
+</html>
