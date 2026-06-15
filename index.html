@@ -23,6 +23,7 @@
             --card-border: rgba(255, 255, 255, 0.05);
             --danger-color: #ef4444;
             --info-color: #3b82f6;
+            --warning-color: #fbbf24;
         }
 
         * {
@@ -43,6 +44,58 @@
         .container {
             max-width: 1400px;
             margin: 0 auto;
+        }
+
+        /* バージョンセレクター（最上部） */
+        .version-selector {
+            background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .version-selector-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--warning-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mode-btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .mode-btn {
+            background: rgba(148, 163, 184, 0.1);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .mode-btn:hover {
+            background: rgba(148, 163, 184, 0.2);
+            color: var(--text-primary);
+        }
+
+        .mode-btn.active {
+            background: var(--accent-color);
+            color: #fff;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
         }
 
         /* ホワイトレーベル用ヘッダー */
@@ -210,6 +263,110 @@
             transform: scale(0.98);
         }
 
+        /* アコーディオン (EPC標準マスタ) */
+        .accordion {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            background: rgba(15, 23, 42, 0.4);
+        }
+
+        .accordion-title {
+            padding: 10px 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            background: rgba(15, 23, 42, 0.8);
+            transition: background 0.2s;
+        }
+
+        .accordion-title:hover {
+            background: rgba(15, 23, 42, 1);
+        }
+
+        .accordion-body {
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .form-group-sub {
+            margin-bottom: 12px;
+        }
+
+        .form-group-sub label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .input-text-sub {
+            width: 100%;
+            padding: 6px 10px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            outline: none;
+        }
+
+        /* トグルスイッチ（ハザード連動） */
+        .switch-wrap {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .switch-wrap input {
+            display: none;
+        }
+
+        .switch-slider {
+            width: 44px;
+            height: 22px;
+            background-color: var(--border-color);
+            border-radius: 11px;
+            position: relative;
+            transition: background-color 0.2s;
+        }
+
+        .switch-slider::before {
+            content: '';
+            width: 16px;
+            height: 16px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.2s;
+        }
+
+        .switch-wrap input:checked + .switch-slider {
+            background-color: var(--accent-color);
+        }
+
+        .switch-wrap input:checked + .switch-slider::before {
+            transform: translateX(22px);
+        }
+
+        /* 逆算フィッティング用バッジ */
+        .calibration-badge {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #a7f3d0;
+            font-size: 0.75rem;
+            padding: 6px 12px;
+            border-radius: 6px;
+            margin-top: 6px;
+            font-weight: 500;
+        }
+
         /* 右カラム：ダッシュボード表示 */
         .dashboard-main {
             display: flex;
@@ -367,27 +524,196 @@
             font-size: 0.75rem;
         }
 
-        /* 印刷プレビュー用スタイル（非表示制御） */
+        /* モーダルウィンドウ (印刷プレビュー) */
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            padding: 15px 25px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            color: var(--text-secondary);
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-modal:hover {
+            color: var(--danger-color);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .modal-footer {
+            padding: 15px 25px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            background: rgba(15, 23, 42, 0.4);
+        }
+
+        /* 印刷レイアウト用CSS */
+        .pdf-page {
+            background: #fff;
+            color: #1e293b;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .pdf-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .pdf-logo-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .pdf-logo-area h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .pdf-logo-area p {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .pdf-meta-area {
+            text-align: right;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .pdf-section {
+            margin-top: 20px;
+        }
+
+        .pdf-section h4 {
+            font-size: 0.95rem;
+            border-left: 4px solid var(--accent-color);
+            padding-left: 8px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .pdf-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+        }
+
+        .pdf-table th, .pdf-table td {
+            border: 1px solid #cbd5e1;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        .pdf-table th {
+            background-color: #f1f5f9;
+            width: 25%;
+            font-weight: 600;
+        }
+
+        .pdf-warning {
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+            color: #b91c1c;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+        }
+
+        .pdf-footer-terms {
+            margin-top: 25px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 10px;
+            font-size: 0.7rem;
+            color: #64748b;
+        }
+
+        /* モード表記表示 */
+        .fp-only {
+            display: none;
+        }
+
+        /* 印刷スタイル */
         @media print {
             body {
-                background: #fff;
-                color: #000;
+                background: #fff !important;
+                color: #000 !important;
                 padding: 0;
             }
-            .panel-controls {
-                display: none;
+            .container, .version-selector, .modal-header, .modal-footer, .close-modal {
+                display: none !important;
             }
-            .layout-grid {
-                grid-template-columns: 1fr;
+            .modal {
+                position: absolute;
+                background: none !important;
+                backdrop-filter: none !important;
+                display: block !important;
+                padding: 0 !important;
+                margin: 0 !important;
             }
-            header, .chart-container, .roi-summary, .spec-card {
-                border: 1px solid #ccc;
-                background: #fff;
-                color: #000;
-                box-shadow: none;
+            .modal-content {
+                background: none !important;
+                border: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                max-height: 100% !important;
+                box-shadow: none !important;
+                overflow: visible !important;
             }
-            .spec-card::before {
-                display: none;
+            .modal-body {
+                padding: 0 !important;
+            }
+            .pdf-page {
+                box-shadow: none !important;
+                padding: 0 !important;
             }
         }
     </style>
@@ -395,18 +721,30 @@
 <body>
 
 <div class="container">
+    <!-- バージョンセレクター（初期と拡張の比較用） -->
+    <div class="version-selector">
+        <span class="version-selector-title">
+            <span style="background: var(--warning-color); color: #000; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800;">!</span>
+            デモ機能比較トグル:
+        </span>
+        <div class="mode-btn-group">
+            <button type="button" class="mode-btn active" id="mode-standard" onclick="switchMode('standard')">初期バージョン (標準シミュレーター)</button>
+            <button type="button" class="mode-btn" id="mode-fp" onclick="switchMode('fp-enhanced')">ブラッシュアップ版 (FP拡張シミュレーター)</button>
+        </div>
+    </div>
+
     <!-- ホワイトレーベルヘッダー -->
     <header>
         <div class="logo-area">
             <div class="partner-logo">WE</div>
             <div class="logo-text">
-                <h1>ソーラーライフタイム・プランナー</h1>
+                <h1 id="header-main-title">ソーラーライフタイム・プランナー</h1>
                 <span>Powered by そらスコ B2B2Cモジュール</span>
             </div>
         </div>
         <div class="header-meta">
             提案元: <strong>株式会社ワイヤーエナジー 営業部</strong><br>
-            作成日: <span id="current-date">2026-05-27</span>
+            作成日: <span id="current-date">2026-06-15</span>
         </div>
     </header>
 
@@ -425,6 +763,38 @@
                 <div style="display: flex; gap: 10px;">
                     <input type="text" id="solar-id" class="input-text" value="SR-78901">
                     <button type="button" class="btn-action" style="margin: 0; width: auto; padding: 0 15px;" onclick="loadDemoData()">読込</button>
+                </div>
+            </div>
+
+            <!-- FP拡張モード専用：実績値キャリブレーション -->
+            <div class="fp-only form-group" id="fp-calibration-panel" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px;">
+                <label for="actual-revenue-input">📊 実績値逆算キャリブレーション</label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="number" id="actual-revenue-input" class="input-text" placeholder="直近1年の売電額 (万円)" style="flex: 1;">
+                    <button type="button" class="btn-action" style="margin: 0; width: auto; padding: 0 10px; font-size: 0.75rem;" onclick="applyCalibration()">適用</button>
+                </div>
+                <div id="calibration-status" class="calibration-badge" style="display: none;"></div>
+            </div>
+
+            <!-- FP拡張モード専用：EPC標準マスタ -->
+            <div class="fp-only accordion" id="fp-master-accordion">
+                <div class="accordion-title" onclick="toggleAccordion()">
+                    <span>⚙️ EPC標準マスタ設定</span>
+                    <span id="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-body" id="accordion-body" style="display: none;">
+                    <div class="form-group-sub">
+                        <label>標準パワコン交換単価 (万円/kW)</label>
+                        <input type="number" id="master-pcs-cost-kw" class="input-text-sub" value="3.0" onchange="updateSimulation()">
+                    </div>
+                    <div class="form-group-sub">
+                        <label>想定年間維持管理費 (万円/年)</label>
+                        <input type="number" id="master-om-cost-year" class="input-text-sub" value="15" onchange="updateSimulation()">
+                    </div>
+                    <div class="form-group-sub">
+                        <label>買収想定マージン率 (%)</label>
+                        <input type="number" id="master-margin-percent" class="input-text-sub" value="10" onchange="updateSimulation()">
+                    </div>
                 </div>
             </div>
 
@@ -454,7 +824,8 @@
                 <input type="range" id="post-fit-price" class="slider" min="5.0" max="12.0" step="0.5" value="8.5" oninput="updateSimulation()">
             </div>
 
-            <button type="button" class="btn-action" onclick="window.print()">提案用PDFレポート印刷</button>
+            <!-- 通常印刷 or 提案書PDFモーダル表示 -->
+            <button type="button" class="btn-action" id="print-btn" onclick="handlePrint()">提案用PDFレポート印刷</button>
         </div>
 
         <!-- 右：シミュレーションダッシュボード -->
@@ -463,7 +834,16 @@
             <!-- ハザードアラート -->
             <div class="alert-box" id="hazard-alert">
                 <span class="alert-icon">!</span>
-                <span><strong>ハザードリスク警告:</strong> この発電所は「土砂災害警戒区域（イエローゾーン）」に近接しています。撤去・解体時の予備費＋50万円を自動で見積もっています。</span>
+                <span id="hazard-alert-text"><strong>ハザードリスク警告:</strong> この発電所は「土砂災害警戒区域（イエローゾーン）」に近接しています。撤去・解体時の予備費＋50万円を自動で見積もっています。</span>
+            </div>
+
+            <!-- FP拡張モード専用：ハザード連動トグル -->
+            <div class="fp-only" id="fp-hazard-toggle-panel" style="margin-bottom: 5px;">
+                <label class="switch-wrap">
+                    <input type="checkbox" id="fp-hazard-checkbox" checked onchange="toggleHazardSwitch()">
+                    <span class="switch-slider"></span>
+                    <span style="margin-left: 10px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary);">⚠️ ハザードリスク連動（撤去費+50万円加算、保険料上乗せ）を適用する</span>
+                </label>
             </div>
 
             <!-- 基本スペック要約 -->
@@ -503,7 +883,7 @@
                 <!-- ROIサマリー -->
                 <div class="roi-summary">
                     <div>
-                        <div class="roi-title">リパワリング提案概要</div>
+                        <div class="roi-title" id="roi-header-title">リパワリング提案概要</div>
                         <div class="roi-metrics">
                             <div class="metric-row">
                                 <span class="metric-label">初期投資額</span>
@@ -535,6 +915,85 @@
     </div>
 </div>
 
+<!-- 印刷用A4プレビューモーダル（FP拡張モード専用） -->
+<div id="pdf-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>📄 営業提案書 (印刷用A4プレビュー)</h2>
+            <span class="close-modal" onclick="closePdfModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="pdf-page" id="pdf-print-content">
+                <div class="pdf-header">
+                    <div class="pdf-logo-area">
+                        <div class="partner-logo">WE</div>
+                        <div>
+                            <h3 style="color:#0f172a; margin:0;">株式会社ワイヤーエナジー</h3>
+                            <p style="margin:0;">太陽光発電所 資産価値・ライフプラン提案書</p>
+                        </div>
+                    </div>
+                    <div class="pdf-meta-area">
+                        提案日: <span id="pdf-current-date">2026-06-15</span><br>
+                        そらスコID: <strong id="pdf-id">SR-78901</strong>
+                    </div>
+                </div>
+                <hr style="border:0; border-top:1px solid #cbd5e1; margin: 15px 0;">
+                
+                <div class="pdf-section">
+                    <h4>1. 対象発電所基本情報</h4>
+                    <table class="pdf-table">
+                        <tr>
+                            <th>発電所名</th><td id="pdf-spec-name">高松第3太陽光発電所</td>
+                            <th>所在地</th><td id="pdf-spec-location">香川県高松市</td>
+                        </tr>
+                        <tr>
+                            <th>システム容量</th><td id="pdf-spec-capacity">49.5 kW</td>
+                            <th>FIT売電単価</th><td id="pdf-spec-fit-price">24.0 円</td>
+                        </tr>
+                        <tr>
+                            <th>経過年数</th><td id="pdf-spec-years">10 年</td>
+                            <th>残存FIT期間</th><td id="pdf-spec-remaining">10 年</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="pdf-section">
+                    <h4>2. 提案シミュレーション結果（20年間累積キャッシュフロー）</h4>
+                    <div style="height: 250px; margin: 15px 0; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px;">
+                        <canvas id="pdfChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="pdf-section">
+                    <h4>3. リパワリング投資対効果（ROI）概要</h4>
+                    <table class="pdf-table">
+                        <tr>
+                            <th>初期投資額</th><td id="pdf-roi-investment">800万円</td>
+                            <th>20年間の累積増収額</th><td id="pdf-roi-additional" style="font-weight: bold; color: var(--accent-hover);">1,450万円</td>
+                        </tr>
+                        <tr>
+                            <th>実質純増収（利益）</th><td id="pdf-roi-net" style="font-weight: bold; color: var(--accent-hover);">+650万円</td>
+                            <th>簡易投資回収期間</th><td id="pdf-roi-payback" style="font-weight: bold; color: #b45309;">6.8年</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="pdf-section" id="pdf-hazard-section">
+                    <h4>4. 立地・ハザードリスク評価</h4>
+                    <p class="pdf-warning" id="pdf-hazard-text">土砂災害警戒区域（イエローゾーン）に近接。撤去・解体時の予備費＋50万円を自動で見積もり。</p>
+                </div>
+                
+                <div class="pdf-footer-terms">
+                    <p>※本提案シミュレーションは、過去の気象データ及び標準的な経年劣化モデル等に基づいて算出された推定値であり、将来の発電量を完全に保証するものではありません。</p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-action" style="margin: 0; width: auto;" onclick="window.print()">🖨️ PDFとして保存/印刷</button>
+        </div>
+    </div>
+</div>
+
 <script>
     // デモデータ定義
     const demoData = {
@@ -556,11 +1015,19 @@
         }
     };
 
+    // 状態管理
+    let currentMode = 'standard';
+    let isCalibrated = false;
+    let calDegradation = 0.005; // 劣化率
+    let calLoss = 0.0; // 影等のその他の損失
+
     // チャートの初期化
     let cfChart;
+    let pdfChart;
     const ctx = document.getElementById('cfChart').getContext('2d');
+    const pdfCtx = document.getElementById('pdfChart').getContext('2d');
     
-    function initChart() {
+    function initCharts() {
         cfChart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -591,9 +1058,7 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        labels: {
-                            color: '#94a3b8'
-                        }
+                        labels: { color: '#94a3b8' }
                     }
                 },
                 scales: {
@@ -611,6 +1076,149 @@
                 }
             }
         });
+
+        // 印刷プレビュー用PDFチャート（白背景用）
+        pdfChart = new Chart(pdfCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: '現状維持（ベースライン）',
+                        data: [],
+                        borderColor: '#ef4444',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        fill: false
+                    },
+                    {
+                        label: 'リパワリング実施',
+                        data: [],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                        borderWidth: 3,
+                        tension: 0.1,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#1e293b' }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: '#cbd5e1' },
+                        ticks: { color: '#1e293b' }
+                    },
+                    y: {
+                        grid: { color: '#cbd5e1' },
+                        ticks: {
+                            color: '#1e293b',
+                            callback: function(value) { return value + '万円'; }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // デモモード切り替え
+    function switchMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+        
+        if (mode === 'standard') {
+            document.getElementById('mode-standard').classList.add('active');
+            document.querySelectorAll('.fp-only').forEach(el => el.style.display = 'none');
+            document.getElementById('header-main-title').innerText = "ソーラーライフタイム・プランナー";
+            document.getElementById('print-btn').innerText = "提案用PDFレポート印刷";
+            
+            // アラートボックスは常に元の状態を表示
+            const alertBox = document.getElementById('hazard-alert');
+            alertBox.style.display = 'flex';
+        } else {
+            document.getElementById('mode-fp').classList.add('active');
+            document.querySelectorAll('.fp-only').forEach(el => el.style.display = 'block');
+            document.getElementById('header-main-title').innerText = "ソーラーライフタイム・プランナー (FP拡張版)";
+            document.getElementById('print-btn').innerText = "📄 提案書PDFプレビューを表示";
+            
+            // トグルと連動してハザードアラートを切り替え
+            toggleHazardSwitch();
+        }
+        updateSimulation();
+    }
+
+    // アコーディオンの開閉
+    function toggleAccordion() {
+        const body = document.getElementById('accordion-body');
+        const icon = document.getElementById('accordion-icon');
+        if (body.style.display === 'none') {
+            body.style.display = 'block';
+            icon.innerText = '▲';
+        } else {
+            body.style.display = 'none';
+            icon.innerText = '▼';
+        }
+    }
+
+    // ハザードスイッチのトグル
+    function toggleHazardSwitch() {
+        if (currentMode !== 'fp-enhanced') return;
+        const alertBox = document.getElementById('hazard-alert');
+        const isChecked = document.getElementById('fp-hazard-checkbox').checked;
+        
+        if (isChecked) {
+            alertBox.style.display = 'flex';
+        } else {
+            alertBox.style.display = 'none';
+        }
+        updateSimulation();
+    }
+
+    // 実績値逆算キャリブレーションの適用
+    function applyCalibration() {
+        if (currentMode !== 'fp-enhanced') return;
+        
+        const actualInput = parseFloat(document.getElementById('actual-revenue-input').value);
+        if (isNaN(actualInput) || actualInput <= 0) {
+            alert('有効な実際の年間売電額（万円）を入力してください。');
+            return;
+        }
+
+        const id = document.getElementById('solar-id').value;
+        const data = demoData[id] || demoData["SR-78901"];
+        
+        // 理論値の算出
+        const stdGen = data.capacity * 1150;
+        const theoreticalIncome = (stdGen * (1 - (data.elapsedYears * 0.005)) * data.fitPrice) / 10000;
+
+        const ratio = actualInput / theoreticalIncome;
+        isCalibrated = true;
+
+        if (ratio < 1) {
+            // 発電量が少ない場合：劣化率上昇と影などの環境減衰に按分
+            calDegradation = 0.005 + (1 - ratio) * 0.002;
+            calLoss = (1 - ratio) * 0.3; // 30%を影などの環境損に適用
+            
+            const badge = document.getElementById('calibration-status');
+            badge.innerText = `補正適用中 (劣化率: -${(calDegradation * 100).toFixed(2)}% / 影損失: -${(calLoss * 100).toFixed(1)}%)`;
+            badge.style.display = 'block';
+        } else {
+            // 理論値以上の場合：劣化速度を低めに設定
+            calDegradation = Math.max(0.002, 0.005 * (2 - ratio));
+            calLoss = 0.0;
+            
+            const badge = document.getElementById('calibration-status');
+            badge.innerText = `補正適用中 (劣化率: -${(calDegradation * 100).toFixed(2)}% [状態良好])`;
+            badge.style.display = 'block';
+        }
+
+        updateSimulation();
     }
 
     // デモデータのロード
@@ -623,18 +1231,26 @@
             document.getElementById('spec-fit-price').innerHTML = `${data.fitPrice.toFixed(1)}<span class="spec-unit">円</span>`;
             document.getElementById('spec-years').innerHTML = `${data.elapsedYears}年<span class="spec-unit">/ 残り${20 - data.elapsedYears}年</span>`;
             
+            // ハザード警告テキストの更新
+            document.getElementById('hazard-alert-text').innerHTML = `<strong>ハザードリスク情報:</strong> ${data.hazard}`;
             const alertBox = document.getElementById('hazard-alert');
-            alertBox.querySelector('span:last-child').innerHTML = `<strong>ハザードリスク情報:</strong> ${data.hazard}`;
+            
             if (data.hazard.includes("警戒")) {
                 alertBox.style.background = "rgba(239, 68, 68, 0.1)";
                 alertBox.style.borderColor = "rgba(239, 68, 68, 0.2)";
                 alertBox.style.color = "#fca5a5";
                 alertBox.querySelector('.alert-icon').style.background = "var(--danger-color)";
+                if (currentMode === 'fp-enhanced') {
+                    document.getElementById('fp-hazard-checkbox').checked = true;
+                }
             } else {
                 alertBox.style.background = "rgba(16, 185, 129, 0.1)";
                 alertBox.style.borderColor = "rgba(16, 185, 129, 0.2)";
                 alertBox.style.color = "#a7f3d0";
                 alertBox.querySelector('.alert-icon').style.background = "var(--accent-color)";
+                if (currentMode === 'fp-enhanced') {
+                    document.getElementById('fp-hazard-checkbox').checked = false; // 警戒区域外なら連動OFF
+                }
             }
 
             // 初期値を岡山や高松に合わせて少し調整
@@ -646,7 +1262,18 @@
                 document.getElementById('pcs-cost').value = 150;
             }
             
-            updateSimulation();
+            // 逆算入力リセット
+            isCalibrated = false;
+            document.getElementById('actual-revenue-input').value = "";
+            document.getElementById('calibration-status').style.display = 'none';
+            calDegradation = 0.005;
+            calLoss = 0.0;
+
+            if (currentMode === 'fp-enhanced') {
+                toggleHazardSwitch();
+            } else {
+                updateSimulation();
+            }
         } else {
             alert('そらスコIDが見つかりません。（デモ用ID: SR-78901 または SR-12345 をご利用ください）');
         }
@@ -661,7 +1288,7 @@
         const pcsYear = parseInt(document.getElementById('pcs-year').value);
         const postFitPrice = parseFloat(document.getElementById('post-fit-price').value);
 
-        // スライダー表示更新
+        // スライダー数値表示更新
         document.getElementById('repower-cost-val').innerText = repowerCost;
         document.getElementById('generation-boost-val').innerText = Math.round(generationBoost * 100);
         document.getElementById('pcs-cost-val').innerText = pcsCost;
@@ -674,7 +1301,15 @@
 
         const capacity = data.capacity;
         const fitPrice = data.fitPrice;
-        const startYear = data.elapsedYears; // 10年目など
+        const startYear = data.elapsedYears;
+
+        // EPCマスタ設定値の適用（FPモード限定）
+        let omCost = 15; // 万円/年
+        let marginPercent = 10; // %
+        if (currentMode === 'fp-enhanced') {
+            omCost = parseFloat(document.getElementById('master-om-cost-year').value) || 15;
+            marginPercent = parseFloat(document.getElementById('master-margin-percent').value) || 10;
+        }
 
         const baseLabels = [];
         const baseCF = [];
@@ -683,9 +1318,19 @@
         let currentBaseSum = 0;
         let currentRepowerSum = -repowerCost; // 初期投資
 
-        // 年間標準発電量推定（高松：約1,100kWh/kW/年）
+        // 年間標準発電量推定（高松：約1,150kWh/kW/年）
         const stdGen = capacity * 1150; 
-        const simYears = 20; // シミュレーション期間を20年間に拡張
+        const simYears = 20;
+
+        // ハザードリスク連動の処理（FPモード限定）
+        let hazardSurcharge = 0;
+        let hazardInsuranceSurcharge = 0;
+        if (currentMode === 'fp-enhanced' && document.getElementById('fp-hazard-checkbox').checked) {
+            if (data.hazard.includes("警戒")) {
+                hazardSurcharge = 50; // 撤去予備費50万円
+                hazardInsuranceSurcharge = 5; // 想定保険料年5万円アップ
+            }
+        }
 
         for (let i = 0; i <= simYears; i++) {
             const year = startYear + i;
@@ -695,25 +1340,45 @@
             const isFit = year <= 20;
             const price = isFit ? fitPrice : postFitPrice;
 
-            // 経年劣化モデル（ベースは毎年0.5%低下）
-            const baseEfficiency = 1 - (year * 0.005);
+            // 経年劣化・環境減衰モデルの適用（キャリブレーション有無で分岐）
+            const effDegradation = isCalibrated ? calDegradation : 0.005;
+            const effLoss = isCalibrated ? calLoss : 0.0;
+            
+            const baseEfficiency = (1 - (year * effDegradation)) * (1 - effLoss);
             const baseIncome = (stdGen * baseEfficiency * price) / 10000; // 万円
 
-            // パワコン交換費用発生（現状維持シナリオでも発生）
-            let baseExpense = 0;
+            // パワコン交換費用発生（経年12年目等で発生）
+            let baseExpense = omCost; // O&M維持管理費を加算
             if (year === pcsYear) {
-                baseExpense = pcsCost;
+                // FPモードでは、経過年数シグモイド関数に基づいてPCS故障リスクを適用（モック的にPCS費用を加算）
+                const pcsCostActual = currentMode === 'fp-enhanced' ? 
+                    (capacity * (parseFloat(document.getElementById('master-pcs-cost-kw').value) || 3.0)) : pcsCost;
+                baseExpense += pcsCostActual;
             }
+            // ハザード保険料加算
+            baseExpense += hazardInsuranceSurcharge;
+
+            // 最後の年に撤去解体費用の発生（ハザード連動含む）
+            if (i === simYears) {
+                baseExpense += (100 + hazardSurcharge); // 標準解体100万円 ＋ ハザード50万円
+            }
+
             currentBaseSum += (baseIncome - baseExpense);
             baseCF.push(Math.round(currentBaseSum));
 
-            // リパワリングモデル（リパワリング後は効率が改善し、劣化がリセットされると想定）
-            // リパワリング実施を「連系日より10年目（シミュレーション開始時点）」と仮定
-            const repowerEfficiency = (1 + generationBoost) * (1 - (i * 0.003)); // 劣化スピードも緩やかに
+            // リパワリングモデル
+            const repowerEfficiency = (1 + generationBoost) * (1 - (i * (effDegradation * 0.6))) * (1 - effLoss); // 劣化スピードも緩和
             const repowerIncome = (stdGen * repowerEfficiency * price) / 10000;
 
-            // リパワリングした場合は、すでに最新のパワコンが組み込まれているため、途中でのPCS交換は不要とする
-            currentRepowerSum += repowerIncome;
+            let repowerExpense = omCost;
+            repowerExpense += hazardInsuranceSurcharge;
+
+            // リパワリング時は最新パワコン導入済みとし、途中PCS交換費用は不要
+            if (i === simYears) {
+                repowerExpense += (100 + hazardSurcharge);
+            }
+
+            currentRepowerSum += (repowerIncome - repowerExpense);
             repowerCF.push(Math.round(currentRepowerSum));
         }
 
@@ -723,13 +1388,28 @@
         cfChart.data.datasets[1].data = repowerCF;
         cfChart.update();
 
-        // ROI数値の更新
+        // 印刷プレビュー用PDFチャートの更新
+        pdfChart.data.labels = baseLabels;
+        pdfChart.data.datasets[0].data = baseCF;
+        pdfChart.data.datasets[1].data = repowerCF;
+        pdfChart.update();
+
+        // ROI数値の計算
         const finalBase = baseCF[baseCF.length - 1];
         const finalRepower = repowerCF[repowerCF.length - 1];
-        const additionalRevenue = finalRepower - finalBase + repowerCost; // 累積の増収額
-        const netGain = finalRepower - finalBase; // 実質純増
+        
+        // EPCマージン補正（FPモード限定）
+        let actualRepowerCost = repowerCost;
+        if (currentMode === 'fp-enhanced') {
+            // マージン率分を投資費用に乗せる
+            actualRepowerCost = Math.round(repowerCost * (1 + marginPercent / 100));
+        }
 
-        document.getElementById('roi-investment').innerText = `${repowerCost}万円`;
+        const additionalRevenue = finalRepower - finalBase + actualRepowerCost;
+        const netGain = finalRepower - finalBase;
+
+        // 表示の更新
+        document.getElementById('roi-investment').innerText = `${actualRepowerCost}万円`;
         document.getElementById('roi-additional-revenue').innerText = `${Math.round(additionalRevenue)}万円`;
         
         const netGainElem = document.getElementById('roi-net-gain');
@@ -742,19 +1422,74 @@
         }
 
         // 簡易投資回収年数
-        const annualDiff = additionalRevenue / simYears; // 平均年間増収
-        const payback = repowerCost / annualDiff;
+        const annualDiff = additionalRevenue / simYears;
+        const payback = actualRepowerCost / annualDiff;
         document.getElementById('roi-payback').innerText = netGain > 0 ? `${payback.toFixed(1)}年` : '回収不能';
+
+        // 印刷用PDFデータの更新
+        document.getElementById('pdf-spec-name').innerText = data.name;
+        document.getElementById('pdf-spec-location').innerText = data.location;
+        document.getElementById('pdf-spec-capacity').innerText = `${data.capacity} kW`;
+        document.getElementById('pdf-spec-fit-price').innerText = `${data.fitPrice.toFixed(1)} 円`;
+        document.getElementById('pdf-spec-years').innerText = `${data.elapsedYears} 年`;
+        document.getElementById('pdf-spec-remaining').innerText = `${20 - data.elapsedYears} 年`;
+        document.getElementById('pdf-id').innerText = id;
+
+        document.getElementById('pdf-roi-investment').innerText = `${actualRepowerCost}万円`;
+        document.getElementById('pdf-roi-additional').innerText = `${Math.round(additionalRevenue)}万円`;
+        
+        const pdfNetGainElem = document.getElementById('pdf-roi-net');
+        if (netGain >= 0) {
+            pdfNetGainElem.innerText = `+${Math.round(netGain)}万円`;
+            pdfNetGainElem.style.color = "#10b981";
+        } else {
+            pdfNetGainElem.innerText = `${Math.round(netGain)}万円`;
+            pdfNetGainElem.style.color = "#ef4444";
+        }
+        document.getElementById('pdf-roi-payback').innerText = netGain > 0 ? `${payback.toFixed(1)}年` : '回収不能';
+
+        const pdfHazardText = document.getElementById('pdf-hazard-text');
+        const pdfHazardSection = document.getElementById('pdf-hazard-section');
+        if (currentMode === 'fp-enhanced' && document.getElementById('fp-hazard-checkbox').checked && data.hazard.includes("警戒")) {
+            pdfHazardSection.style.display = 'block';
+            pdfHazardText.innerText = data.hazard;
+        } else {
+            pdfHazardSection.style.display = 'none';
+        }
+    }
+
+    // 印刷ボタンの押下制御
+    function handlePrint() {
+        if (currentMode === 'standard') {
+            // 初期バージョン時はそのままブラウザの標準印刷を実行
+            window.print();
+        } else {
+            // FP拡張バージョン時はモーダル表示
+            document.getElementById('pdf-modal').style.display = 'flex';
+        }
+    }
+
+    // モーダルクローズ
+    function closePdfModal() {
+        document.getElementById('pdf-modal').style.display = 'none';
+    }
+
+    // ウィンドウ外クリックでモーダルを閉じる
+    window.onclick = function(event) {
+        const modal = document.getElementById('pdf-modal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
     }
 
     // 起動処理
     window.onload = function() {
-        // 現在日付
         const today = new Date();
         document.getElementById('current-date').innerText = today.toISOString().split('T')[0];
+        document.getElementById('pdf-current-date').innerText = today.toISOString().split('T')[0];
         
-        initChart();
-        updateSimulation();
+        initCharts();
+        switchMode('standard'); // 初期状態はスタンダード
     };
 </script>
 
