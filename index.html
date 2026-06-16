@@ -1031,7 +1031,7 @@
         cfChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: Array.from({length: 11}, (_, i) => `${10 + i}年目`),
+                labels: Array.from({length: 21}, (_, i) => i === 0 ? "現在" : `${i}年後`),
                 datasets: [
                     {
                         label: '現状維持（ベースライン）',
@@ -1334,7 +1334,7 @@
 
         for (let i = 0; i <= simYears; i++) {
             const year = startYear + i;
-            baseLabels.push(`${year}年目`);
+            baseLabels.push(i === 0 ? "現在" : `${i}年後`);
 
             // 年毎のFIT売電単価（FIT期間内か卒FITか）
             const isFit = year <= 20;
