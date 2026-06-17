@@ -433,7 +433,7 @@
         /* グラフ・ビジュアルエリア */
         .visual-area {
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 1fr;
             gap: 20px;
         }
 
@@ -455,6 +455,43 @@
         .chart-title {
             font-size: 1rem;
             font-weight: 600;
+        }
+
+        /* ROI比較テーブル */
+        .roi-compare-container {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.8) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+        }
+
+        .roi-compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .roi-compare-table th, .roi-compare-table td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .roi-compare-table th {
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: rgba(15, 23, 42, 0.4);
+        }
+
+        .roi-compare-table th:first-child, .roi-compare-table td:first-child {
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .roi-compare-table tr:hover {
+            background: rgba(255, 255, 255, 0.02);
         }
 
         /* 右サイド：提案結果・ROIサマリー */
@@ -966,31 +1003,55 @@
                     </div>
                 </div>
 
-                <!-- ROIサマリー -->
-                <div class="roi-summary">
-                    <div>
-                        <div class="roi-title" id="roi-header-title">リパワリング提案概要</div>
-                        <div class="roi-metrics">
-                            <div class="metric-row">
-                                <span class="metric-label">初期投資額</span>
-                                <span class="metric-val" id="roi-investment">800万円</span>
-                            </div>
-                            <div class="metric-row">
-                                <span class="metric-label">20年間の累積増収額</span>
-                                <span class="metric-val" id="roi-additional-revenue" style="color: var(--accent-color);">1,450万円</span>
-                            </div>
-                            <div class="metric-row">
-                                <span class="metric-label">実質純増収（ROI）</span>
-                                <span class="metric-val highlight" id="roi-net-gain">+650万円</span>
-                            </div>
-                            <div class="metric-row">
-                                <span class="metric-label">投資回収期間</span>
-                                <span class="metric-val" id="roi-payback" style="color: #fbbf24;">6.8年</span>
-                            </div>
-                        </div>
+                <!-- ROIサマリー（3プラン詳細比較表） -->
+                <div class="roi-compare-container">
+                    <div class="roi-title" id="roi-header-title">シミュレーションプラン比較概要</div>
+                    <div style="overflow-x: auto;">
+                        <table class="roi-compare-table">
+                            <thead>
+                                <tr>
+                                    <th>比較項目</th>
+                                    <th>① 現状維持</th>
+                                    <th>②【プランA】PCS一括交換</th>
+                                    <th>③【プランB】フル・リパワリング</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>初期投資額</td>
+                                    <td>0万円</td>
+                                    <td id="roi-pcs-investment">150万円</td>
+                                    <td id="roi-repower-investment">800万円</td>
+                                </tr>
+                                <tr>
+                                    <td>20年累積売電額</td>
+                                    <td id="roi-base-sales">2,400万円</td>
+                                    <td id="roi-pcs-sales">2,550万円</td>
+                                    <td id="roi-repower-sales">3,100万円</td>
+                                </tr>
+                                <tr>
+                                    <td>20年生涯CF</td>
+                                    <td id="roi-base-cf" style="font-weight: bold;">1,800万円</td>
+                                    <td id="roi-pcs-cf" style="font-weight: bold; color: #60a5fa;">1,950万円</td>
+                                    <td id="roi-repower-cf" style="font-weight: bold; color: var(--accent-color);">2,100万円</td>
+                                </tr>
+                                <tr>
+                                    <td>実質純増収 (維持比)</td>
+                                    <td style="color: var(--text-secondary);">-</td>
+                                    <td id="roi-pcs-net" style="color: #60a5fa; font-weight: bold;">+150万円</td>
+                                    <td id="roi-repower-net" style="color: var(--accent-color); font-weight: bold;">+300万円</td>
+                                </tr>
+                                <tr>
+                                    <td>投資回収期間</td>
+                                    <td style="color: var(--text-secondary);">-</td>
+                                    <td id="roi-pcs-payback">5.2年</td>
+                                    <td id="roi-repower-payback">6.8年</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                     <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 10px;">
-                        ※シミュレーションは過去の気象データおよび標準的劣化モデル（年0.5%劣化）に基づき算出しています。
+                        ※シミュレーションは標準的劣化モデル（年0.5%劣化）に基づき算出しています。プランAは高効率PCS化に伴う発電改善効果を想定。
                     </div>
                 </div>
 
@@ -1051,16 +1112,48 @@
                 </div>
                 
                 <div class="pdf-section">
-                    <h4>3. リパワリング投資対効果（ROI）概要</h4>
-                    <table class="pdf-table">
-                        <tr>
-                            <th>初期投資額</th><td id="pdf-roi-investment">800万円</td>
-                            <th>20年間の累積増収額</th><td id="pdf-roi-additional" style="font-weight: bold; color: var(--accent-hover);">1,450万円</td>
-                        </tr>
-                        <tr>
-                            <th>実質純増収（利益）</th><td id="pdf-roi-net" style="font-weight: bold; color: var(--accent-hover);">+650万円</td>
-                            <th>簡易投資回収期間</th><td id="pdf-roi-payback" style="font-weight: bold; color: #b45309;">6.8年</td>
-                        </tr>
+                    <h4>3. 各シミュレーションプラン比較概要</h4>
+                    <table class="pdf-table" style="text-align: center;">
+                        <thead>
+                            <tr style="background: #f1f5f9;">
+                                <th style="text-align: left; width: 30%;">比較項目</th>
+                                <th style="width: 23%;">① 現状維持</th>
+                                <th style="width: 23%;">②【プランA】PCS一括</th>
+                                <th style="width: 24%;">③【プランB】フルリパワ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="text-align: left; font-weight: bold;">初期投資額</td>
+                                <td>0万円</td>
+                                <td id="pdf-roi-pcs-investment">150万円</td>
+                                <td id="pdf-roi-repower-investment">800万円</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left; font-weight: bold;">20年累積売電額</td>
+                                <td id="pdf-roi-base-sales">2,400万円</td>
+                                <td id="pdf-roi-pcs-sales">2,550万円</td>
+                                <td id="pdf-roi-repower-sales">3,100万円</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left; font-weight: bold;">20年生涯CF</td>
+                                <td id="pdf-roi-base-cf" style="font-weight: bold;">1,800万円</td>
+                                <td id="pdf-roi-pcs-cf" style="font-weight: bold; color: #1e3a8a;">1,950万円</td>
+                                <td id="pdf-roi-repower-cf" style="font-weight: bold; color: #0f766e;">2,100万円</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left; font-weight: bold;">実質純増収（維持比）</td>
+                                <td style="color: #64748b;">-</td>
+                                <td id="pdf-roi-pcs-net" style="color: #1e3a8a; font-weight: bold;">+150万円</td>
+                                <td id="pdf-roi-repower-net" style="color: #0f766e; font-weight: bold;">+300万円</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left; font-weight: bold;">投資回収期間</td>
+                                <td style="color: #64748b;">-</td>
+                                <td id="pdf-roi-pcs-payback">5.2年</td>
+                                <td id="pdf-roi-repower-payback">6.8年</td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
                 
@@ -1120,16 +1213,25 @@
                 labels: Array.from({length: 21}, (_, i) => i === 0 ? "現在" : `${i}年後`),
                 datasets: [
                     {
-                        label: '現状維持（ベースライン）',
+                        label: '① 現状維持（成り行き）',
                         data: [],
                         borderColor: '#ef4444',
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.05)',
                         borderWidth: 2,
                         tension: 0.1,
                         fill: false
                     },
                     {
-                        label: 'リパワリング実施',
+                        label: '② プランA：PCS一括交換',
+                        data: [],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        fill: false
+                    },
+                    {
+                        label: '③ プランB：フル・リパワリング',
                         data: [],
                         borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -1170,7 +1272,7 @@
                 labels: [],
                 datasets: [
                     {
-                        label: '現状維持（ベースライン）',
+                        label: '① 現状維持（成り行き）',
                         data: [],
                         borderColor: '#ef4444',
                         borderWidth: 2,
@@ -1178,7 +1280,15 @@
                         fill: false
                     },
                     {
-                        label: 'リパワリング実施',
+                        label: '② プランA：PCS一括交換',
+                        data: [],
+                        borderColor: '#3b82f6',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        fill: false
+                    },
+                    {
+                        label: '③ プランB：フル・リパワリング',
                         data: [],
                         borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.05)',
@@ -1416,10 +1526,29 @@
 
         const baseLabels = [];
         const baseCF = [];
+        const pcsOptCF = [];
         const repowerCF = [];
 
         let currentBaseSum = 0;
-        let currentRepowerSum = -repowerCost; // 初期投資
+        let currentPcsOptSum = 0;
+        let currentRepowerSum = 0;
+
+        // EPCマスタマージン適用（FPモード限定）
+        let actualRepowerCost = repowerCost;
+        let actualPcsOptCost = calculatedPcsCost;
+        if (currentMode === 'fp-enhanced') {
+            actualRepowerCost = Math.round(repowerCost * (1 + marginPercent / 100));
+            actualPcsOptCost = Math.round(calculatedPcsCost * (1 + marginPercent / 100));
+        }
+
+        // 初期費用適用
+        currentPcsOptSum = -actualPcsOptCost;
+        currentRepowerSum = -actualRepowerCost;
+
+        // 20年累積売電額
+        let totalBaseSales = 0;
+        let totalPcsOptSales = 0;
+        let totalRepowerSales = 0;
 
         // 年間標準発電量推定（高松：約1,150kWh/kW/年）
         const stdGen = capacity * 1150; 
@@ -1447,38 +1576,50 @@
             const effDegradation = isCalibrated ? calDegradation : 0.005;
             const effLoss = isCalibrated ? calLoss : 0.0;
             
+            // -----------------
+            // ① 現状維持
+            // -----------------
             const baseEfficiency = (1 - (year * effDegradation)) * (1 - effLoss);
             const baseIncome = (stdGen * baseEfficiency * price) / 10000; // 万円
+            totalBaseSales += baseIncome;
 
-            // パワコン交換費用発生（経年12年目等で発生）
-            let baseExpense = omCost; // O&M維持管理費を加算
+            let baseExpense = omCost;
             if (year === pcsYear) {
-                // 算出された詳細PCS費用（calculatedPcsCost）を計上
-                baseExpense += calculatedPcsCost;
+                baseExpense += calculatedPcsCost; // 途中でPCS交換費用が発生
             }
-            // ハザード保険料加算
             baseExpense += hazardInsuranceSurcharge;
-
-            // 最後の年に撤去解体費用の発生（ハザード連動含む）
             if (i === simYears) {
-                baseExpense += (100 + hazardSurcharge); // 標準解体100万円 ＋ ハザード50万円
+                baseExpense += (100 + hazardSurcharge); // 最終年に撤去
             }
-
             currentBaseSum += (baseIncome - baseExpense);
             baseCF.push(Math.round(currentBaseSum));
 
-            // リパワリングモデル
-            const repowerEfficiency = (1 + generationBoost) * (1 - (i * (effDegradation * 0.6))) * (1 - effLoss); // 劣化スピードも緩和
+            // -----------------
+            // ② プランA：PCS一括交換
+            // -----------------
+            const pcsOptBoost = Math.max(0.02, generationBoost * 0.25);
+            const pcsOptEfficiency = (1 - (year * effDegradation)) * (1 - effLoss) * (1 + pcsOptBoost);
+            const pcsOptIncome = (stdGen * pcsOptEfficiency * price) / 10000;
+            totalPcsOptSales += pcsOptIncome;
+
+            let pcsOptExpense = omCost + hazardInsuranceSurcharge;
+            if (i === simYears) {
+                pcsOptExpense += (100 + hazardSurcharge);
+            }
+            currentPcsOptSum += (pcsOptIncome - pcsOptExpense);
+            pcsOptCF.push(Math.round(currentPcsOptSum));
+
+            // -----------------
+            // ③ プランB：フルリパワリング
+            // -----------------
+            const repowerEfficiency = (1 + generationBoost) * (1 - (i * (effDegradation * 0.6))) * (1 - effLoss);
             const repowerIncome = (stdGen * repowerEfficiency * price) / 10000;
+            totalRepowerSales += repowerIncome;
 
-            let repowerExpense = omCost;
-            repowerExpense += hazardInsuranceSurcharge;
-
-            // リパワリング時は最新パワコン導入済みとし、途中PCS交換費用は不要
+            let repowerExpense = omCost + hazardInsuranceSurcharge;
             if (i === simYears) {
                 repowerExpense += (100 + hazardSurcharge);
             }
-
             currentRepowerSum += (repowerIncome - repowerExpense);
             repowerCF.push(Math.round(currentRepowerSum));
         }
@@ -1486,28 +1627,31 @@
         // チャート更新
         cfChart.data.labels = baseLabels;
         cfChart.data.datasets[0].data = baseCF;
-        cfChart.data.datasets[1].data = repowerCF;
+        cfChart.data.datasets[1].data = pcsOptCF;
+        cfChart.data.datasets[2].data = repowerCF;
         cfChart.update();
 
         // 印刷プレビュー用PDFチャートの更新
         pdfChart.data.labels = baseLabels;
         pdfChart.data.datasets[0].data = baseCF;
-        pdfChart.data.datasets[1].data = repowerCF;
+        pdfChart.data.datasets[1].data = pcsOptCF;
+        pdfChart.data.datasets[2].data = repowerCF;
         pdfChart.update();
 
         // ROI数値の計算
         const finalBase = baseCF[baseCF.length - 1];
+        const finalPcsOpt = pcsOptCF[pcsOptCF.length - 1];
         const finalRepower = repowerCF[repowerCF.length - 1];
-        
-        // EPCマージン補正（FPモード限定）
-        let actualRepowerCost = repowerCost;
-        if (currentMode === 'fp-enhanced') {
-            // マージン率分を投資費用に乗せる
-            actualRepowerCost = Math.round(repowerCost * (1 + marginPercent / 100));
-        }
 
-        const additionalRevenue = finalRepower - finalBase + actualRepowerCost;
-        const netGain = finalRepower - finalBase;
+        const netGainPcsOpt = finalPcsOpt - finalBase;
+        const netGainRepower = finalRepower - finalBase;
+
+        // 投資回収期間の計算
+        const pcsOptAnnualDiff = (finalPcsOpt - finalBase + actualPcsOptCost) / simYears;
+        const paybackPcsOpt = netGainPcsOpt > 0 ? `${(actualPcsOptCost / pcsOptAnnualDiff).toFixed(1)}年` : '回収不能';
+
+        const repowerAnnualDiff = (finalRepower - finalBase + actualRepowerCost) / simYears;
+        const paybackRepower = netGainRepower > 0 ? `${(actualRepowerCost / repowerAnnualDiff).toFixed(1)}年` : '回収不能';
 
         // オーナー用表示の更新
         const ownerAssetValueEl = document.getElementById('owner-asset-value');
@@ -1546,22 +1690,27 @@
         }
 
         // 表示の更新
-        document.getElementById('roi-investment').innerText = `${actualRepowerCost}万円`;
-        document.getElementById('roi-additional-revenue').innerText = `${Math.round(additionalRevenue)}万円`;
+        document.getElementById('roi-pcs-investment').innerText = `${actualPcsOptCost}万円`;
+        document.getElementById('roi-repower-investment').innerText = `${actualRepowerCost}万円`;
         
-        const netGainElem = document.getElementById('roi-net-gain');
-        if (netGain >= 0) {
-            netGainElem.innerText = `+${Math.round(netGain)}万円`;
-            netGainElem.style.color = "var(--accent-color)";
-        } else {
-            netGainElem.innerText = `${Math.round(netGain)}万円`;
-            netGainElem.style.color = "var(--danger-color)";
-        }
+        document.getElementById('roi-base-sales').innerText = `${Math.round(totalBaseSales).toLocaleString()}万円`;
+        document.getElementById('roi-pcs-sales').innerText = `${Math.round(totalPcsOptSales).toLocaleString()}万円`;
+        document.getElementById('roi-repower-sales').innerText = `${Math.round(totalRepowerSales).toLocaleString()}万円`;
+        
+        document.getElementById('roi-base-cf').innerText = `${Math.round(finalBase).toLocaleString()}万円`;
+        document.getElementById('roi-pcs-cf').innerText = `${Math.round(finalPcsOpt).toLocaleString()}万円`;
+        document.getElementById('roi-repower-cf').innerText = `${Math.round(finalRepower).toLocaleString()}万円`;
 
-        // 簡易投資回収年数
-        const annualDiff = additionalRevenue / simYears;
-        const payback = actualRepowerCost / annualDiff;
-        document.getElementById('roi-payback').innerText = netGain > 0 ? `${payback.toFixed(1)}年` : '回収不能';
+        const pcsNetEl = document.getElementById('roi-pcs-net');
+        pcsNetEl.innerText = `${netGainPcsOpt >= 0 ? '+' : ''}${Math.round(netGainPcsOpt).toLocaleString()}万円`;
+        pcsNetEl.style.color = netGainPcsOpt >= 0 ? '#60a5fa' : 'var(--danger-color)';
+
+        const repowerNetEl = document.getElementById('roi-repower-net');
+        repowerNetEl.innerText = `${netGainRepower >= 0 ? '+' : ''}${Math.round(netGainRepower).toLocaleString()}万円`;
+        repowerNetEl.style.color = netGainRepower >= 0 ? 'var(--accent-color)' : 'var(--danger-color)';
+
+        document.getElementById('roi-pcs-payback').innerText = paybackPcsOpt;
+        document.getElementById('roi-repower-payback').innerText = paybackRepower;
 
         // 印刷用PDFデータの更新
         document.getElementById('pdf-spec-name').innerText = data.name;
@@ -1572,18 +1721,27 @@
         document.getElementById('pdf-spec-remaining').innerText = `${20 - data.elapsedYears} 年`;
         document.getElementById('pdf-id').innerText = id;
 
-        document.getElementById('pdf-roi-investment').innerText = `${actualRepowerCost}万円`;
-        document.getElementById('pdf-roi-additional').innerText = `${Math.round(additionalRevenue)}万円`;
-        
-        const pdfNetGainElem = document.getElementById('pdf-roi-net');
-        if (netGain >= 0) {
-            pdfNetGainElem.innerText = `+${Math.round(netGain)}万円`;
-            pdfNetGainElem.style.color = "#10b981";
-        } else {
-            pdfNetGainElem.innerText = `${Math.round(netGain)}万円`;
-            pdfNetGainElem.style.color = "#ef4444";
-        }
-        document.getElementById('pdf-roi-payback').innerText = netGain > 0 ? `${payback.toFixed(1)}年` : '回収不能';
+        document.getElementById('pdf-roi-pcs-investment').innerText = `${actualPcsOptCost}万円`;
+        document.getElementById('pdf-roi-repower-investment').innerText = `${actualRepowerCost}万円`;
+
+        document.getElementById('pdf-roi-base-sales').innerText = `${Math.round(totalBaseSales).toLocaleString()}万円`;
+        document.getElementById('pdf-roi-pcs-sales').innerText = `${Math.round(totalPcsOptSales).toLocaleString()}万円`;
+        document.getElementById('pdf-roi-repower-sales').innerText = `${Math.round(totalRepowerSales).toLocaleString()}万円`;
+
+        document.getElementById('pdf-roi-base-cf').innerText = `${Math.round(finalBase).toLocaleString()}万円`;
+        document.getElementById('pdf-roi-pcs-cf').innerText = `${Math.round(finalPcsOpt).toLocaleString()}万円`;
+        document.getElementById('pdf-roi-repower-cf').innerText = `${Math.round(finalRepower).toLocaleString()}万円`;
+
+        const pdfPcsNetEl = document.getElementById('pdf-roi-pcs-net');
+        pdfPcsNetEl.innerText = `${netGainPcsOpt >= 0 ? '+' : ''}${Math.round(netGainPcsOpt).toLocaleString()}万円`;
+        pdfPcsNetEl.style.color = netGainPcsOpt >= 0 ? '#1e3a8a' : '#ef4444';
+
+        const pdfRepowerNetEl = document.getElementById('pdf-roi-repower-net');
+        pdfRepowerNetEl.innerText = `${netGainRepower >= 0 ? '+' : ''}${Math.round(netGainRepower).toLocaleString()}万円`;
+        pdfRepowerNetEl.style.color = netGainRepower >= 0 ? '#0f766e' : '#ef4444';
+
+        document.getElementById('pdf-roi-pcs-payback').innerText = paybackPcsOpt;
+        document.getElementById('pdf-roi-repower-payback').innerText = paybackRepower;
 
         const pdfHazardText = document.getElementById('pdf-hazard-text');
         const pdfHazardSection = document.getElementById('pdf-hazard-section');
