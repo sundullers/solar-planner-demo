@@ -803,27 +803,51 @@
             </div>
 
             <!-- スライダーパラメータ -->
-            <div class="form-group owner-hide">
+            <div class="form-group">
                 <label for="repower-cost">リパワリング投資額 <span id="repower-cost-val">800</span>万円</label>
                 <input type="range" id="repower-cost" class="slider" min="100" max="2500" step="50" value="800" oninput="updateSimulation()">
             </div>
 
-            <div class="form-group owner-hide">
+            <div class="form-group">
                 <label for="generation-boost">想定発電量改善率 <span id="generation-boost-val">15</span>%</label>
                 <input type="range" id="generation-boost" class="slider" min="5" max="30" step="1" value="15" oninput="updateSimulation()">
             </div>
 
-            <div class="form-group owner-hide">
-                <label for="pcs-cost">パワコン更新費用 <span id="pcs-cost-val">150</span>万円</label>
-                <input type="range" id="pcs-cost" class="slider" min="50" max="800" step="10" value="150" oninput="updateSimulation()">
+            <!-- パワコン（PCS）詳細設定（容量連動・設計寿命） -->
+            <div class="form-group" style="background: rgba(245, 158, 11, 0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.2); margin-bottom: 15px;">
+                <span style="font-size: 0.85rem; font-weight: bold; color: #fbbf24; display: block; margin-bottom: 10px;">⚡ パワコン（PCS）詳細調整</span>
+                
+                <div class="form-group-sub" style="margin-bottom: 10px;">
+                    <label style="font-size: 0.75rem; color: var(--text-secondary); display: flex; justify-content: space-between;">
+                        <span>PCS 1台あたり単価</span>
+                        <span><span id="pcs-unit-cost-val">15</span>万円</span>
+                    </label>
+                    <input type="range" id="pcs-unit-cost" class="slider" min="5" max="50" step="1" value="15" oninput="updateSimulation()" style="height: 4px;">
+                </div>
+
+                <div class="form-group-sub" style="margin-bottom: 10px;">
+                    <label style="font-size: 0.75rem; color: var(--text-secondary); display: flex; justify-content: space-between;">
+                        <span>PCS 設置台数</span>
+                        <span><span id="pcs-count-val">10</span>台</span>
+                    </label>
+                    <input type="range" id="pcs-count" class="slider" min="1" max="30" step="1" value="10" oninput="updateSimulation()" style="height: 4px;">
+                </div>
+
+                <div class="form-group-sub" style="margin-bottom: 5px;">
+                    <label style="font-size: 0.75rem; color: var(--text-secondary); display: flex; justify-content: space-between;">
+                        <span>メーカー設計寿命</span>
+                        <span><span id="pcs-design-life-val">15</span>年</span>
+                    </label>
+                    <input type="range" id="pcs-design-life" class="slider" min="10" max="20" step="1" value="15" oninput="updateSimulation()" style="height: 4px;">
+                </div>
             </div>
 
-            <div class="form-group owner-hide">
+            <div class="form-group">
                 <label for="pcs-year">想定パワコン更新年 <span id="pcs-year-val">12</span>年目</label>
-                <input type="range" id="pcs-year" class="slider" min="10" max="15" step="1" value="12" oninput="updateSimulation()">
+                <input type="range" id="pcs-year" class="slider" min="10" max="20" step="1" value="12" oninput="updateSimulation()">
             </div>
 
-            <div class="form-group owner-hide">
+            <div class="form-group">
                 <label for="post-fit-price">卒FIT後想定買取単価 <span id="post-fit-price-val">8.5</span>円/kWh</label>
                 <input type="range" id="post-fit-price" class="slider" min="5.0" max="12.0" step="0.5" value="8.5" oninput="updateSimulation()">
             </div>
@@ -851,20 +875,27 @@
         <div class="dashboard-main">
             
             <!-- オーナー専用：アセット資産評価額表示 -->
-            <div class="owner-only" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <div class="owner-only" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
                 <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(59, 130, 246, 0.3); padding: 15px; border-radius: 8px;">
-                    <div style="font-size: 0.75rem; color: #60a5fa; font-weight: bold; margin-bottom: 5px; text-transform: uppercase;">ASSET VALUATION / アセット評価額</div>
-                    <div style="font-size: 1.8rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 5px;">
-                        <span style="color: #60a5fa; font-size: 1.2rem;">¥</span><span id="owner-asset-value">24,500,000</span>
+                    <div style="font-size: 0.7rem; color: #60a5fa; font-weight: bold; margin-bottom: 5px; text-transform: uppercase;">ASSET VALUATION / アセット評価額</div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 3px;">
+                        <span style="color: #60a5fa; font-size: 1.1rem;">¥</span><span id="owner-asset-value">24,500,000</span>
                     </div>
-                    <div style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 5px;">※現在の設備状態、残存FIT売電額、立地リスク等を加味した期待残存収支（そらスコ査定評価）</div>
+                    <div style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 5px;">※現在の設備状態、残存FIT売電額、立地リスク等を加味した期待残存収支（そらスコ査定評価）</div>
                 </div>
                 <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(16, 185, 129, 0.3); padding: 15px; border-radius: 8px;">
-                    <div style="font-size: 0.75rem; color: #34d399; font-weight: bold; margin-bottom: 5px; text-transform: uppercase;">EXPECTED CF / 20年予測生涯CF</div>
-                    <div style="font-size: 1.8rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 5px;">
-                        <span style="color: #34d399; font-size: 1.2rem;">¥</span><span id="owner-lifetime-cf">39,800,000</span>
+                    <div style="font-size: 0.7rem; color: #34d399; font-weight: bold; margin-bottom: 5px; text-transform: uppercase;">EXPECTED CF / 20年予測生涯CF</div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 3px;">
+                        <span style="color: #34d399; font-size: 1.1rem;">¥</span><span id="owner-lifetime-cf">39,800,000</span>
                     </div>
-                    <div style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 5px;">※現状維持時の20年間累積推定収支（O&M費用・PCS修繕引当控除後）</div>
+                    <div style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 5px;">※現状維持時の20年間累積推定収支（O&M費用・PCS修繕引当控除後）</div>
+                </div>
+                <div class="card" id="pcs-risk-card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid #fbbf24; padding: 15px; border-radius: 8px;">
+                    <div style="font-size: 0.7rem; color: #fbbf24; font-weight: bold; margin-bottom: 5px; text-transform: uppercase;">PCS FAILURE RISK / パワコン故障確率</div>
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #fbbf24; display: flex; align-items: baseline; gap: 3px;">
+                        <span id="pcs-risk-percent">12%</span>
+                    </div>
+                    <div style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 5px;" id="pcs-risk-desc">※シグモイド故障確率モデルによる予測</div>
                 </div>
             </div>
 
@@ -1333,14 +1364,20 @@
         // パラメータ取得
         const repowerCost = parseFloat(document.getElementById('repower-cost').value);
         const generationBoost = parseFloat(document.getElementById('generation-boost').value) / 100;
-        const pcsCost = parseFloat(document.getElementById('pcs-cost').value);
+        
+        // 新しいPCS詳細設定値の取得
+        const pcsUnit = parseFloat(document.getElementById('pcs-unit-cost').value);
+        const pcsCount = parseInt(document.getElementById('pcs-count').value);
+        const pcsLife = parseFloat(document.getElementById('pcs-design-life').value);
         const pcsYear = parseInt(document.getElementById('pcs-year').value);
         const postFitPrice = parseFloat(document.getElementById('post-fit-price').value);
 
         // スライダー数値表示更新
         document.getElementById('repower-cost-val').innerText = repowerCost;
         document.getElementById('generation-boost-val').innerText = Math.round(generationBoost * 100);
-        document.getElementById('pcs-cost-val').innerText = pcsCost;
+        document.getElementById('pcs-unit-cost-val').innerText = pcsUnit;
+        document.getElementById('pcs-count-val').innerText = pcsCount;
+        document.getElementById('pcs-design-life-val').innerText = pcsLife;
         document.getElementById('pcs-year-val').innerText = pcsYear;
         document.getElementById('post-fit-price-val').innerText = postFitPrice.toFixed(1);
 
@@ -1351,6 +1388,9 @@
         const capacity = data.capacity;
         const fitPrice = data.fitPrice;
         const startYear = data.elapsedYears;
+
+        // 計算用PCS費用（単価×台数）
+        const calculatedPcsCost = pcsUnit * pcsCount;
 
         // EPCマスタ設定値の適用（FPモード限定）
         let omCost = 15; // 万円/年
@@ -1399,10 +1439,8 @@
             // パワコン交換費用発生（経年12年目等で発生）
             let baseExpense = omCost; // O&M維持管理費を加算
             if (year === pcsYear) {
-                // FPモードでは、経過年数シグモイド関数に基づいてPCS故障リスクを適用（モック的にPCS費用を加算）
-                const pcsCostActual = currentMode === 'fp-enhanced' ? 
-                    (capacity * (parseFloat(document.getElementById('master-pcs-cost-kw').value) || 3.0)) : pcsCost;
-                baseExpense += pcsCostActual;
+                // 算出された詳細PCS費用（calculatedPcsCost）を計上
+                baseExpense += calculatedPcsCost;
             }
             // ハザード保険料加算
             baseExpense += hazardInsuranceSurcharge;
@@ -1465,6 +1503,32 @@
             const formattedVal = Math.round(finalBase * 0.62 * 10000);
             ownerLifetimeCfEl.innerText = formattedCF.toLocaleString();
             ownerAssetValueEl.innerText = formattedVal.toLocaleString();
+
+            // PCS故障確率（シグモイド予測モデル）の計算
+            const elapsed = data.elapsedYears; // 経過年数
+            const kProb = 0.55; // 傾き
+            const pcsRiskProb = 1 / (1 + Math.exp(-kProb * (elapsed - pcsLife)));
+            const pcsRiskPercent = Math.round(pcsRiskProb * 100);
+
+            const pcsRiskPercentEl = document.getElementById('pcs-risk-percent');
+            const pcsRiskCardEl = document.getElementById('pcs-risk-card');
+            const pcsRiskDescEl = document.getElementById('pcs-risk-desc');
+            if (pcsRiskPercentEl && pcsRiskCardEl && pcsRiskDescEl) {
+                pcsRiskPercentEl.innerText = `${pcsRiskPercent}%`;
+                if (pcsRiskPercent >= 80) {
+                    pcsRiskCardEl.style.borderColor = "#ef4444";
+                    pcsRiskPercentEl.style.color = "#ef4444";
+                    pcsRiskDescEl.innerText = "🚨 故障確率極めて高（即時交換推奨）";
+                } else if (pcsRiskPercent >= 40) {
+                    pcsRiskCardEl.style.borderColor = "#f59e0b";
+                    pcsRiskPercentEl.style.color = "#f59e0b";
+                    pcsRiskDescEl.innerText = "⚠️ 故障確率上昇中（寿命目安超過）";
+                } else {
+                    pcsRiskCardEl.style.borderColor = "#10b981";
+                    pcsRiskPercentEl.style.color = "#10b981";
+                    pcsRiskDescEl.innerText = "🟢 低リスク（設計寿命・保証内）";
+                }
+            }
         }
 
         // 表示の更新
