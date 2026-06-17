@@ -430,6 +430,10 @@
             gap: 20px;
         }
 
+        .owner-only {
+            display: none;
+        }
+
         .chart-container {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -730,6 +734,7 @@
         <div class="mode-btn-group">
             <button type="button" class="mode-btn active" id="mode-standard" onclick="switchMode('standard')">初期バージョン (標準シミュレーター)</button>
             <button type="button" class="mode-btn" id="mode-fp" onclick="switchMode('fp-enhanced')">ブラッシュアップ版 (FP拡張シミュレーター)</button>
+            <button type="button" class="mode-btn" id="mode-owner" onclick="switchMode('owner')">【新提案】発電所オーナー画面 (資産管理)</button>
         </div>
     </div>
 
@@ -799,38 +804,81 @@
             </div>
 
             <!-- スライダーパラメータ -->
-            <div class="form-group">
+            <div class="form-group owner-hide">
                 <label for="repower-cost">リパワリング投資額 <span id="repower-cost-val">800</span>万円</label>
                 <input type="range" id="repower-cost" class="slider" min="100" max="2500" step="50" value="800" oninput="updateSimulation()">
             </div>
 
-            <div class="form-group">
+            <div class="form-group owner-hide">
                 <label for="generation-boost">想定発電量改善率 <span id="generation-boost-val">15</span>%</label>
                 <input type="range" id="generation-boost" class="slider" min="5" max="30" step="1" value="15" oninput="updateSimulation()">
             </div>
 
-            <div class="form-group">
+            <div class="form-group owner-hide">
                 <label for="pcs-cost">パワコン更新費用 <span id="pcs-cost-val">150</span>万円</label>
                 <input type="range" id="pcs-cost" class="slider" min="50" max="800" step="10" value="150" oninput="updateSimulation()">
             </div>
 
-            <div class="form-group">
+            <div class="form-group owner-hide">
                 <label for="pcs-year">想定パワコン更新年 <span id="pcs-year-val">12</span>年目</label>
                 <input type="range" id="pcs-year" class="slider" min="10" max="15" step="1" value="12" oninput="updateSimulation()">
             </div>
 
-            <div class="form-group">
+            <div class="form-group owner-hide">
                 <label for="post-fit-price">卒FIT後想定買取単価 <span id="post-fit-price-val">8.5</span>円/kWh</label>
                 <input type="range" id="post-fit-price" class="slider" min="5.0" max="12.0" step="0.5" value="8.5" oninput="updateSimulation()">
             </div>
 
             <!-- 通常印刷 or 提案書PDFモーダル表示 -->
-            <button type="button" class="btn-action" id="print-btn" onclick="handlePrint()">提案用PDFレポート印刷</button>
+            <button type="button" class="btn-action owner-hide" id="print-btn" onclick="handlePrint()">提案用PDFレポート印刷</button>
+
+            <!-- オーナー専用アクション -->
+            <div class="owner-only" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px;">
+                <div class="panel-title" style="margin-bottom: 15px; font-size: 0.95rem; font-weight: 600;">🛠️ オーナー向けアクション</div>
+                <button type="button" class="btn-action" style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; font-weight: bold; border: none; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: auto; padding: 12px 0;" onclick="triggerSoraCommute()">
+                    <span>🤝 「ソラコミュ」に売却・入札査定を依頼</span>
+                </button>
+                <button type="button" class="btn-action" style="background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: bold; border: none; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: auto; padding: 12px 0;" onclick="triggerPpaConsult()">
+                    <span>⚡ PPA切り替え・相談窓口に問い合わせ</span>
+                </button>
+                
+                <div style="background: rgba(30, 41, 59, 0.5); padding: 12px; border-radius: 8px; font-size: 0.75rem; border: 1px solid var(--border-color); margin-top: 20px; color: var(--text-secondary); line-height: 1.45;">
+                    ※「ソラコミュ」とのアライアンス送客機能および、環境価値を活用したPPA切替支援に直結するオーナー直通のアクションボタンです。
+                </div>
+            </div>
         </div>
 
         <!-- 右：シミュレーションダッシュボード -->
         <div class="dashboard-main">
             
+            <!-- オーナー専用：アセット資産評価額表示 -->
+            <div class="owner-only" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(59, 130, 246, 0.3); padding: 15px; border-radius: 8px;">
+                    <div style="font-size: 0.75rem; color: #60a5fa; font-weight: bold; margin-bottom: 5px; text-transform: uppercase;">ASSET VALUATION / アセット評価額</div>
+                    <div style="font-size: 1.8rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 5px;">
+                        <span style="color: #60a5fa; font-size: 1.2rem;">¥</span><span id="owner-asset-value">24,500,000</span>
+                    </div>
+                    <div style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 5px;">※現在の設備状態、残存FIT売電額、立地リスク等を加味した期待残存収支（そらスコ査定評価）</div>
+                </div>
+                <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(16, 185, 129, 0.3); padding: 15px; border-radius: 8px;">
+                    <div style="font-size: 0.75rem; color: #34d399; font-weight: bold; margin-bottom: 5px; text-transform: uppercase;">EXPECTED CF / 20年予測生涯CF</div>
+                    <div style="font-size: 1.8rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 5px;">
+                        <span style="color: #34d399; font-size: 1.2rem;">¥</span><span id="owner-lifetime-cf">39,800,000</span>
+                    </div>
+                    <div style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 5px;">※現状維持時の20年間累積推定収支（O&M費用・PCS修繕引当控除後）</div>
+                </div>
+            </div>
+
+            <!-- オーナー専用：アセットアラート警告 -->
+            <div class="owner-only alert-box" id="owner-pcs-alert" style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; color: #f59e0b; margin-bottom: 15px; display: flex; align-items: center; padding: 12px 15px; border-radius: 8px;">
+                <span class="alert-icon" style="background: #f59e0b; display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; color: white; font-weight: bold; margin-right: 10px; flex-shrink: 0;">!</span>
+                <span style="font-size: 0.85rem; line-height: 1.4;"><strong>🔧 メンテナンスアラート:</strong> 発電所の経過年数に基づき、<strong>あと1年でパワーコンディショナ（PCS）の交換推奨時期</strong>に達します。交換費用（推定150万円〜）の準備、または施工店への見積依頼をご検討ください。</span>
+            </div>
+            <div class="owner-only alert-box" id="owner-fit-alert" style="background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; color: #3b82f6; margin-bottom: 15px; display: flex; align-items: center; padding: 12px 15px; border-radius: 8px;">
+                <span class="alert-icon" style="background: #3b82f6; display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; color: white; font-weight: bold; margin-right: 10px; flex-shrink: 0;">i</span>
+                <span style="font-size: 0.85rem; line-height: 1.4;"><strong>ℹ️ FIT期間アラート:</strong> 本発電所は稼働開始から10年が経過しており、<strong>あと10年（120ヶ月）でFIT調達期間が終了し卒FIT</strong>を迎えます。早期の売却・セカンダリー入札、またはPPAプランへの移行検討をお勧めします。</span>
+            </div>
+
             <!-- ハザードアラート -->
             <div class="alert-box" id="hazard-alert">
                 <span class="alert-icon">!</span>
@@ -873,7 +921,7 @@
                 <div class="chart-container">
                     <div class="chart-header">
                         <div class="chart-title">20年間の累積キャッシュフロー予測（維持 vs リパワリング）</div>
-                        <span style="font-size: 0.75rem; color: var(--text-secondary);">※開始年＝連系日より10年目時点</span>
+                        <span class="owner-hide" style="font-size: 0.75rem; color: var(--text-secondary);">※開始年＝連系日より10年目時点</span>
                     </div>
                     <div style="height: 320px; position: relative;">
                         <canvas id="cfChart"></canvas>
@@ -1135,20 +1183,37 @@
         if (mode === 'standard') {
             document.getElementById('mode-standard').classList.add('active');
             document.querySelectorAll('.fp-only').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.owner-only').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.owner-hide').forEach(el => el.style.display = '');
             document.getElementById('header-main-title').innerText = "ソーラーライフタイム・プランナー";
             document.getElementById('print-btn').innerText = "提案用PDFレポート印刷";
             
-            // アラートボックスは常に元の状態を表示
             const alertBox = document.getElementById('hazard-alert');
             alertBox.style.display = 'flex';
-        } else {
+        } else if (mode === 'fp-enhanced') {
             document.getElementById('mode-fp').classList.add('active');
-            document.querySelectorAll('.fp-only').forEach(el => el.style.display = 'block');
+            document.querySelectorAll('.fp-only').forEach(el => el.style.display = '');
+            document.querySelectorAll('.owner-only').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.owner-hide').forEach(el => el.style.display = '');
             document.getElementById('header-main-title').innerText = "ソーラーライフタイム・プランナー (FP拡張版)";
             document.getElementById('print-btn').innerText = "📄 提案書PDFプレビューを表示";
             
-            // トグルと連動してハザードアラートを切り替え
             toggleHazardSwitch();
+        } else if (mode === 'owner') {
+            document.getElementById('mode-owner').classList.add('active');
+            document.querySelectorAll('.fp-only').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.owner-only').forEach(el => el.style.display = '');
+            document.querySelectorAll('.owner-hide').forEach(el => el.style.display = 'none');
+            document.getElementById('header-main-title').innerText = "そらスコ・アセットオーナーズ画面";
+            
+            const id = document.getElementById('solar-id').value;
+            const data = demoData[id] || demoData["SR-78901"];
+            const alertBox = document.getElementById('hazard-alert');
+            if (data.hazard.includes("警戒")) {
+                alertBox.style.display = 'flex';
+            } else {
+                alertBox.style.display = 'none';
+            }
         }
         updateSimulation();
     }
@@ -1408,6 +1473,16 @@
         const additionalRevenue = finalRepower - finalBase + actualRepowerCost;
         const netGain = finalRepower - finalBase;
 
+        // オーナー用表示の更新
+        const ownerAssetValueEl = document.getElementById('owner-asset-value');
+        const ownerLifetimeCfEl = document.getElementById('owner-lifetime-cf');
+        if (ownerAssetValueEl && ownerLifetimeCfEl) {
+            const formattedCF = Math.round(finalBase * 10000);
+            const formattedVal = Math.round(finalBase * 0.62 * 10000);
+            ownerLifetimeCfEl.innerText = formattedCF.toLocaleString();
+            ownerAssetValueEl.innerText = formattedVal.toLocaleString();
+        }
+
         // 表示の更新
         document.getElementById('roi-investment').innerText = `${actualRepowerCost}万円`;
         document.getElementById('roi-additional-revenue').innerText = `${Math.round(additionalRevenue)}万円`;
@@ -1482,6 +1557,39 @@
         }
     }
 
+    // オーナーアクション（ソラコミュ査定）の実行
+    function triggerSoraCommute() {
+        const id = document.getElementById('solar-id').value;
+        const assetValText = document.getElementById('owner-asset-value').innerText;
+        document.getElementById('modal-icon-area').innerText = "🤝";
+        document.getElementById('modal-title').innerText = "「ソラコミュ」査定査定連携（デモ）";
+        document.getElementById('modal-message').innerHTML = `
+            <strong>株式会社TSUNAGU-LAB「ソラコミュ」とのアライアンス送客デモ</strong><br><br>
+            設備ID [<strong>${id}</strong>] の物件スペックおよびそらスコ高精度予測データ（現在価値：約${assetValText}円、過積載率：1.3倍、ハザード考慮等）をソラコミュの入札査定システムへシームレスに転送しました。<br><br>
+            <span style="color: #10b981; font-weight: bold;">✔ 送客連携データ送信完了 (物件入札査定へエントリー)</span>
+        `;
+        document.getElementById('action-modal').style.display = 'flex';
+    }
+
+    // オーナーアクション（PPA相談）の実行
+    function triggerPpaConsult() {
+        const id = document.getElementById('solar-id').value;
+        const capacity = (demoData[id] || demoData["SR-78901"]).capacity;
+        document.getElementById('modal-icon-area').innerText = "⚡";
+        document.getElementById('modal-title').innerText = "PPA移行・環境価値相談（デモ）";
+        document.getElementById('modal-message').innerHTML = `
+            <strong>卒FIT・環境価値PPA相談窓口への問い合わせデモ</strong><br><br>
+            本発電所 [<strong>${id}</strong>] の将来発電予測（年間約${Math.round(capacity * 1150).toLocaleString()}kWh）に基づき、自家消費PPAおよび環境価値取引プランの査定依頼を送信しました。<br><br>
+            <span style="color: #10b981; font-weight: bold;">✔ 問い合わせチケットの起票完了 (開発チームよりご連絡します)</span>
+        `;
+        document.getElementById('action-modal').style.display = 'flex';
+    }
+
+    // アクションモーダルクローズ
+    function closeActionModal() {
+        document.getElementById('action-modal').style.display = 'none';
+    }
+
     // 起動処理
     window.onload = function() {
         const today = new Date();
@@ -1492,6 +1600,16 @@
         switchMode('standard'); // 初期状態はスタンダード
     };
 </script>
+
+<!-- アクションシミュレーションモーダル -->
+<div id="action-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 2000;">
+    <div style="background: #1e293b; border: 1px solid var(--border-color); border-radius: 16px; padding: 35px; max-width: 500px; width: 90%; color: white; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);">
+        <div id="modal-icon-area" style="font-size: 3.5rem; margin-bottom: 20px;">🤝</div>
+        <h3 id="modal-title" style="margin-bottom: 15px; font-size: 1.4rem; font-weight: 600;">連携処理中</h3>
+        <p id="modal-message" style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 30px; line-height: 1.55; text-align: left; background: rgba(15, 23, 42, 0.4); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);">ソラコミュと連携します。</p>
+        <button type="button" class="btn-action" style="margin: 0; width: 100%; padding: 12px 0; background: var(--border-color); border: none; color: white; font-weight: bold;" onclick="closeActionModal()">モーダルを閉じる</button>
+    </div>
+</div>
 
 </body>
 </html>
