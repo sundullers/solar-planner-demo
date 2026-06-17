@@ -813,8 +813,14 @@
                 <input type="range" id="generation-boost" class="slider" min="5" max="30" step="1" value="15" oninput="updateSimulation()">
             </div>
 
+            <!-- 初期バージョン用：標準パワコン更新費用 -->
+            <div class="form-group standard-only">
+                <label for="pcs-cost">パワコン更新費用 <span id="pcs-cost-val">150</span>万円</label>
+                <input type="range" id="pcs-cost" class="slider" min="50" max="800" step="10" value="150" oninput="updateSimulation()">
+            </div>
+
             <!-- パワコン（PCS）詳細設定（容量連動・設計寿命） -->
-            <div class="form-group" style="background: rgba(245, 158, 11, 0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.2); margin-bottom: 15px;">
+            <div class="fp-only form-group" style="background: rgba(245, 158, 11, 0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.2); margin-bottom: 15px;">
                 <span style="font-size: 0.85rem; font-weight: bold; color: #fbbf24; display: block; margin-bottom: 10px;">⚡ パワコン（PCS）詳細調整</span>
                 
                 <div class="form-group-sub" style="margin-bottom: 10px;">
@@ -1215,6 +1221,7 @@
             document.querySelectorAll('.fp-only').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.owner-only').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.owner-hide').forEach(el => el.style.display = '');
+            document.querySelectorAll('.standard-only').forEach(el => el.style.display = '');
             document.getElementById('header-main-title').innerText = "ソーラーライフタイム・プランナー";
             document.getElementById('print-btn').innerText = "提案用PDFレポート印刷";
             
@@ -1225,6 +1232,7 @@
             document.querySelectorAll('.fp-only').forEach(el => el.style.display = '');
             document.querySelectorAll('.owner-only').forEach(el => el.style.display = '');
             document.querySelectorAll('.owner-hide').forEach(el => el.style.display = '');
+            document.querySelectorAll('.standard-only').forEach(el => el.style.display = 'none');
             document.getElementById('header-main-title').innerText = "ソーラーライフタイム・プランナー (FP拡張版)";
             document.getElementById('print-btn').innerText = "📄 提案書PDFプレビューを表示";
             
@@ -1365,6 +1373,9 @@
         const repowerCost = parseFloat(document.getElementById('repower-cost').value);
         const generationBoost = parseFloat(document.getElementById('generation-boost').value) / 100;
         
+        // 元のPCSコストも取得（standardモード用）
+        const pcsCost = parseFloat(document.getElementById('pcs-cost').value);
+        
         // 新しいPCS詳細設定値の取得
         const pcsUnit = parseFloat(document.getElementById('pcs-unit-cost').value);
         const pcsCount = parseInt(document.getElementById('pcs-count').value);
@@ -1375,6 +1386,7 @@
         // スライダー数値表示更新
         document.getElementById('repower-cost-val').innerText = repowerCost;
         document.getElementById('generation-boost-val').innerText = Math.round(generationBoost * 100);
+        document.getElementById('pcs-cost-val').innerText = pcsCost;
         document.getElementById('pcs-unit-cost-val').innerText = pcsUnit;
         document.getElementById('pcs-count-val').innerText = pcsCount;
         document.getElementById('pcs-design-life-val').innerText = pcsLife;
@@ -1389,8 +1401,8 @@
         const fitPrice = data.fitPrice;
         const startYear = data.elapsedYears;
 
-        // 計算用PCS費用（単価×台数）
-        const calculatedPcsCost = pcsUnit * pcsCount;
+        // 計算用PCS費用（モードによって切り替え）
+        const calculatedPcsCost = currentMode === 'fp-enhanced' ? (pcsUnit * pcsCount) : pcsCost;
 
         // EPCマスタ設定値の適用（FPモード限定）
         let omCost = 15; // 万円/年
