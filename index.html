@@ -734,7 +734,6 @@
         <div class="mode-btn-group">
             <button type="button" class="mode-btn active" id="mode-standard" onclick="switchMode('standard')">初期バージョン (標準シミュレーター)</button>
             <button type="button" class="mode-btn" id="mode-fp" onclick="switchMode('fp-enhanced')">ブラッシュアップ版 (FP拡張シミュレーター)</button>
-            <button type="button" class="mode-btn" id="mode-owner" onclick="switchMode('owner')">【新提案】発電所オーナー画面 (資産管理)</button>
         </div>
     </div>
 
@@ -1193,27 +1192,12 @@
         } else if (mode === 'fp-enhanced') {
             document.getElementById('mode-fp').classList.add('active');
             document.querySelectorAll('.fp-only').forEach(el => el.style.display = '');
-            document.querySelectorAll('.owner-only').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.owner-only').forEach(el => el.style.display = '');
             document.querySelectorAll('.owner-hide').forEach(el => el.style.display = '');
             document.getElementById('header-main-title').innerText = "ソーラーライフタイム・プランナー (FP拡張版)";
             document.getElementById('print-btn').innerText = "📄 提案書PDFプレビューを表示";
             
             toggleHazardSwitch();
-        } else if (mode === 'owner') {
-            document.getElementById('mode-owner').classList.add('active');
-            document.querySelectorAll('.fp-only').forEach(el => el.style.display = 'none');
-            document.querySelectorAll('.owner-only').forEach(el => el.style.display = '');
-            document.querySelectorAll('.owner-hide').forEach(el => el.style.display = 'none');
-            document.getElementById('header-main-title').innerText = "そらスコ・アセットオーナーズ画面";
-            
-            const id = document.getElementById('solar-id').value;
-            const data = demoData[id] || demoData["SR-78901"];
-            const alertBox = document.getElementById('hazard-alert');
-            if (data.hazard.includes("警戒")) {
-                alertBox.style.display = 'flex';
-            } else {
-                alertBox.style.display = 'none';
-            }
         }
         updateSimulation();
     }
