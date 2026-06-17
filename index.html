@@ -430,10 +430,6 @@
             gap: 20px;
         }
 
-        .owner-only {
-            display: none;
-        }
-
         .chart-container {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -1229,7 +1225,7 @@
             alertBox.style.display = 'flex';
         } else if (mode === 'fp-enhanced') {
             document.getElementById('mode-fp').classList.add('active');
-            document.querySelectorAll('.fp-only').forEach(el => el.style.display = '');
+            document.querySelectorAll('.fp-only').forEach(el => el.style.display = 'block');
             document.querySelectorAll('.owner-only').forEach(el => el.style.display = '');
             document.querySelectorAll('.owner-hide').forEach(el => el.style.display = '');
             document.querySelectorAll('.standard-only').forEach(el => el.style.display = 'none');
