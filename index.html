@@ -894,6 +894,11 @@
             </div>
 
             <div class="form-group">
+                <label for="fit-price">FIT売電単価 <span id="fit-price-val">24.0</span>円/kWh</label>
+                <input type="range" id="fit-price" class="slider" min="10.0" max="42.0" step="1.0" value="24.0" oninput="updateSimulation()">
+            </div>
+
+            <div class="form-group">
                 <label for="post-fit-price">卒FIT後想定買取単価 <span id="post-fit-price-val">8.5</span>円/kWh</label>
                 <input type="range" id="post-fit-price" class="slider" min="5.0" max="12.0" step="0.5" value="8.5" oninput="updateSimulation()">
             </div>
@@ -910,9 +915,12 @@
                 <button type="button" class="btn-action" style="background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: bold; border: none; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: auto; padding: 12px 0;" onclick="triggerPpaConsult()">
                     <span>⚡ PPA切り替え・相談窓口に問い合わせ</span>
                 </button>
+                <button type="button" class="btn-action" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; font-weight: bold; border: none; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: auto; padding: 12px 0;" onclick="triggerAggregationConsult()">
+                    <span>🔋 系統用・併設蓄電池アグリゲーション相談</span>
+                </button>
                 
                 <div style="background: rgba(30, 41, 59, 0.5); padding: 12px; border-radius: 8px; font-size: 0.75rem; border: 1px solid var(--border-color); margin-top: 20px; color: var(--text-secondary); line-height: 1.45;">
-                    ※「ソラコミュ」とのアライアンス送客機能および、環境価値を活用したPPA切替支援に直結するオーナー直通のアクションボタンです。
+                    ※「ソラコミュ」とのアライアンス送客機能、アグリゲーション企業との紹介手数料（フィー2割）連携、および環境価値を活用したPPA切替支援に直結するオーナー直通のアクションボタンです。
                 </div>
             </div>
         </div>
@@ -1453,6 +1461,10 @@
                 }
             }
 
+            // FIT売電単価スライダーの初期値をデモデータから自動セット
+            document.getElementById('fit-price').value = data.fitPrice;
+            document.getElementById('fit-price-val').innerText = data.fitPrice.toFixed(1);
+
             // 初期値を岡山や高松に合わせて少し調整
             if (id === "SR-12345") {
                 document.getElementById('repower-cost').value = 1200;
@@ -1493,6 +1505,7 @@
         const pcsCount = parseInt(document.getElementById('pcs-count').value);
         const pcsLife = parseFloat(document.getElementById('pcs-design-life').value);
         const pcsYear = parseInt(document.getElementById('pcs-year').value);
+        const fitPrice = parseFloat(document.getElementById('fit-price').value);
         const postFitPrice = parseFloat(document.getElementById('post-fit-price').value);
 
         // スライダー数値表示更新
@@ -1503,6 +1516,7 @@
         document.getElementById('pcs-count-val').innerText = pcsCount;
         document.getElementById('pcs-design-life-val').innerText = pcsLife;
         document.getElementById('pcs-year-val').innerText = pcsYear;
+        document.getElementById('fit-price-val').innerText = fitPrice.toFixed(1);
         document.getElementById('post-fit-price-val').innerText = postFitPrice.toFixed(1);
 
         // 現在表示されているスペック取得
@@ -1510,7 +1524,6 @@
         const data = demoData[id] || demoData["SR-78901"];
 
         const capacity = data.capacity;
-        const fitPrice = data.fitPrice;
         const startYear = data.elapsedYears;
 
         // 計算用PCS費用（モードによって切り替え）
@@ -1801,6 +1814,21 @@
             <strong>卒FIT・環境価値PPA相談窓口への問い合わせデモ</strong><br><br>
             本発電所 [<strong>${id}</strong>] の将来発電予測（年間約${Math.round(capacity * 1150).toLocaleString()}kWh）に基づき、自家消費PPAおよび環境価値取引プランの査定依頼を送信しました。<br><br>
             <span style="color: #10b981; font-weight: bold;">✔ 問い合わせチケットの起票完了 (開発チームよりご連絡します)</span>
+        `;
+        document.getElementById('action-modal').style.display = 'flex';
+    }
+
+    // オーナーアクション（蓄電池アグリゲーション相談）の実行
+    function triggerAggregationConsult() {
+        const id = document.getElementById('solar-id').value;
+        const capacity = (demoData[id] || demoData["SR-78901"]).capacity;
+        document.getElementById('modal-icon-area').innerText = "🔋";
+        document.getElementById('modal-title').innerText = "蓄電池アグリゲーション相談（デモ）";
+        document.getElementById('modal-message').innerHTML = `
+            <strong>系統用・太陽光併設蓄電池 AI運用最適化アライアンス相談</strong><br><br>
+            設備ID [<strong>${id}</strong>]（システム容量: ${capacity}kW）に基づき、蓄電池併設のAI充放電制御・電力市場取引（アグリゲーション）の最適設計依頼を送信しました。<br><br>
+            紹介先アグリゲーション会社より詳細な設計とシミュレーションをご連絡いたします。<br><br>
+            <span style="color: #f59e0b; font-weight: bold;">✔ 提携アグリゲーターへの送客連携起票完了 (紹介手数料2割モデル適用対象)</span>
         `;
         document.getElementById('action-modal').style.display = 'flex';
     }
