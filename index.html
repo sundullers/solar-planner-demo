@@ -1478,7 +1478,7 @@
                                     <td id="roi-repower-annual-post-diff" style="color: var(--accent-color); font-weight: bold;">-</td>
                                 </tr>
                                 <tr style="border-top: 1px solid var(--border-color);">
-                                    <td id="roi-cf-label">20年生涯CF (手取り)</td>
+                                    <td id="roi-cf-label">20年間の累積CF</td>
                                     <td id="roi-base-cf" style="font-weight: bold;">3,000万円</td>
                                     <td id="roi-pcs-cf" style="color: #60a5fa; font-weight: bold;">3,150万円</td>
                                     <td id="roi-repower-cf" style="color: var(--accent-color); font-weight: bold;">3,800万円</td>
@@ -1628,7 +1628,7 @@
                                 <td id="pdf-roi-repower-annual-post-diff" style="color: #0f766e; font-weight: bold;">-</td>
                             </tr>
                             <tr>
-                                <td style="text-align: left; font-weight: bold;" id="pdf-roi-cf-label">生涯CF (手残り)</td>
+                                <td style="text-align: left; font-weight: bold;" id="pdf-roi-cf-label">20年間の累積CF</td>
                                 <td id="pdf-roi-base-cf" style="font-weight: bold;">1,800万円</td>
                                 <td id="pdf-roi-pcs-cf" style="font-weight: bold; color: #1e3a8a;">1,950万円</td>
                                 <td id="pdf-roi-repower-cf" style="font-weight: bold; color: #0f766e;">2,100万円</td>
@@ -1767,6 +1767,7 @@
     let isCalibrated = false;
     let calDegradation = 0.005; // 劣化率
     let calLoss = 0.0; // 影等のその他の損失
+    let calRatio = 1.0; // 実績補正時の発電量比率
 
     // チャートの初期化
     let cfChart;
@@ -2251,6 +2252,7 @@
 
         const ratio = actualInput / theoreticalIncome;
         isCalibrated = true;
+        calRatio = ratio;
 
         if (ratio < 1) {
             // 発電量が少ない場合：劣化率上昇と影などの環境減衰に按分
@@ -2360,6 +2362,7 @@
             document.getElementById('calibration-status').style.display = 'none';
             calDegradation = 0.005;
             calLoss = 0.0;
+            calRatio = 1.0;
 
             if (currentMode === 'fp-enhanced') {
                 toggleHazardSwitch();
@@ -2486,7 +2489,7 @@
         let repowerPostIncomeSum = 0; let repowerPostYears = 0;
 
         // 年間標準発電量推定（高松：約1,150kWh/kW/年）
-        const stdGen = capacity * 1150; 
+        const stdGen = capacity * 1150 * calRatio; 
         const simYears = parseInt(document.getElementById('sim-years').value) || 20;
 
 
@@ -2594,8 +2597,10 @@
             // パネル実効容量向上係数 = 1.3 + (1.4 - 1.3) * 0.85 = 1.385倍
             const repowerCapacityFactor = 1.385;
             // リパワリングしているため、FIT期間（20年）を超えても老朽化の加速や追加故障リスク（finalEffLoss）は発生しない
-            const repowerEfficiency = (1 + generationBoost) * (1 - (i * (effDegradation * 0.6))) * (1 - effLoss);
-            const repowerIncome = (i === 0) ? 0 : (stdGen * repowerCapacityFactor * repowerEfficiency * price * (1 - finalSuppressionRate)) / 10000;
+            // モジュールは最新の新品に交換されるため、経年劣化率は古い実績を引き継がず、標準の0.005ベースの60%低減とする
+            const repowerEfficiency = (1 + generationBoost) * (1 - (i * (0.005 * 0.6))) * (1 - effLoss);
+            const repowerStdGen = capacity * 1150;
+            const repowerIncome = (i === 0) ? 0 : (repowerStdGen * repowerCapacityFactor * repowerEfficiency * price * (1 - finalSuppressionRate)) / 10000;
             if (i > 0) totalRepowerSales += repowerIncome;
 
             let repowerExpense = 0;
@@ -2834,10 +2839,10 @@
         const avgRepowerPost = repowerPostYears > 0 ? Math.round(repowerPostIncomeSum / repowerPostYears) : 0;
 
         // ラベルの動的更新
-        document.getElementById('roi-sales-label').innerText = `${simYears}年累積売電額`;
-        document.getElementById('roi-cf-label').innerText = `${simYears}年生涯CF (手残り)`;
-        document.getElementById('pdf-roi-sales-label').innerText = `${simYears}年累積売電額`;
-        document.getElementById('pdf-roi-cf-label').innerText = `${simYears}年生涯CF (手残り)`;
+        document.getElementById('roi-sales-label').innerText = `${simYears}年間の累積売電額`;
+        document.getElementById('roi-cf-label').innerText = `${simYears}年間の累積CF`;
+        document.getElementById('pdf-roi-sales-label').innerText = `${simYears}年間の累積売電額`;
+        document.getElementById('pdf-roi-cf-label').innerText = `${simYears}年間の累積CF`;
 
         // 平均年間手取りの反映
         document.getElementById('roi-base-annual-fit').innerText = `${avgBaseFit.toLocaleString()}万円/年`;
@@ -2942,6 +2947,11 @@
         if (typeof updateAlertAccordionHeader === 'function') {
             updateAlertAccordionHeader();
         }
+        
+        // 検証スクリプト用に計算配列を一時的にエクスポート
+        window.baseCF = baseCF;
+        window.pcsOptCF = pcsOptCF;
+        window.repowerCF = repowerCF;
     }
 
     // 印刷ボタンの押下制御
