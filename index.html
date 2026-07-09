@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>太陽光ライフタイムプランナー - B2B2C営業支援モックアップ</title>
+    <title>ソラバリュー・シミュレーター - B2B2C営業支援モックアップ</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -166,6 +166,9 @@
             padding: 25px;
             backdrop-filter: blur(10px);
             height: fit-content;
+            position: sticky;
+            top: 20px;
+            z-index: 10;
         }
 
         .panel-title {
@@ -261,6 +264,30 @@
 
         .btn-action:active {
             transform: scale(0.98);
+        }
+
+        .btn-reset {
+            margin: 0;
+            padding: 4px 10px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s ease;
+        }
+        .btn-reset:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            background: rgba(16, 185, 129, 0.05);
+        }
+        .btn-reset:active {
+            transform: scale(0.95);
         }
 
         /* アコーディオン (EPC標準マスタ) */
@@ -379,6 +406,7 @@
             display: flex;
             flex-direction: column;
             gap: 25px;
+            position: relative;
         }
 
         /* 基本スペック要約 */
@@ -435,6 +463,7 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 20px;
+            position: relative;
         }
 
         .chart-container {
@@ -443,6 +472,39 @@
             border-radius: 16px;
             padding: 20px;
             position: relative;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .chart-container:hover {
+            transform: translateY(-2px);
+            border-color: #3b82f6;
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .chart-container::after {
+            content: "🔍 拡大比較";
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #93c5fd;
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 4px 10px;
+            border-radius: 6px;
+            opacity: 0.65;
+            transition: all 0.2s ease;
+            pointer-events: none;
+        }
+
+        .chart-container:hover::after {
+            opacity: 1;
+            background: rgba(59, 130, 246, 0.3);
+            border-color: rgba(59, 130, 246, 0.6);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
         }
 
         .chart-header {
@@ -542,6 +604,7 @@
         }
 
         /* 通知・ハザードアラート */
+        /* 通知・ハザードアラート */
         .alert-box {
             background: rgba(239, 68, 68, 0.1);
             border: 1px solid rgba(239, 68, 68, 0.2);
@@ -567,6 +630,56 @@
             justify-content: center;
             font-size: 0.75rem;
         }
+
+        /* アセットアラートのモダンなスタイル */
+        .asset-alert-box {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start; /* アイコンを上部に揃える */
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            transition: all 0.3s ease;
+        }
+
+        /* メンテナンス警告（オレンジ） */
+        .asset-alert-warning {
+            background: rgba(245, 158, 11, 0.08);
+            border-left: 4px solid #f59e0b;
+            border-top: 1px solid rgba(245, 158, 11, 0.15);
+            border-right: 1px solid rgba(245, 158, 11, 0.15);
+            border-bottom: 1px solid rgba(245, 158, 11, 0.15);
+            color: #ffedd5; /* コントラストを高めた読みやすい薄オレンジ */
+        }
+
+        /* FIT情報（ブルー） */
+        .asset-alert-info {
+            background: rgba(59, 130, 246, 0.08);
+            border-left: 4px solid #3b82f6;
+            border-top: 1px solid rgba(59, 130, 246, 0.15);
+            border-right: 1px solid rgba(59, 130, 246, 0.15);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+            color: #dbeafe; /* コントラストを高めた読みやすい薄ブルー */
+        }
+
+        .asset-alert-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            color: white;
+            font-weight: bold;
+            margin-right: 12px;
+            margin-top: 2px;
+            flex-shrink: 0;
+            font-size: 0.75rem;
+        }
+        .asset-alert-icon.warning { background: #d97706; }
+        .asset-alert-icon.info { background: #2563eb; }
 
         /* モーダルウィンドウ (印刷プレビュー) */
         .modal {
@@ -760,6 +873,155 @@
                 padding: 0 !important;
             }
         }
+
+        /* トグルスイッチスタイル */
+        .opt-switch {
+            position: relative;
+            display: inline-block;
+            width: 38px;
+            height: 20px;
+            margin-left: 10px;
+        }
+
+        .opt-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .opt-switch-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(148, 163, 184, 0.2);
+            transition: .3s;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .opt-switch-slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 2px;
+            bottom: 2px;
+            background-color: var(--text-secondary);
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .opt-switch-slider {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        input:checked + .opt-switch-slider:before {
+            transform: translateX(18px);
+            background-color: #fff;
+        }
+
+        .btn-guide:hover {
+            background: rgba(59, 130, 246, 0.3) !important;
+            border-color: #60a5fa !important;
+            color: #fff !important;
+        }
+        .guide-tab-btn:hover {
+            color: #60a5fa !important;
+        }
+
+        /* ROI比較テーブルのプランB（フル・リパワリング）推奨強調 */
+        .roi-compare-table th:nth-child(4) {
+            position: relative;
+            background: rgba(16, 185, 129, 0.15) !important;
+            border-left: 2px solid var(--accent-color) !important;
+            border-right: 2px solid var(--accent-color) !important;
+        }
+        .roi-compare-table td:nth-child(4) {
+            background: rgba(16, 185, 129, 0.08) !important;
+            border-left: 2px solid var(--accent-color) !important;
+            border-right: 2px solid var(--accent-color) !important;
+            font-weight: 700 !important;
+            color: #34d399 !important;
+        }
+        .roi-compare-table tr:first-child th:nth-child(4) {
+            border-top: 2px solid var(--accent-color) !important;
+        }
+        .roi-compare-table tr:last-child td:nth-child(4) {
+            border-bottom: 2px solid var(--accent-color) !important;
+        }
+
+        /* 印刷・PDFレポート出力用のレイアウト調整 */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+            }
+            .container {
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            header, .panel-controls, .btn-action, .btn-reset, .owner-only, .alert-box, .owner-hide, #fp-hazard-toggle-panel {
+                display: none !important;
+            }
+            .layout-grid {
+                display: block !important;
+            }
+            .dashboard-main {
+                width: 100% !important;
+                background: #ffffff !important;
+                gap: 15px !important;
+            }
+            .chart-container {
+                background: #ffffff !important;
+                border: 1px solid #cbd5e1 !important;
+                box-shadow: none !important;
+                page-break-inside: avoid;
+                margin-bottom: 15px !important;
+            }
+            .chart-title {
+                color: #0f172a !important;
+            }
+            .chart-container::after {
+                display: none !important;
+            }
+            .roi-compare-container {
+                background: #ffffff !important;
+                border: 1px solid #cbd5e1 !important;
+                color: #000000 !important;
+                page-break-inside: avoid;
+                box-shadow: none !important;
+            }
+            .roi-title {
+                color: #0f172a !important;
+                border-bottom: 1px solid #cbd5e1 !important;
+            }
+            .roi-compare-table th {
+                background: #f1f5f9 !important;
+                color: #0f172a !important;
+                border-bottom: 2px solid #cbd5e1 !important;
+            }
+            .roi-compare-table td {
+                color: #334155 !important;
+                border-bottom: 1px solid #e2e8f0 !important;
+            }
+            .roi-compare-table td:nth-child(4), .roi-compare-table th:nth-child(4) {
+                background: #f0fdf4 !important;
+                border-left: 2px solid #22c55e !important;
+                border-right: 2px solid #22c55e !important;
+                color: #15803d !important;
+            }
+            .roi-compare-table tr:first-child th:nth-child(4) {
+                border-top: 2px solid #22c55e !important;
+            }
+            .roi-compare-table tr:last-child td:nth-child(4) {
+                border-bottom: 2px solid #22c55e !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -772,8 +1034,8 @@
             デモ機能比較トグル:
         </span>
         <div class="mode-btn-group">
-            <button type="button" class="mode-btn active" id="mode-standard" onclick="switchMode('standard')">初期バージョン (標準シミュレーター)</button>
-            <button type="button" class="mode-btn" id="mode-fp" onclick="switchMode('fp-enhanced')">ブラッシュアップ版 (FP拡張シミュレーター)</button>
+            <button type="button" class="mode-btn" id="mode-standard" onclick="switchMode('standard')">シンプルバージョン</button>
+            <button type="button" class="mode-btn active" id="mode-fp" onclick="switchMode('fp-enhanced')">詳細バージョン</button>
         </div>
     </div>
 
@@ -782,13 +1044,18 @@
         <div class="logo-area">
             <div class="partner-logo">WE</div>
             <div class="logo-text">
-                <h1 id="header-main-title">ソーラーライフタイム・プランナー</h1>
+                <h1 id="header-main-title">ソラバリュー・シミュレーター</h1>
                 <span>Powered by そらスコ B2B2Cモジュール</span>
             </div>
         </div>
-        <div class="header-meta">
-            提案元: <strong>株式会社ワイヤーエナジー 営業部</strong><br>
-            作成日: <span id="current-date">2026-06-15</span>
+        <div class="header-meta" style="display: flex; align-items: center; gap: 15px;">
+            <div style="text-align: right; line-height: 1.35;">
+                提案元: <strong>株式会社ワイヤーエナジー 営業部</strong><br>
+                作成日: <span id="current-date">2026-06-15</span>
+            </div>
+            <button type="button" class="btn-guide" onclick="openGuideModal()" style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                <span>📖 ご利用ガイド</span>
+            </button>
         </div>
     </header>
 
@@ -797,25 +1064,27 @@
         
         <!-- 左：シミュレーション設定パネル -->
         <div class="panel-controls">
-            <div class="panel-title">
+            <div class="panel-title" style="display: flex; justify-content: space-between; align-items: center;">
                 <span>シミュレーション設定</span>
-                <span style="font-size: 0.8rem; color: var(--text-secondary);">※営業担当者入力用</span>
+                <button type="button" class="btn-reset" onclick="loadDemoData()">
+                    🔄 設定リセット
+                </button>
             </div>
 
             <div class="form-group">
-                <label for="solar-id">そらスコID連携</label>
+                <label for="solar-id">🔍 そらスコID連携</label>
                 <div style="display: flex; gap: 10px;">
-                    <input type="text" id="solar-id" class="input-text" value="SR-78901">
-                    <button type="button" class="btn-action" style="margin: 0; width: auto; padding: 0 15px;" onclick="loadDemoData()">読込</button>
+                    <input type="text" id="solar-id" class="input-text" value="A614245G36">
+                    <button type="button" class="btn-action" style="margin: 0; width: auto; padding: 0 15px; white-space: nowrap; flex-shrink: 0;" onclick="loadDemoData()">読込</button>
                 </div>
             </div>
 
             <!-- FP拡張モード専用：実績値キャリブレーション -->
             <div class="fp-only form-group" id="fp-calibration-panel" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px;">
-                <label for="actual-revenue-input">📊 実績値逆算キャリブレーション</label>
-                <div style="display: flex; gap: 8px;">
-                    <input type="number" id="actual-revenue-input" class="input-text" placeholder="直近1年の売電額 (万円)" style="flex: 1;">
-                    <button type="button" class="btn-action" style="margin: 0; width: auto; padding: 0 10px; font-size: 0.75rem;" onclick="applyCalibration()">適用</button>
+                <label for="actual-revenue-input">📊 直近1年の売電額（万円）</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" id="actual-revenue-input" class="input-text" placeholder="直近1年の売電額（万円）" style="flex: 1;">
+                    <button type="button" class="btn-action" style="margin: 0; width: auto; padding: 0 15px; white-space: nowrap; flex-shrink: 0;" onclick="applyCalibration()">適用</button>
                 </div>
                 <div id="calibration-status" class="calibration-badge" style="display: none;"></div>
             </div>
@@ -828,15 +1097,15 @@
                 </div>
                 <div class="accordion-body" id="accordion-body" style="display: none;">
                     <div class="form-group-sub">
-                        <label>標準パワコン交換単価 (万円/kW)</label>
+                        <label>🏷️ 標準パワコン交換単価（万円/kW）</label>
                         <input type="number" id="master-pcs-cost-kw" class="input-text-sub" value="3.0" onchange="updateSimulation()">
                     </div>
                     <div class="form-group-sub">
-                        <label>想定年間維持管理費 (万円/年)</label>
+                        <label>💰 想定年間維持管理費（万円/年）</label>
                         <input type="number" id="master-om-cost-year" class="input-text-sub" value="15" onchange="updateSimulation()">
                     </div>
                     <div class="form-group-sub">
-                        <label>買収想定マージン率 (%)</label>
+                        <label>📈 買収想定マージン率（％）</label>
                         <input type="number" id="master-margin-percent" class="input-text-sub" value="10" onchange="updateSimulation()">
                     </div>
                 </div>
@@ -844,18 +1113,27 @@
 
             <!-- スライダーパラメータ -->
             <div class="form-group">
-                <label for="repower-cost">リパワリング投資額 <span id="repower-cost-val">800</span>万円</label>
+                <label for="repower-cost" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <span>🏗️ リパワリング投資額（万円）</span>
+                    <span id="repower-cost-val" style="font-weight: bold; color: var(--accent-color);">800</span>
+                </label>
                 <input type="range" id="repower-cost" class="slider" min="100" max="2500" step="50" value="800" oninput="updateSimulation()">
             </div>
 
             <div class="form-group">
-                <label for="generation-boost">想定発電量改善率 <span id="generation-boost-val">15</span>%</label>
+                <label for="generation-boost" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <span>📈 想定発電量改善率（％）</span>
+                    <span id="generation-boost-val" style="font-weight: bold; color: var(--accent-color);">15</span>
+                </label>
                 <input type="range" id="generation-boost" class="slider" min="5" max="30" step="1" value="15" oninput="updateSimulation()">
             </div>
 
             <!-- 初期バージョン用：標準パワコン更新費用 -->
             <div class="form-group standard-only">
-                <label for="pcs-cost">パワコン更新費用 <span id="pcs-cost-val">150</span>万円</label>
+                <label for="pcs-cost" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <span>⚡ パワコン更新費用（万円）</span>
+                    <span id="pcs-cost-val" style="font-weight: bold; color: var(--accent-color);">150</span>
+                </label>
                 <input type="range" id="pcs-cost" class="slider" min="50" max="800" step="10" value="150" oninput="updateSimulation()">
             </div>
 
@@ -889,18 +1167,73 @@
             </div>
 
             <div class="form-group">
-                <label for="pcs-year">想定パワコン更新年 <span id="pcs-year-val">12</span>年目</label>
+                <label for="pcs-year" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <span>📅 想定パワコン更新年（年目）</span>
+                    <span id="pcs-year-val" style="font-weight: bold; color: var(--accent-color);">12</span>
+                </label>
                 <input type="range" id="pcs-year" class="slider" min="10" max="20" step="1" value="12" oninput="updateSimulation()">
             </div>
 
             <div class="form-group">
-                <label for="fit-price">FIT売電単価 <span id="fit-price-val">24.0</span>円/kWh</label>
+                <label for="fit-price" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <span>💴 FIT売電単価（円/kWh）</span>
+                    <span id="fit-price-val" style="font-weight: bold; color: var(--accent-color);">24.0</span>
+                </label>
                 <input type="range" id="fit-price" class="slider" min="10.0" max="42.0" step="1.0" value="24.0" oninput="updateSimulation()">
             </div>
 
             <div class="form-group">
-                <label for="post-fit-price">卒FIT後想定買取単価 <span id="post-fit-price-val">8.5</span>円/kWh</label>
+                <label for="post-fit-price" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <span>💴 卒FIT後想定買取単価（円/kWh）</span>
+                    <span id="post-fit-price-val" style="font-weight: bold; color: var(--accent-color);">8.5</span>
+                </label>
                 <input type="range" id="post-fit-price" class="slider" min="5.0" max="12.0" step="0.5" value="8.5" oninput="updateSimulation()">
+            </div>
+
+            <!-- 将来オプション設定（FIP転換・蓄電池併設） -->
+            <div class="form-group" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px;">
+                <label style="font-weight: 600; display: block; margin-bottom: 12px; color: var(--warning-color);">📌 将来オプション設定</label>
+                
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <!-- シミュレーション評価期間 -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <span style="font-size: 0.85rem;">📅 評価期間</span>
+                        <select id="sim-years" class="input-text-sub" onchange="updateSimulation()" style="width: auto; padding: 4px 10px; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 6px; font-size: 0.8rem;">
+                            <option value="15">15年間</option>
+                            <option value="20" selected>20年間</option>
+                            <option value="25">25年間</option>
+                            <option value="30">30年間（FIT後存続考慮）</option>
+                            <option value="35">35年間（FIT後存続考慮）</option>
+                            <option value="40">40年間（FIT後存続考慮）</option>
+                        </select>
+                    </div>
+                    <!-- FIP転換トグル -->
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span style="font-size: 0.85rem;">🔄 FIP制度への転換（市場連動化）</span>
+                        <label class="opt-switch">
+                            <input type="checkbox" id="fip-checkbox" onchange="updateSimulation()">
+                            <span class="opt-switch-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <!-- 蓄電池併設トグル -->
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <span style="font-size: 0.85rem;">🔋 蓄電池（バッテリー）併設</span>
+                        <label class="opt-switch">
+                            <input type="checkbox" id="battery-checkbox" onchange="toggleBatterySlider()">
+                            <span class="opt-switch-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <!-- 蓄電池容量（トグルON時のみ表示） -->
+                    <div id="battery-capacity-group" style="display: none; background: rgba(16, 185, 129, 0.05); padding: 10px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.1); margin-top: 5px;">
+                        <label style="font-size: 0.75rem; color: var(--text-secondary); display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>🔋 蓄電池容量（kWh）</span>
+                            <span><span id="battery-capacity-val">50</span> kWh</span>
+                        </label>
+                        <input type="range" id="battery-capacity" class="slider" min="10" max="200" step="10" value="50" oninput="updateSimulation()" style="height: 4px; margin: 0;">
+                    </div>
+                </div>
             </div>
 
             <!-- 通常印刷 or 提案書PDFモーダル表示 -->
@@ -926,51 +1259,124 @@
         </div>
 
         <!-- 右：シミュレーションダッシュボード -->
-        <div class="dashboard-main">
-            
-            <!-- オーナー専用：アセット資産評価額表示 -->
-            <div class="owner-only" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(59, 130, 246, 0.3); padding: 15px; border-radius: 8px;">
-                    <div style="font-size: 0.7rem; color: #60a5fa; font-weight: bold; margin-bottom: 5px; text-transform: uppercase;">ASSET VALUATION / アセット評価額</div>
-                    <div style="font-size: 1.5rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 3px;">
-                        <span style="color: #60a5fa; font-size: 1.1rem;">¥</span><span id="owner-asset-value">24,500,000</span>
+            <div class="dashboard-main">
+            <!-- グラフ拡大モーダル (右カラム全体を覆う絶対配置オーバーレイ) -->
+            <div id="chart-zoom-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.97); backdrop-filter: blur(12px); border: 1px solid var(--border-color); border-radius: 16px; padding: 25px 30px; color: white; flex-direction: column; z-index: 1000; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);" onclick="closeChartZoomModal()">
+                <div style="width: 100%; height: 100%; display: flex; flex-direction: column; position: relative;" onclick="event.stopPropagation()">
+                    <!-- 閉じるボタン -->
+                    <button type="button" style="position: absolute; top: -5px; right: -5px; background: none; border: none; color: var(--text-secondary); font-size: 2.2rem; line-height: 1; cursor: pointer; transition: color 0.2s;" onclick="closeChartZoomModal()">&times;</button>
+                    
+                    <h3 id="zoom-modal-title" style="margin-top: 5px; margin-bottom: 20px; font-size: 1.25rem; font-weight: 600; text-align: left; padding-right: 40px; color: white; border-left: 4px solid var(--accent-color); padding-left: 12px;">📊 シミュレーション詳細比較（累計回収 ＆ 年間手取り予測）</h3>
+                    
+                    <!-- 上下並びのグラフエリア -->
+                    <div style="display: grid; grid-template-rows: 1fr 1fr; gap: 15px; flex: 1; min-height: 0; width: 100%; margin-top: 5px;">
+                        <!-- 上：累積CF -->
+                        <div style="display: flex; flex-direction: column; background: rgba(30, 41, 59, 0.45); border: 1px solid rgba(255,255,255,0.06); padding: 15px 20px; border-radius: 12px; position: relative;">
+                            <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                                <span>📈 累積キャッシュフロー推移（回収イメージ）</span>
+                            </div>
+                            <div style="height: calc(100% - 35px); width: 100%; position: relative;">
+                                <canvas id="zoomChartCanvas"></canvas>
+                            </div>
+                        </div>
+                        <!-- 下：単年手取り -->
+                        <div style="display: flex; flex-direction: column; background: rgba(30, 41, 59, 0.45); border: 1px solid rgba(255,255,255,0.06); padding: 15px 20px; border-radius: 12px; position: relative;">
+                            <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                                <span>📅 年間手取り収支推移（単年予測）</span>
+                            </div>
+                            <div style="height: calc(100% - 35px); width: 100%; position: relative;">
+                                <canvas id="zoomChartCanvas2"></canvas>
+                            </div>
+                        </div>
                     </div>
-                    <div style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 5px;">※現在の設備状態、残存FIT売電額、立地リスク等を加味した期待残存収支（そらスコ査定評価）</div>
-                </div>
-                <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(16, 185, 129, 0.3); padding: 15px; border-radius: 8px;">
-                    <div style="font-size: 0.7rem; color: #34d399; font-weight: bold; margin-bottom: 5px; text-transform: uppercase;">EXPECTED CF / 20年予測生涯CF</div>
-                    <div style="font-size: 1.5rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 3px;">
-                        <span style="color: #34d399; font-size: 1.1rem;">¥</span><span id="owner-lifetime-cf">39,800,000</span>
-                    </div>
-                    <div style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 5px;">※現状維持時の20年間累積推定収支（O&M費用・PCS修繕引当控除後）</div>
-                </div>
-                <div class="card" id="pcs-risk-card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid #fbbf24; padding: 15px; border-radius: 8px;">
-                    <div style="font-size: 0.7rem; color: #fbbf24; font-weight: bold; margin-bottom: 5px; text-transform: uppercase;">PCS FAILURE RISK / パワコン故障確率</div>
-                    <div style="font-size: 1.5rem; font-weight: bold; color: #fbbf24; display: flex; align-items: baseline; gap: 3px;">
-                        <span id="pcs-risk-percent">12%</span>
-                    </div>
-                    <div style="font-size: 0.65rem; color: var(--text-secondary); margin-top: 5px;" id="pcs-risk-desc">※シグモイド故障確率モデルによる予測</div>
                 </div>
             </div>
 
-            <!-- オーナー専用：アセットアラート警告 -->
-            <div class="owner-only alert-box" id="owner-pcs-alert" style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; color: #f59e0b; margin-bottom: 15px; display: flex; align-items: center; padding: 12px 15px; border-radius: 8px;">
-                <span class="alert-icon" style="background: #f59e0b; display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; color: white; font-weight: bold; margin-right: 10px; flex-shrink: 0;">!</span>
-                <span style="font-size: 0.85rem; line-height: 1.4;"><strong>🔧 メンテナンスアラート:</strong> 発電所の経過年数に基づき、<strong>あと1年でパワーコンディショナ（PCS）の交換推奨時期</strong>に達します。交換費用（推定150万円〜）の準備、または施工店への見積依頼をご検討ください。</span>
-            </div>
-            <div class="owner-only alert-box" id="owner-fit-alert" style="background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; color: #3b82f6; margin-bottom: 15px; display: flex; align-items: center; padding: 12px 15px; border-radius: 8px;">
-                <span class="alert-icon" style="background: #3b82f6; display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; color: white; font-weight: bold; margin-right: 10px; flex-shrink: 0;">i</span>
-                <span style="font-size: 0.85rem; line-height: 1.4;"><strong>ℹ️ FIT期間アラート:</strong> 本発電所は稼働開始から10年が経過しており、<strong>あと10年（120ヶ月）でFIT調達期間が終了し卒FIT</strong>を迎えます。早期の売却・セカンダリー入札、またはPPAプランへの移行検討をお勧めします。</span>
+            <!-- ステータス ＆ アラート概要 (アコーディオン形式) -->
+            <div id="alert-summary-container" style="margin-bottom: 20px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(30, 41, 59, 0.4); overflow: hidden; max-width: 900px; width: 100%;">
+                <div id="alert-summary-header" onclick="toggleAlertAccordion()" style="padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; background: rgba(245, 158, 11, 0.08); transition: background 0.2s;">
+                    <div style="display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: bold; color: #fbbf24;">
+                        <span id="alert-summary-icon" style="font-size: 1rem;">⚠️</span>
+                        <span id="alert-summary-title">発電所に関するステータス・警告（クリックで展開）</span>
+                    </div>
+                    <span id="alert-summary-arrow" style="font-size: 0.75rem; color: var(--text-secondary); transition: transform 0.2s;">▼</span>
+                </div>
+                <div id="alert-details-content" style="display: none; padding: 15px; border-top: 1px solid var(--border-color); flex-direction: column; gap: 10px; background: rgba(15, 23, 42, 0.3);">
+                    <!-- オーナー専用：アセットアラート警告 -->
+                    <div class="owner-only asset-alert-box asset-alert-warning" id="owner-pcs-alert" style="margin-bottom: 0;">
+                        <span class="asset-alert-icon warning">!</span>
+                        <span id="owner-pcs-alert-text" style="font-size: 0.85rem; line-height: 1.4;"></span>
+                    </div>
+                    <div class="owner-only asset-alert-box asset-alert-info" id="owner-fit-alert" style="margin-bottom: 0;">
+                        <span class="asset-alert-icon info">i</span>
+                        <span id="owner-fit-alert-text" style="font-size: 0.85rem; line-height: 1.4;"></span>
+                    </div>
+
+                    <!-- ハザードアラート -->
+                    <div class="alert-box" id="hazard-alert" style="margin-bottom: 0;">
+                        <span class="alert-icon">!</span>
+                        <span id="hazard-alert-text"><strong>ハザードリスク情報:</strong> 吉野川洪水浸水想定区域（浸水深0.5m〜1.0m）に近接。浸水時の架台かさ上げ等の対策を推奨。</span>
+                    </div>
+                </div>
             </div>
 
-            <!-- ハザードアラート -->
-            <div class="alert-box" id="hazard-alert">
-                <span class="alert-icon">!</span>
-                <span id="hazard-alert-text"><strong>ハザードリスク警告:</strong> この発電所は「土砂災害警戒区域（イエローゾーン）」に近接しています。撤去・解体時の予備費＋50万円を自動で見積もっています。</span>
+            <!-- 基本スペック要約 (上部配置、最大幅制限で間延び防止) -->
+            <div style="max-width: 900px; width: 100%; margin-bottom: 20px;">
+                <div style="font-size: 0.85rem; font-weight: bold; color: var(--text-primary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                    <span>📋 発電所基本スペック</span>
+                </div>
+                <div class="spec-summary" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+                    <div class="spec-card">
+                        <div class="spec-label">発電所名 / 所在地</div>
+                        <div class="spec-value" style="font-size: 0.95rem; line-height: 1.3;" id="spec-name">ワイヤーエナジー吉野川発電所<br><span style="font-size: 0.75rem; color: var(--text-secondary); font-weight: normal;">徳島県吉野川市</span></div>
+                    </div>
+                    <div class="spec-card info">
+                        <div class="spec-label">システム容量</div>
+                        <div class="spec-value" id="spec-capacity">100.0<span class="spec-unit">kW</span></div>
+                    </div>
+                    <div class="spec-card info">
+                        <div class="spec-label">FIT売電単価</div>
+                        <div class="spec-value" id="spec-fit-price">32.0<span class="spec-unit">円</span></div>
+                    </div>
+                    <div class="spec-card danger">
+                        <div class="spec-label">経過年数 / 残存FIT</div>
+                        <div class="spec-value" id="spec-years">8年<span class="spec-unit">/ 残り12年</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- オーナー専用：アセット資産評価額表示 (上部配置、最大幅制限で間延び防止) -->
+            <div class="owner-only" style="max-width: 900px; width: 100%; margin-bottom: 25px;">
+                <div style="font-size: 0.85rem; font-weight: bold; color: var(--text-primary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                    <span>💎 アセット資産評価（そらスコ査定）</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                    <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(59, 130, 246, 0.3); padding: 12px 15px; border-radius: 8px;">
+                        <div style="font-size: 0.65rem; color: #60a5fa; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">💎 アセット評価額</div>
+                        <div style="font-size: 1.3rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 3px;">
+                            <span style="color: #60a5fa; font-size: 1rem;">¥</span><span id="owner-asset-value">24,500,000</span>
+                        </div>
+                        <div style="font-size: 0.6rem; color: var(--text-secondary); margin-top: 3px;">※現在の設備状態、残存FIT売電額、立地リスク等を考慮した期待残存収支</div>
+                    </div>
+                    <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(16, 185, 129, 0.3); padding: 12px 15px; border-radius: 8px;">
+                        <div id="owner-lifetime-cf-title" style="font-size: 0.65rem; color: #34d399; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">💰 20年予測生涯CF</div>
+                        <div style="font-size: 1.3rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 3px;">
+                            <span style="color: #34d399; font-size: 1rem;">¥</span><span id="owner-lifetime-cf">39,800,000</span>
+                        </div>
+                        <div id="owner-lifetime-cf-desc" style="font-size: 0.6rem; color: var(--text-secondary); margin-top: 3px;">※現状維持時の20年間累積推定収支</div>
+                    </div>
+                    <div class="card" id="pcs-risk-card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid #fbbf24; padding: 12px 15px; border-radius: 8px;">
+                        <div style="font-size: 0.65rem; color: #fbbf24; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">⚠️ パワコン故障確率</div>
+                        <div style="font-size: 1.3rem; font-weight: bold; color: #fbbf24; display: flex; align-items: baseline; gap: 3px;">
+                            <span id="pcs-risk-percent">12%</span>
+                        </div>
+                        <div style="font-size: 0.6rem; color: var(--text-secondary); margin-top: 3px;" id="pcs-risk-desc">※シグモイド故障確率モデルによる予測</div>
+                    </div>
+                </div>
             </div>
 
             <!-- FP拡張モード専用：ハザード連動トグル -->
-            <div class="fp-only" id="fp-hazard-toggle-panel" style="margin-bottom: 5px;">
+            <div class="fp-only" id="fp-hazard-toggle-panel" style="margin-bottom: 20px; max-width: 900px; width: 100%;">
                 <label class="switch-wrap">
                     <input type="checkbox" id="fp-hazard-checkbox" checked onchange="toggleHazardSwitch()">
                     <span class="switch-slider"></span>
@@ -978,36 +1384,25 @@
                 </label>
             </div>
 
-            <!-- 基本スペック要約 -->
-            <div class="spec-summary">
-                <div class="spec-card">
-                    <div class="spec-label">発電所名 / 所在地</div>
-                    <div class="spec-value" style="font-size: 1.1rem; line-height: 1.3;" id="spec-name">高松第3太陽光発電所<br><span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: normal;">香川県高松市</span></div>
-                </div>
-                <div class="spec-card info">
-                    <div class="spec-label">システム容量</div>
-                    <div class="spec-value" id="spec-capacity">49.5<span class="spec-unit">kW</span></div>
-                </div>
-                <div class="spec-card info">
-                    <div class="spec-label">FIT売電単価</div>
-                    <div class="spec-value" id="spec-fit-price">24.0<span class="spec-unit">円</span></div>
-                </div>
-                <div class="spec-card danger">
-                    <div class="spec-label">経過年数 / 残存FIT</div>
-                    <div class="spec-value" id="spec-years">10年<span class="spec-unit">/ 残り10年</span></div>
-                </div>
-            </div>
-
-            <!-- グラフ ＆ ROI -->
+            <!-- グラフ ＆ ROI (最上部に配置) -->
             <div class="visual-area">
-                
-                <!-- 20年間累積キャッシュフロー推移 -->
-                <div class="chart-container">
+                <!-- 累積キャッシュフロー推移 -->
+                <div class="chart-container" style="margin-bottom: 20px;" onclick="openChartZoom('cf')">
                     <div class="chart-header">
-                        <div class="chart-title">20年間の累積キャッシュフロー予測（維持 vs リパワリング）</div>
+                        <div class="chart-title" id="cf-chart-title">累積キャッシュフロー予測（全体回収イメージ）</div>
                     </div>
-                    <div style="height: 320px; position: relative;">
+                    <div style="height: 38vh; min-height: 280px; max-height: 450px; position: relative;">
                         <canvas id="cfChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 単年度（年間）キャッシュフロー推移 -->
+                <div class="chart-container" style="margin-bottom: 20px;" onclick="openChartZoom('annual')">
+                    <div class="chart-header">
+                        <div class="chart-title" id="annual-chart-title">年間キャッシュフロー推移（毎年の収支）</div>
+                    </div>
+                    <div style="height: 38vh; min-height: 280px; max-height: 450px; position: relative;">
+                        <canvas id="annualChart"></canvas>
                     </div>
                 </div>
 
@@ -1026,22 +1421,46 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>初期投資額</td>
+                                    <td>投資額</td>
                                     <td>0万円</td>
                                     <td id="roi-pcs-investment">150万円</td>
                                     <td id="roi-repower-investment">800万円</td>
                                 </tr>
                                 <tr>
-                                    <td>20年累積売電額</td>
+                                    <td id="roi-sales-label">累積売電額</td>
                                     <td id="roi-base-sales">2,400万円</td>
                                     <td id="roi-pcs-sales">2,550万円</td>
                                     <td id="roi-repower-sales">3,100万円</td>
                                 </tr>
                                 <tr>
-                                    <td>20年生涯CF</td>
-                                    <td id="roi-base-cf" style="font-weight: bold;">1,800万円</td>
-                                    <td id="roi-pcs-cf" style="font-weight: bold; color: #60a5fa;">1,950万円</td>
-                                    <td id="roi-repower-cf" style="font-weight: bold; color: var(--accent-color);">2,100万円</td>
+                                    <td>平均年間手取り (FIT中)</td>
+                                    <td id="roi-base-annual-fit">-</td>
+                                    <td id="roi-pcs-annual-fit">-</td>
+                                    <td id="roi-repower-annual-fit">-</td>
+                                </tr>
+                                <tr style="background: rgba(59, 130, 246, 0.05); font-size: 0.85rem;">
+                                    <td style="padding-left: 20px; color: var(--text-secondary);">↳ 維持比での年間追加手取り</td>
+                                    <td style="color: var(--text-secondary);">-</td>
+                                    <td id="roi-pcs-annual-fit-diff" style="color: #60a5fa; font-weight: bold;">-</td>
+                                    <td id="roi-repower-annual-fit-diff" style="color: var(--accent-color); font-weight: bold;">-</td>
+                                </tr>
+                                <tr>
+                                    <td>平均年間手取り (FIT後)</td>
+                                    <td id="roi-base-annual-post">-</td>
+                                    <td id="roi-pcs-annual-post">-</td>
+                                    <td id="roi-repower-annual-post">-</td>
+                                </tr>
+                                <tr style="background: rgba(59, 130, 246, 0.05); font-size: 0.85rem;">
+                                    <td style="padding-left: 20px; color: var(--text-secondary);">↳ 維持比での年間追加手取り</td>
+                                    <td style="color: var(--text-secondary);">-</td>
+                                    <td id="roi-pcs-annual-post-diff" style="color: #60a5fa; font-weight: bold;">-</td>
+                                    <td id="roi-repower-annual-post-diff" style="color: var(--accent-color); font-weight: bold;">-</td>
+                                </tr>
+                                <tr style="border-top: 1px solid var(--border-color);">
+                                    <td id="roi-cf-label">20年生涯CF (手取り)</td>
+                                    <td id="roi-base-cf" style="font-weight: bold;">3,000万円</td>
+                                    <td id="roi-pcs-cf" style="color: #60a5fa; font-weight: bold;">3,150万円</td>
+                                    <td id="roi-repower-cf" style="color: var(--accent-color); font-weight: bold;">3,800万円</td>
                                 </tr>
                                 <tr>
                                     <td>実質純増収 (維持比)</td>
@@ -1058,8 +1477,11 @@
                             </tbody>
                         </table>
                     </div>
-                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 10px;">
-                        ※シミュレーションは標準的劣化モデル（年0.5%劣化）に基づき算出しています。プランAは高効率PCS化に伴う発電改善効果を想定。
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 10px; line-height: 1.4;">
+                        ※シミュレーションは標準的劣化モデル（年0.5%劣化）に基づき算出しています。<br>
+                        ※プランAは高効率PCS化に伴う発電改善効果（改善率スライダー連動）を想定。<br>
+                        ※プランBは過積載容量を1.4倍に増設（1.3倍超の超過分には0.85のピークカット減衰補正を適用した実効1.385倍）し、かつ高効率PCS化とパネル高効率化による発電量向上（向上率スライダー連動）を織り込んでいます。<br>
+                        ※蓄電池ONの場合は、15年周期で同容量の蓄電池再交換コスト（15万円/kWh）が発生する前提で経費に算入しています。
                     </div>
                 </div>
 
@@ -1089,7 +1511,7 @@
                     </div>
                     <div class="pdf-meta-area">
                         提案日: <span id="pdf-current-date">2026-06-15</span><br>
-                        そらスコID: <strong id="pdf-id">SR-78901</strong>
+                        そらスコID: <strong id="pdf-id">A614245G36</strong>
                     </div>
                 </div>
                 <hr style="border:0; border-top:1px solid #cbd5e1; margin: 15px 0;">
@@ -1098,24 +1520,35 @@
                     <h4>1. 対象発電所基本情報</h4>
                     <table class="pdf-table">
                         <tr>
-                            <th>発電所名</th><td id="pdf-spec-name">高松第3太陽光発電所</td>
-                            <th>所在地</th><td id="pdf-spec-location">香川県高松市</td>
+                            <th>発電所名</th><td id="pdf-spec-name">ワイヤーエナジー吉野川発電所</td>
+                            <th>所在地</th><td id="pdf-spec-location">徳島県吉野川市</td>
                         </tr>
                         <tr>
-                            <th>システム容量</th><td id="pdf-spec-capacity">49.5 kW</td>
-                            <th>FIT売電単価</th><td id="pdf-spec-fit-price">24.0 円</td>
+                            <th>システム容量</th><td id="pdf-spec-capacity">100.0 kW</td>
+                            <th>FIT売電単価</th><td id="pdf-spec-fit-price">32.0 円</td>
                         </tr>
                         <tr>
-                            <th>経過年数</th><td id="pdf-spec-years">10 年</td>
-                            <th>残存FIT期間</th><td id="pdf-spec-remaining">10 年</td>
+                            <th>経過年数</th><td id="pdf-spec-years">8 年</td>
+                            <th>残存FIT期間</th><td id="pdf-spec-remaining">12 年</td>
                         </tr>
                     </table>
                 </div>
                 
                 <div class="pdf-section">
-                    <h4>2. 提案シミュレーション結果（20年間累積キャッシュフロー）</h4>
-                    <div style="height: 250px; margin: 15px 0; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px;">
-                        <canvas id="pdfChart"></canvas>
+                    <h4>2. 提案シミュレーション結果（キャッシュフロー推移）</h4>
+                    <div style="display: flex; gap: 15px; margin: 10px 0;">
+                        <div style="flex: 1; height: 180px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px; position: relative;">
+                            <p style="margin:0 0 5px 0; font-size:0.7rem; font-weight:bold; color:#1e293b; text-align: left;">累積キャッシュフロー（全体回収イメージ）</p>
+                            <div style="height: 150px; position: relative;">
+                                <canvas id="pdfChart"></canvas>
+                            </div>
+                        </div>
+                        <div style="flex: 1; height: 180px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px; position: relative;">
+                            <p style="margin:0 0 5px 0; font-size:0.7rem; font-weight:bold; color:#1e293b; text-align: left;">年間キャッシュフロー（毎年の収支）</p>
+                            <div style="height: 150px; position: relative;">
+                                <canvas id="pdfAnnualChart"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -1132,19 +1565,43 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td style="text-align: left; font-weight: bold;">初期投資額</td>
+                                <td style="text-align: left; font-weight: bold;">投資額</td>
                                 <td>0万円</td>
                                 <td id="pdf-roi-pcs-investment">150万円</td>
                                 <td id="pdf-roi-repower-investment">800万円</td>
                             </tr>
                             <tr>
-                                <td style="text-align: left; font-weight: bold;">20年累積売電額</td>
+                                <td style="text-align: left; font-weight: bold;" id="pdf-roi-sales-label">累積売電額</td>
                                 <td id="pdf-roi-base-sales">2,400万円</td>
                                 <td id="pdf-roi-pcs-sales">2,550万円</td>
                                 <td id="pdf-roi-repower-sales">3,100万円</td>
                             </tr>
                             <tr>
-                                <td style="text-align: left; font-weight: bold;">20年生涯CF</td>
+                                <td style="text-align: left; font-weight: bold;">平均年間手取り (FIT中)</td>
+                                <td id="pdf-roi-base-annual-fit">-</td>
+                                <td id="pdf-roi-pcs-annual-fit">-</td>
+                                <td id="pdf-roi-repower-annual-fit">-</td>
+                            </tr>
+                            <tr style="background: rgba(59, 130, 246, 0.05); font-size: 0.85rem;">
+                                <td style="text-align: left; padding-left: 20px; color: #475569;">↳ 維持比での年間追加手取り</td>
+                                <td style="color: #64748b;">-</td>
+                                <td id="pdf-roi-pcs-annual-fit-diff" style="color: #1e3a8a; font-weight: bold;">-</td>
+                                <td id="pdf-roi-repower-annual-fit-diff" style="color: #0f766e; font-weight: bold;">-</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left; font-weight: bold;">平均年間手取り (FIT後)</td>
+                                <td id="pdf-roi-base-annual-post">-</td>
+                                <td id="pdf-roi-pcs-annual-post">-</td>
+                                <td id="pdf-roi-repower-annual-post">-</td>
+                            </tr>
+                            <tr style="background: rgba(16, 185, 129, 0.05); font-size: 0.85rem;">
+                                <td style="text-align: left; padding-left: 20px; color: #475569;">↳ 維持比での年間追加手取り</td>
+                                <td style="color: #64748b;">-</td>
+                                <td id="pdf-roi-pcs-annual-post-diff" style="color: #1e3a8a; font-weight: bold;">-</td>
+                                <td id="pdf-roi-repower-annual-post-diff" style="color: #0f766e; font-weight: bold;">-</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left; font-weight: bold;" id="pdf-roi-cf-label">生涯CF (手残り)</td>
                                 <td id="pdf-roi-base-cf" style="font-weight: bold;">1,800万円</td>
                                 <td id="pdf-roi-pcs-cf" style="font-weight: bold; color: #1e3a8a;">1,950万円</td>
                                 <td id="pdf-roi-repower-cf" style="font-weight: bold; color: #0f766e;">2,100万円</td>
@@ -1170,8 +1627,12 @@
                     <p class="pdf-warning" id="pdf-hazard-text">土砂災害警戒区域（イエローゾーン）に近接。撤去・解体時の予備費＋50万円を自動で見積もり。</p>
                 </div>
                 
-                <div class="pdf-footer-terms">
-                    <p>※本提案シミュレーションは、過去の気象データ及び標準的な経年劣化モデル等に基づいて算出された推定値であり、将来の発電量を完全に保証するものではありません。</p>
+                <div class="pdf-footer-terms" style="line-height: 1.3; font-size: 0.65rem;">
+                    <p>
+                        ※本提案シミュレーションは、過去の気象データ及び標準的な経年劣化モデル等に基づいて算出された推定値であり、将来の発電量を完全に保証するものではありません。<br>
+                        ※プランAは高効率PCS化に伴う発電改善効果、プランBは過積載容量を1.4倍に増設（1.3倍超超過分に0.85減衰補正を適用した実効1.385倍）し、かつパネル・PCSの効率向上（向上率連動）を織り込んでいます。<br>
+                        ※蓄電池ON時は、15年周期での蓄電池再交換コスト（15万円/kWh）を経費に算入して計算しています。
+                    </p>
                 </div>
             </div>
         </div>
@@ -1181,9 +1642,81 @@
     </div>
 </div>
 
+<!-- ご利用ガイドモーダル -->
+<div id="guide-modal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 800px; background: #0f172a; color: white; border: 1px solid var(--border-color); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+        <div class="modal-header" style="border-bottom: 1px solid var(--border-color); padding: 15px 20px;">
+            <h2 style="font-size: 1.2rem; color: white; display: flex; align-items: center; gap: 8px; margin: 0;">
+                <span>📖 ソラバリュー・シミュレーター ご利用ガイド</span>
+            </h2>
+            <span class="close-modal" onclick="closeGuideModal()" style="color: var(--text-secondary);">&times;</span>
+        </div>
+        <div class="modal-body" style="padding: 20px;">
+            <!-- モーダル内タブ切り替え -->
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 10px;">
+                <button type="button" class="guide-tab-btn active" id="tab-btn-usage" onclick="switchGuideTab('usage')" style="background: none; border: none; color: #60a5fa; border-bottom: 2px solid #60a5fa; padding: 6px 12px; font-weight: bold; cursor: pointer; transition: all 0.2s;">使い方</button>
+                <button type="button" class="guide-tab-btn" id="tab-btn-plans" onclick="switchGuideTab('plans')" style="background: none; border: none; color: var(--text-secondary); padding: 6px 12px; cursor: pointer; transition: all 0.2s;">プラン解説</button>
+                <button type="button" class="guide-tab-btn" id="tab-btn-tech" onclick="switchGuideTab('tech')" style="background: none; border: none; color: var(--text-secondary); padding: 6px 12px; cursor: pointer; transition: all 0.2s;">技術的仕様</button>
+            </div>
+
+            <!-- タブコンテンツ1: 使い方 -->
+            <div id="guide-tab-usage" class="guide-tab-content" style="display: block; line-height: 1.6; font-size: 0.85rem;">
+                <h3 style="color: #60a5fa; font-size: 1rem; margin-top: 0; margin-bottom: 10px;">⚙️ 簡単な操作手順</h3>
+                <ol style="padding-left: 20px; margin-bottom: 20px;">
+                    <li style="margin-bottom: 8px;"><strong>そらスコID連携:</strong> 左側のID入力欄に発電所ID（デモ用: <code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">A614245G36</code> など）を入力して「読込」を押すと、発電所の実スペックや立地・ハザード情報が自動ロードされます。</li>
+                    <li style="margin-bottom: 8px;"><strong>スライダーパラメータ調整:</strong> リパワリングの投資額や、パワコンの更新コスト、想定する発電量改善率などのスライダーを動かすと、即座に右側のグラフとROI表が再計算されます。</li>
+                    <li style="margin-bottom: 8px;"><strong>詳細オプション:</strong> 将来のFIP移行トグルや、蓄電池（バッテリー）併設時のシミュレーションも、トグルONにすることでリアルタイムに反映されます。</li>
+                    <li style="margin-bottom: 8px;"><strong>提案書PDF出力:</strong> 左下の「提案書PDFプレビューを表示」（詳細バージョン時）をクリックすると、A4印刷に最適化された営業提案書が生成され、印刷・PDF保存が可能です。</li>
+                </ol>
+            </div>
+
+            <!-- タブコンテンツ2: プラン解説 -->
+            <div id="guide-tab-plans" class="guide-tab-content" style="display: none; line-height: 1.6; font-size: 0.85rem;">
+                <h3 style="color: #60a5fa; font-size: 1rem; margin-top: 0; margin-bottom: 10px;">📊 3つのシミュレーションプラン</h3>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border-left: 4px solid #94a3b8;">
+                        <strong style="color: white; display: block; margin-bottom: 4px;">① 現状維持（成り行き）</strong>
+                        追加投資をせず運用を続けるプラン。経年劣化（年0.5%）やパワコン交換を考慮しないため、長期的な突発故障による売電損失リスクをそのまま抱えることになります。
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                        <strong style="color: #60a5fa; display: block; margin-bottom: 4px;">② プランA：PCS一括交換</strong>
+                        寿命を迎えるパワーコンディショナ（PCS）を新型の高効率機に一括交換するプラン。初期投資額は少ない（100〜200万程度）ですが、新型PCSによる発電量改善効果（標準+3%〜スライダー連動）が得られます。
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border-left: 4px solid var(--accent-color);">
+                        <strong style="color: var(--accent-color); display: block; margin-bottom: 4px;">③ プランB：フル・リパワリング（推奨）</strong>
+                        パネルを高効率品に全面交換し、同時に過積載を1.4倍に増設、高効率新型PCSへの更新をセットで行うプラン。初期投資は大きい（800万〜1500万程度）ですが、発電量が大幅にブーストされ（スライダー連動 ＆ 過積載ピークカット補正を加味）、最も高い生涯利益（ROI）をもたらします。
+                    </div>
+                </div>
+            </div>
+
+            <!-- タブコンテンツ3: 技術的仕様 -->
+            <div id="guide-tab-tech" class="guide-tab-content" style="display: none; line-height: 1.6; font-size: 0.85rem;">
+                <h3 style="color: #60a5fa; font-size: 1rem; margin-top: 0; margin-bottom: 10px;">🔬 内部計算モデルの前提</h3>
+                <ul style="padding-left: 20px; margin-bottom: 10px; margin-top: 0;">
+                    <li style="margin-bottom: 8px;"><strong>経年劣化モデル:</strong> 発電モジュールは年間一律0.5%で劣化する標準モデルを適用しています。</li>
+                    <li style="margin-bottom: 8px;"><strong>過積載ピークカット補正:</strong> プランBにおける過積載容量が1.3倍を超える超過分に対しては、パワコンでの出力制御を考慮し、<code>0.85</code> の減衰補正を適用した実効増設率で売電収入を厳密に計算しています。</li>
+                    <li style="margin-bottom: 8px;"><strong>ハザード連動仕様:</strong> ハザード区域（洪水・土砂等）に指定されている場合、トグルONで将来の撤去費用積立（30〜50万円）や年間保険料の自動加算、およびプランBにおける浸水対策（架台かさ上げ工事費100万円）が初期コストとして自動算入されます。</li>
+                    <li style="margin-bottom: 8px;"><strong>蓄電池交換サイクル:</strong> 蓄電池トグルONの場合、導入コスト（15万円/kWh）を初期費用に計上し、さらに15年サイクルで蓄電池モジュールが全交換される前提で再取得コストを経費に引当計上しています。</li>
+                </ul>
+            </div>
+        </div>
+        <div class="modal-footer" style="border-top: 1px solid var(--border-color); padding: 15px 20px; display: flex; justify-content: flex-end;">
+            <button class="btn-action" style="margin: 0; width: auto; background: var(--border-color); color: white;" onclick="closeGuideModal()">閉じる</button>
+        </div>
+    </div>
+</div>
+
 <script>
     // デモデータ定義
     const demoData = {
+        "A614245G36": {
+            name: "ワイヤーエナジー吉野川発電所",
+            location: "徳島県吉野川市",
+            capacity: 100.0,
+            fitPrice: 32,
+            elapsedYears: 8,
+            hazard: "吉野川洪水浸水想定区域（浸水深0.5m〜1.0m）に近接。浸水時の架台かさ上げ等の対策を推奨。"
+        },
         "SR-78901": {
             name: "高松第3太陽光発電所",
             location: "香川県高松市",
@@ -1211,9 +1744,181 @@
     // チャートの初期化
     let cfChart;
     let pdfChart;
+    let annualChart;
+    let pdfAnnualChart;
+    let annualYMin = 0;
+    let annualYMax = 100;
     const ctx = document.getElementById('cfChart').getContext('2d');
     const pdfCtx = document.getElementById('pdfChart').getContext('2d');
+    const annualCtx = document.getElementById('annualChart').getContext('2d');
+    const pdfAnnualCtx = document.getElementById('pdfAnnualChart').getContext('2d');
     
+    // 投資回収ポイント判定用の共通設定
+    const paybackPointConfig = {
+        pointStyle: function(context) {
+            const idx = context.dataIndex;
+            const chart = context.chart;
+            const dsIdx = context.datasetIndex;
+            const data = context.dataset.data;
+            if (!data || data.length === 0) return 'circle';
+            
+            if (dsIdx === 0) {
+                // 現状維持：自身の累積CFが初めて0以上になる点
+                const hasInvestment = data[0] < 0;
+                if (hasInvestment && data[idx] >= 0 && idx > 0) {
+                    let isFirst = true;
+                    for (let j = 1; j < idx; j++) {
+                        if (data[j] >= 0) { isFirst = false; break; }
+                    }
+                    if (isFirst) return 'star';
+                }
+            } else {
+                // プランA・プランB：現状維持のデータを初めて上回る（差額が0以上になる）点
+                const baseData = chart.data.datasets[0].data;
+                if (baseData && baseData.length > idx) {
+                    const diff = data[idx] - baseData[idx];
+                    const hasInvestment = (data[0] - baseData[0]) < 0;
+                    if (hasInvestment && diff >= 0 && idx > 0) {
+                        let isFirst = true;
+                        for (let j = 1; j < idx; j++) {
+                            if ((data[j] - baseData[j]) >= 0) { isFirst = false; break; }
+                        }
+                        if (isFirst) return 'star';
+                    }
+                }
+            }
+            return 'circle';
+        },
+        pointRadius: function(context) {
+            const idx = context.dataIndex;
+            const chart = context.chart;
+            const dsIdx = context.datasetIndex;
+            const data = context.dataset.data;
+            if (!data || data.length === 0) return 4;
+            
+            if (dsIdx === 0) {
+                const hasInvestment = data[0] < 0;
+                if (hasInvestment && data[idx] >= 0 && idx > 0) {
+                    let isFirst = true;
+                    for (let j = 1; j < idx; j++) {
+                        if (data[j] >= 0) { isFirst = false; break; }
+                    }
+                    if (isFirst) return 9;
+                }
+            } else {
+                const baseData = chart.data.datasets[0].data;
+                if (baseData && baseData.length > idx) {
+                    const diff = data[idx] - baseData[idx];
+                    const hasInvestment = (data[0] - baseData[0]) < 0;
+                    if (hasInvestment && diff >= 0 && idx > 0) {
+                        let isFirst = true;
+                        for (let j = 1; j < idx; j++) {
+                            if ((data[j] - baseData[j]) >= 0) { isFirst = false; break; }
+                        }
+                        if (isFirst) return 9;
+                    }
+                }
+            }
+            return 4;
+        },
+        pointHoverRadius: function(context) {
+            const idx = context.dataIndex;
+            const chart = context.chart;
+            const dsIdx = context.datasetIndex;
+            const data = context.dataset.data;
+            if (!data || data.length === 0) return 6;
+            
+            if (dsIdx === 0) {
+                const hasInvestment = data[0] < 0;
+                if (hasInvestment && data[idx] >= 0 && idx > 0) {
+                    let isFirst = true;
+                    for (let j = 1; j < idx; j++) {
+                        if (data[j] >= 0) { isFirst = false; break; }
+                    }
+                    if (isFirst) return 11;
+                }
+            } else {
+                const baseData = chart.data.datasets[0].data;
+                if (baseData && baseData.length > idx) {
+                    const diff = data[idx] - baseData[idx];
+                    const hasInvestment = (data[0] - baseData[0]) < 0;
+                    if (hasInvestment && diff >= 0 && idx > 0) {
+                        let isFirst = true;
+                        for (let j = 1; j < idx; j++) {
+                            if ((data[j] - baseData[j]) >= 0) { isFirst = false; break; }
+                        }
+                        if (isFirst) return 11;
+                    }
+                }
+            }
+            return 6;
+        },
+        pointBackgroundColor: function(context) {
+            const idx = context.dataIndex;
+            const chart = context.chart;
+            const dsIdx = context.datasetIndex;
+            const data = context.dataset.data;
+            if (!data || data.length === 0) return context.dataset.borderColor;
+            
+            if (dsIdx === 0) {
+                const hasInvestment = data[0] < 0;
+                if (hasInvestment && data[idx] >= 0 && idx > 0) {
+                    let isFirst = true;
+                    for (let j = 1; j < idx; j++) {
+                        if (data[j] >= 0) { isFirst = false; break; }
+                    }
+                    if (isFirst) return '#fbbf24';
+                }
+            } else {
+                const baseData = chart.data.datasets[0].data;
+                if (baseData && baseData.length > idx) {
+                    const diff = data[idx] - baseData[idx];
+                    const hasInvestment = (data[0] - baseData[0]) < 0;
+                    if (hasInvestment && diff >= 0 && idx > 0) {
+                        let isFirst = true;
+                        for (let j = 1; j < idx; j++) {
+                            if ((data[j] - baseData[j]) >= 0) { isFirst = false; break; }
+                        }
+                        if (isFirst) return '#fbbf24';
+                    }
+                }
+            }
+            return context.dataset.borderColor;
+        },
+        pointBorderColor: function(context) {
+            const idx = context.dataIndex;
+            const chart = context.chart;
+            const dsIdx = context.datasetIndex;
+            const data = context.dataset.data;
+            if (!data || data.length === 0) return context.dataset.borderColor;
+            
+            if (dsIdx === 0) {
+                const hasInvestment = data[0] < 0;
+                if (hasInvestment && data[idx] >= 0 && idx > 0) {
+                    let isFirst = true;
+                    for (let j = 1; j < idx; j++) {
+                        if (data[j] >= 0) { isFirst = false; break; }
+                    }
+                    if (isFirst) return '#ffffff';
+                }
+            } else {
+                const baseData = chart.data.datasets[0].data;
+                if (baseData && baseData.length > idx) {
+                    const diff = data[idx] - baseData[idx];
+                    const hasInvestment = (data[0] - baseData[0]) < 0;
+                    if (hasInvestment && diff >= 0 && idx > 0) {
+                        let isFirst = true;
+                        for (let j = 1; j < idx; j++) {
+                            if ((data[j] - baseData[j]) >= 0) { isFirst = false; break; }
+                        }
+                        if (isFirst) return '#ffffff';
+                    }
+                }
+            }
+            return context.dataset.borderColor;
+        }
+    };
+
     function initCharts() {
         cfChart = new Chart(ctx, {
             type: 'line',
@@ -1227,7 +1932,8 @@
                         backgroundColor: 'rgba(239, 68, 68, 0.05)',
                         borderWidth: 2,
                         tension: 0.1,
-                        fill: false
+                        fill: false,
+                        ...paybackPointConfig
                     },
                     {
                         label: '② プランA：PCS一括交換',
@@ -1236,7 +1942,8 @@
                         backgroundColor: 'rgba(59, 130, 246, 0.05)',
                         borderWidth: 2,
                         tension: 0.1,
-                        fill: false
+                        fill: false,
+                        ...paybackPointConfig
                     },
                     {
                         label: '③ プランB：フル・リパワリング',
@@ -1245,7 +1952,61 @@
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         borderWidth: 3,
                         tension: 0.1,
-                        fill: true
+                        fill: true,
+                        ...paybackPointConfig
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#94a3b8' }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: '#334155', offset: false },
+                        ticks: { color: '#94a3b8' },
+                        offset: false
+                    },
+                    y: {
+                        grid: { color: '#334155' },
+                        ticks: {
+                            color: '#94a3b8',
+                            callback: function(value) { return value + '万円'; }
+                        }
+                    }
+                }
+            }
+        });
+
+        annualChart = new Chart(annualCtx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: '① 現状維持（成り行き）',
+                        data: [],
+                        backgroundColor: '#ef4444',
+                        borderColor: '#ef4444',
+                        borderWidth: 1
+                    },
+                    {
+                        label: '② プランA：PCS一括交換',
+                        data: [],
+                        backgroundColor: '#3b82f6',
+                        borderColor: '#3b82f6',
+                        borderWidth: 1
+                    },
+                    {
+                        label: '③ プランB：フル・リパワリング',
+                        data: [],
+                        backgroundColor: '#10b981',
+                        borderColor: '#10b981',
+                        borderWidth: 1
                     }
                 ]
             },
@@ -1285,7 +2046,8 @@
                         borderColor: '#ef4444',
                         borderWidth: 2,
                         tension: 0.1,
-                        fill: false
+                        fill: false,
+                        ...paybackPointConfig
                     },
                     {
                         label: '② プランA：PCS一括交換',
@@ -1293,7 +2055,8 @@
                         borderColor: '#3b82f6',
                         borderWidth: 2,
                         tension: 0.1,
-                        fill: false
+                        fill: false,
+                        ...paybackPointConfig
                     },
                     {
                         label: '③ プランB：フル・リパワリング',
@@ -1302,7 +2065,58 @@
                         backgroundColor: 'rgba(16, 185, 129, 0.05)',
                         borderWidth: 3,
                         tension: 0.1,
-                        fill: true
+                        fill: true,
+                        ...paybackPointConfig
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#1e293b' }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: '#cbd5e1', offset: false },
+                        ticks: { color: '#1e293b' },
+                        offset: false
+                    },
+                    y: {
+                        grid: { color: '#cbd5e1' },
+                        ticks: {
+                            color: '#1e293b',
+                            callback: function(value) { return value + '万円'; }
+                        }
+                    }
+                }
+            }
+        });
+
+        pdfAnnualChart = new Chart(pdfAnnualCtx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: '① 現状維持（成り行き）',
+                        data: [],
+                        backgroundColor: '#ef4444',
+                        borderWidth: 1
+                    },
+                    {
+                        label: '② プランA：PCS一括交換',
+                        data: [],
+                        backgroundColor: '#3b82f6',
+                        borderWidth: 1
+                    },
+                    {
+                        label: '③ プランB：フル・リパワリング',
+                        data: [],
+                        backgroundColor: '#10b981',
+                        borderWidth: 1
                     }
                 ]
             },
@@ -1342,7 +2156,7 @@
             document.querySelectorAll('.owner-only').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.owner-hide').forEach(el => el.style.display = '');
             document.querySelectorAll('.standard-only').forEach(el => el.style.display = '');
-            document.getElementById('header-main-title').innerText = "ソーラーライフタイム・プランナー";
+            document.getElementById('header-main-title').innerText = "ソラバリュー・シミュレーター";
             document.getElementById('print-btn').innerText = "提案用PDFレポート印刷";
             
             const alertBox = document.getElementById('hazard-alert');
@@ -1353,7 +2167,7 @@
             document.querySelectorAll('.owner-only').forEach(el => el.style.display = '');
             document.querySelectorAll('.owner-hide').forEach(el => el.style.display = '');
             document.querySelectorAll('.standard-only').forEach(el => el.style.display = 'none');
-            document.getElementById('header-main-title').innerText = "ソーラーライフタイム・プランナー (FP拡張版)";
+            document.getElementById('header-main-title').innerText = "ソラバリュー・シミュレーター (詳細版)";
             document.getElementById('print-btn').innerText = "📄 提案書PDFプレビューを表示";
             
             toggleHazardSwitch();
@@ -1399,11 +2213,12 @@
         }
 
         const id = document.getElementById('solar-id').value;
-        const data = demoData[id] || demoData["SR-78901"];
+        const data = demoData[id] || demoData["A614245G36"];
         
-        // 理論値の算出
+        // 理論値の算出（出力抑制率2.9%を考慮）
         const stdGen = data.capacity * 1150;
-        const theoreticalIncome = (stdGen * (1 - (data.elapsedYears * 0.005)) * data.fitPrice) / 10000;
+        const currentEfficiency = 1 - (data.elapsedYears * 0.005);
+        const theoreticalIncome = (stdGen * currentEfficiency * data.fitPrice * (1 - 0.029)) / 10000;
 
         const ratio = actualInput / theoreticalIncome;
         isCalibrated = true;
@@ -1429,8 +2244,26 @@
         updateSimulation();
     }
 
+    // 蓄電池スライダーの表示制御
+    function toggleBatterySlider() {
+        const isChecked = document.getElementById('battery-checkbox').checked;
+        const group = document.getElementById('battery-capacity-group');
+        if (isChecked) {
+            group.style.display = 'block';
+        } else {
+            group.style.display = 'none';
+        }
+        updateSimulation();
+    }
+
     // デモデータのロード
     function loadDemoData() {
+        // オプションのリセット
+        document.getElementById('sim-years').value = "20";
+        document.getElementById('fip-checkbox').checked = false;
+        document.getElementById('battery-checkbox').checked = false;
+        document.getElementById('battery-capacity-group').style.display = 'none';
+
         const id = document.getElementById('solar-id').value;
         const data = demoData[id];
         if (data) {
@@ -1465,18 +2298,36 @@
             document.getElementById('fit-price').value = data.fitPrice;
             document.getElementById('fit-price-val').innerText = data.fitPrice.toFixed(1);
 
-            // 初期値を岡山や高松に合わせて少し調整
-            if (id === "SR-12345") {
-                document.getElementById('repower-cost').value = 1200;
-                document.getElementById('pcs-cost').value = 250;
-            } else {
-                document.getElementById('repower-cost').value = 800;
-                document.getElementById('pcs-cost').value = 150;
+            // 発電所容量（kW）に基づき、リパワリング費用（約10万円/kW）とPCS一括交換費用（約2万円/kW）の初期値をダイナミックに算出
+            const calcRepowerCost = Math.round(data.capacity * 10);
+            const calcPcsCost = Math.round(data.capacity * 2);
+            document.getElementById('repower-cost').value = calcRepowerCost;
+            document.getElementById('pcs-cost').value = calcPcsCost;
+
+            // 想定年間維持管理費（O&M費用）も容量に応じて自動設定（目安：約3,000円/kW、最低10万円）
+            const calcOmCost = Math.max(10, Math.round(data.capacity * 0.3));
+            document.getElementById('master-om-cost-year').value = calcOmCost;
+
+            // 蓄電池容量の初期値とスライダーの最大値を発電所規模（容量kW）に応じて動的調整
+            // 初期値目安：容量kWの約0.3倍、5kWh刻みに丸める
+            const calcBatteryCapacity = Math.max(5, Math.round((data.capacity * 0.3) / 5) * 5);
+            // スライダー最大値目安：容量kWの1.0倍（最低50kWh上限とする）
+            const calcMaxBatteryCapacity = Math.max(50, Math.round(data.capacity / 5) * 5);
+            
+            const batteryCapacitySlider = document.getElementById('battery-capacity');
+            if (batteryCapacitySlider) {
+                batteryCapacitySlider.max = calcMaxBatteryCapacity;
+                batteryCapacitySlider.value = calcBatteryCapacity;
+                document.getElementById('battery-capacity-val').innerText = calcBatteryCapacity;
             }
             
-            // 逆算入力リセット
+            // 直近1年の売電額の初期値を理論想定値から自動計算して入力
+            const currentEfficiency = 1 - (data.elapsedYears * 0.005);
+            const stdGen = data.capacity * 1150;
+            const initialExpectedRevenue = Math.round((stdGen * currentEfficiency * data.fitPrice * (1 - 0.029)) / 10000);
+            document.getElementById('actual-revenue-input').value = initialExpectedRevenue;
+
             isCalibrated = false;
-            document.getElementById('actual-revenue-input').value = "";
             document.getElementById('calibration-status').style.display = 'none';
             calDegradation = 0.005;
             calLoss = 0.0;
@@ -1487,7 +2338,7 @@
                 updateSimulation();
             }
         } else {
-            alert('そらスコIDが見つかりません。（デモ用ID: SR-78901 または SR-12345 をご利用ください）');
+            alert('そらスコIDが見つかりません。（デモ用ID: A614245G36, SR-78901 または SR-12345 をご利用ください）');
         }
     }
 
@@ -1500,13 +2351,21 @@
         // 元のPCSコストも取得（standardモード用）
         const pcsCost = parseFloat(document.getElementById('pcs-cost').value);
         
-        // 新しいPCS詳細設定値の取得
+        // 新しいPCS詳細設定値的の取得
         const pcsUnit = parseFloat(document.getElementById('pcs-unit-cost').value);
         const pcsCount = parseInt(document.getElementById('pcs-count').value);
         const pcsLife = parseFloat(document.getElementById('pcs-design-life').value);
         const pcsYear = parseInt(document.getElementById('pcs-year').value);
         const fitPrice = parseFloat(document.getElementById('fit-price').value);
         const postFitPrice = parseFloat(document.getElementById('post-fit-price').value);
+
+        // 将来オプション状態取得
+        const fipActive = document.getElementById('fip-checkbox').checked;
+        const batteryActive = document.getElementById('battery-checkbox').checked;
+        const batteryCapacity = batteryActive ? parseFloat(document.getElementById('battery-capacity').value) : 0;
+        
+        // 蓄電池容量値テキストの更新
+        document.getElementById('battery-capacity-val').innerText = batteryCapacity;
 
         // スライダー数値表示更新
         document.getElementById('repower-cost-val').innerText = repowerCost;
@@ -1521,7 +2380,7 @@
 
         // 現在表示されているスペック取得
         const id = document.getElementById('solar-id').value;
-        const data = demoData[id] || demoData["SR-78901"];
+        const data = demoData[id] || demoData["A614245G36"];
 
         const capacity = data.capacity;
         const startYear = data.elapsedYears;
@@ -1537,14 +2396,32 @@
             marginPercent = parseFloat(document.getElementById('master-margin-percent').value) || 10;
         }
 
+        // ハザードリスク連動の処理（FPモード限定）
+        let hazardSurcharge = 0;
+        let hazardInsuranceSurcharge = 0;
+        let hazardInitialMitigationCost = 0; // 初期対策費用（架台かさ上げ等）
+        
+        if (currentMode === 'fp-enhanced' && document.getElementById('fp-hazard-checkbox').checked) {
+            const hasLandslide = data.hazard.includes("警戒") || data.hazard.includes("土砂");
+            const hasFlood = data.hazard.includes("浸水") || data.hazard.includes("洪水");
+            
+            if (hasLandslide) {
+                hazardSurcharge = 50; // 撤去予備費50万円
+                hazardInsuranceSurcharge = 5; // 想定保険料年5万円アップ
+            } else if (hasFlood) {
+                hazardSurcharge = 30; // 水害用撤去予備費30万円
+                hazardInsuranceSurcharge = 8; // 水災特約追加による想定保険料年8万円アップ
+                hazardInitialMitigationCost = 100; // 浸水対策（架台かさ上げ工事）費用100万円
+            }
+        }
+
         const baseLabels = [];
         const baseCF = [];
         const pcsOptCF = [];
         const repowerCF = [];
-
-        let currentBaseSum = 0;
-        let currentPcsOptSum = 0;
-        let currentRepowerSum = 0;
+        const baseAnnualCF = [];
+        const pcsAnnualCF = [];
+        const repowerAnnualCF = [];
 
         // EPCマスタマージン適用（FPモード限定）
         let actualRepowerCost = repowerCost;
@@ -1554,28 +2431,42 @@
             actualPcsOptCost = Math.round(calculatedPcsCost * (1 + marginPercent / 100));
         }
 
-        // 初期費用適用
-        currentPcsOptSum = -actualPcsOptCost;
-        currentRepowerSum = -actualRepowerCost;
+        // 蓄電池の導入費用（15万円/kWh）を初期コストに加算
+        const batteryCost = batteryCapacity * 15;
 
-        // 20年累積売電額
+        // 初期費用適用（ハザード初期対策費用も加算）
+        let currentBaseSum = batteryActive ? -batteryCost : 0;
+        let currentPcsOptSum = -actualPcsOptCost - (batteryActive ? batteryCost : 0) - hazardInitialMitigationCost;
+        let currentRepowerSum = -actualRepowerCost - (batteryActive ? batteryCost : 0) - hazardInitialMitigationCost;
+
+        // ROI用に初期表示される合計投資額の修正用変数（ハザード対策費用も含める）
+        actualRepowerCost = actualRepowerCost + (batteryActive ? batteryCost : 0) + hazardInitialMitigationCost;
+        actualPcsOptCost = actualPcsOptCost + (batteryActive ? batteryCost : 0) + hazardInitialMitigationCost;
+
+        // 累積売電額
         let totalBaseSales = 0;
         let totalPcsOptSales = 0;
         let totalRepowerSales = 0;
 
+        // 年間手取り集計用変数
+        let baseFitIncomeSum = 0; let baseFitYears = 0;
+        let basePostIncomeSum = 0; let basePostYears = 0;
+        let pcsFitIncomeSum = 0; let pcsFitYears = 0;
+        let pcsPostIncomeSum = 0; let pcsPostYears = 0;
+        let repowerFitIncomeSum = 0; let repowerFitYears = 0;
+        let repowerPostIncomeSum = 0; let repowerPostYears = 0;
+
         // 年間標準発電量推定（高松：約1,150kWh/kW/年）
         const stdGen = capacity * 1150; 
-        const simYears = 20;
+        const simYears = parseInt(document.getElementById('sim-years').value) || 20;
 
-        // ハザードリスク連動の処理（FPモード限定）
-        let hazardSurcharge = 0;
-        let hazardInsuranceSurcharge = 0;
-        if (currentMode === 'fp-enhanced' && document.getElementById('fp-hazard-checkbox').checked) {
-            if (data.hazard.includes("警戒")) {
-                hazardSurcharge = 50; // 撤去予備費50万円
-                hazardInsuranceSurcharge = 5; // 想定保険料年5万円アップ
-            }
-        }
+
+
+        // 決定事項：出力抑制率の適用（基本2.9%）
+        // 蓄電池がある場合は、容量に応じて出力抑制を最大85%削減（回避）可能
+        const baseSuppressionRate = 0.029; 
+        const suppressionReduction = batteryActive ? Math.min(0.85, batteryCapacity / 100) : 0.0;
+        const finalSuppressionRate = baseSuppressionRate * (1 - suppressionReduction);
 
         for (let i = 0; i <= simYears; i++) {
             const year = startYear + i;
@@ -1583,26 +2474,59 @@
 
             // 年毎のFIT売電単価（FIT期間内か卒FITか）
             const isFit = year <= 20;
-            const price = isFit ? fitPrice : postFitPrice;
+            
+            // FIP転換と蓄電池の組み合わせによる平均売電単価の補正
+            let price = isFit ? fitPrice : postFitPrice;
+            if (fipActive) {
+                if (batteryActive) {
+                    // 蓄電池あり＋FIP移行：ピークシフト（夕方等の高値時売電）により売電単価15%アップ
+                    price = price * 1.15;
+                } else {
+                    // 蓄電池なし＋FIP移行：昼間のマイナス価格影響等で平均単価5%ダウン
+                    price = price * 0.95;
+                }
+            }
 
             // 経年劣化・環境減衰モデルの適用（キャリブレーション有無で分岐）
             const effDegradation = isCalibrated ? calDegradation : 0.005;
             const effLoss = isCalibrated ? calLoss : 0.0;
             
+            // FIT期間（20年）を超えると、経年老朽化により現状維持・プランAの劣化が加速（1.8倍）し、突発モジュール故障リスクが増大する
+            const finalEffDegradation = year > 20 ? (effDegradation * 1.8) : effDegradation;
+            const finalEffLoss = year > 20 ? (effLoss + (year - 20) * 0.005) : effLoss;
+
+            // PCSの定期的な交換タイミング判定（初回のpcsYear以降、設計寿命pcsLifeごとに再交換が発生）
+            const isPcsReplacementYear = (year === pcsYear) || (year > pcsYear && (year - pcsYear) % pcsLife === 0);
+            
+            // 蓄電池の定期的な交換タイミング判定（シミュレーション開始から15年周期、最終年は除外）
+            const isBatteryReplacementYear = (batteryActive && i > 0 && i % 15 === 0 && i < simYears);
+
             // -----------------
             // ① 現状維持
             // -----------------
-            const baseEfficiency = (1 - (year * effDegradation)) * (1 - effLoss);
-            const baseIncome = (stdGen * baseEfficiency * price) / 10000; // 万円
-            totalBaseSales += baseIncome;
+            const baseEfficiency = (1 - (year * finalEffDegradation)) * (1 - finalEffLoss);
+            const baseIncome = (i === 0) ? 0 : (stdGen * baseEfficiency * price * (1 - finalSuppressionRate)) / 10000; // 万円
+            if (i > 0) totalBaseSales += baseIncome;
 
-            let baseExpense = omCost;
-            if (year === pcsYear) {
-                baseExpense += calculatedPcsCost; // 途中でPCS交換費用が発生
-            }
-            baseExpense += hazardInsuranceSurcharge;
-            if (i === simYears) {
-                baseExpense += (100 + hazardSurcharge); // 最終年に撤去
+            let baseExpense = 0;
+            if (i > 0) {
+                baseExpense = omCost;
+                if (isPcsReplacementYear) {
+                    baseExpense += calculatedPcsCost; // 定期的なPCS交換費用が発生
+                }
+                if (isBatteryReplacementYear) {
+                    baseExpense += batteryCost; // 蓄電池の再交換費用が発生
+                }
+                baseExpense += hazardInsuranceSurcharge;
+                
+                // FIP転換時はアグリゲーター紹介フィー（売上の2%）を経費に加算
+                if (fipActive) {
+                    baseExpense += (baseIncome * 0.02);
+                }
+                
+                if (i === simYears) {
+                    baseExpense += (100 + hazardSurcharge); // 最終年に撤去
+                }
             }
             currentBaseSum += (baseIncome - baseExpense);
             baseCF.push(Math.round(currentBaseSum));
@@ -1611,13 +2535,25 @@
             // ② プランA：PCS一括交換
             // -----------------
             const pcsOptBoost = Math.max(0.02, generationBoost * 0.25);
-            const pcsOptEfficiency = (1 - (year * effDegradation)) * (1 - effLoss) * (1 + pcsOptBoost);
-            const pcsOptIncome = (stdGen * pcsOptEfficiency * price) / 10000;
-            totalPcsOptSales += pcsOptIncome;
+            const pcsOptEfficiency = (1 - (year * finalEffDegradation)) * (1 - finalEffLoss) * (1 + pcsOptBoost);
+            const pcsOptIncome = (i === 0) ? 0 : (stdGen * pcsOptEfficiency * price * (1 - finalSuppressionRate)) / 10000;
+            if (i > 0) totalPcsOptSales += pcsOptIncome;
 
-            let pcsOptExpense = omCost + hazardInsuranceSurcharge;
-            if (i === simYears) {
-                pcsOptExpense += (100 + hazardSurcharge);
+            let pcsOptExpense = 0;
+            if (i > 0) {
+                pcsOptExpense = omCost + hazardInsuranceSurcharge;
+                if (isPcsReplacementYear) {
+                    pcsOptExpense += calculatedPcsCost; // 定期的なPCS交換
+                }
+                if (isBatteryReplacementYear) {
+                    pcsOptExpense += batteryCost; // 蓄電池の再交換
+                }
+                if (fipActive) {
+                    pcsOptExpense += (pcsOptIncome * 0.02);
+                }
+                if (i === simYears) {
+                    pcsOptExpense += (100 + hazardSurcharge);
+                }
             }
             currentPcsOptSum += (pcsOptIncome - pcsOptExpense);
             pcsOptCF.push(Math.round(currentPcsOptSum));
@@ -1625,17 +2561,77 @@
             // -----------------
             // ③ プランB：フルリパワリング
             // -----------------
+            // 決定事項: リパワリング時に過積載容量を1.4倍に増設。1.3倍を超える超過分には0.85の減衰補正を適用
+            // パネル実効容量向上係数 = 1.3 + (1.4 - 1.3) * 0.85 = 1.385倍
+            const repowerCapacityFactor = 1.385;
+            // リパワリングしているため、FIT期間（20年）を超えても老朽化の加速や追加故障リスク（finalEffLoss）は発生しない
             const repowerEfficiency = (1 + generationBoost) * (1 - (i * (effDegradation * 0.6))) * (1 - effLoss);
-            const repowerIncome = (stdGen * repowerEfficiency * price) / 10000;
-            totalRepowerSales += repowerIncome;
+            const repowerIncome = (i === 0) ? 0 : (stdGen * repowerCapacityFactor * repowerEfficiency * price * (1 - finalSuppressionRate)) / 10000;
+            if (i > 0) totalRepowerSales += repowerIncome;
 
-            let repowerExpense = omCost + hazardInsuranceSurcharge;
-            if (i === simYears) {
-                repowerExpense += (100 + hazardSurcharge);
+            let repowerExpense = 0;
+            if (i > 0) {
+                repowerExpense = omCost + hazardInsuranceSurcharge;
+                
+                // リパワリング後は、リパワリング実行後（シミュレーション開始i年目）から寿命pcsLifeごとにPCSのみの再交換が発生する
+                const isRepowerPcsReplacementYear = (i > 0 && i % pcsLife === 0);
+                if (isRepowerPcsReplacementYear) {
+                    repowerExpense += calculatedPcsCost;
+                }
+                if (isBatteryReplacementYear) {
+                    repowerExpense += batteryCost; // 蓄電池の再交換
+                }
+                
+                if (fipActive) {
+                    repowerExpense += (repowerIncome * 0.02);
+                }
+                if (i === simYears) {
+                    repowerExpense += (100 + hazardSurcharge);
+                }
             }
             currentRepowerSum += (repowerIncome - repowerExpense);
             repowerCF.push(Math.round(currentRepowerSum));
+
+            // 単年キャッシュフローのプッシュ
+            const baseAnnualVal = (i === 0) ? (batteryActive ? -batteryCost : 0) : (baseIncome - baseExpense);
+            const pcsAnnualVal = (i === 0) ? -actualPcsOptCost : (pcsOptIncome - pcsOptExpense);
+            const repowerAnnualVal = (i === 0) ? -actualRepowerCost : (repowerIncome - repowerExpense);
+
+            baseAnnualCF.push(Math.round(baseAnnualVal));
+            pcsAnnualCF.push(Math.round(pcsAnnualVal));
+            repowerAnnualCF.push(Math.round(repowerAnnualVal));
+
+            // 定常経費（PCS交換費用や撤去予備費などの単発コストを除いた毎年の定常的な経費）
+            const baseRunningExpense = omCost + hazardInsuranceSurcharge + (fipActive ? (baseIncome * 0.02) : 0);
+            const pcsRunningExpense = omCost + hazardInsuranceSurcharge + (fipActive ? (pcsOptIncome * 0.02) : 0);
+            const repowerRunningExpense = omCost + hazardInsuranceSurcharge + (fipActive ? (repowerIncome * 0.02) : 0);
+
+            const baseNetRunning = baseIncome - baseRunningExpense;
+            const pcsNetRunning = pcsOptIncome - pcsRunningExpense;
+            const repowerNetRunning = repowerIncome - repowerRunningExpense;
+
+            if (i > 0) {
+                if (isFit) {
+                    baseFitIncomeSum += baseNetRunning; baseFitYears++;
+                    pcsFitIncomeSum += pcsNetRunning; pcsFitYears++;
+                    repowerFitIncomeSum += repowerNetRunning; repowerFitYears++;
+                } else {
+                    basePostIncomeSum += baseNetRunning; basePostYears++;
+                    pcsPostIncomeSum += pcsNetRunning; pcsPostYears++;
+                    repowerPostIncomeSum += repowerNetRunning; repowerPostYears++;
+                }
+            }
         }
+
+        // 投資回収ポイント（0円を超えるポイント）のハイライト関数
+        // 年間手取りのY軸スケールの動的調整（初期投資等の巨大マイナスがはみ出るのを防止）
+        const allAnnualValues = [...baseAnnualCF, ...pcsAnnualCF, ...repowerAnnualCF];
+        const minAnnualVal = Math.min(...allAnnualValues);
+        const maxAnnualVal = Math.max(...allAnnualValues);
+        
+        // 50万円単位できれいに丸めてマージンを持たせる
+        annualYMin = minAnnualVal < 0 ? Math.floor(minAnnualVal * 1.15 / 50) * 50 : 0;
+        annualYMax = maxAnnualVal > 0 ? Math.ceil(maxAnnualVal * 1.15 / 50) * 50 : 100;
 
         // チャート更新
         cfChart.data.labels = baseLabels;
@@ -1644,12 +2640,46 @@
         cfChart.data.datasets[2].data = repowerCF;
         cfChart.update();
 
+        annualChart.data.labels = baseLabels;
+        annualChart.data.datasets[0].data = baseAnnualCF;
+        annualChart.data.datasets[1].data = pcsAnnualCF;
+        annualChart.data.datasets[2].data = repowerAnnualCF;
+        annualChart.options.scales.y.min = annualYMin;
+        annualChart.options.scales.y.max = annualYMax;
+        annualChart.update();
+
         // 印刷プレビュー用PDFチャートの更新
         pdfChart.data.labels = baseLabels;
         pdfChart.data.datasets[0].data = baseCF;
         pdfChart.data.datasets[1].data = pcsOptCF;
         pdfChart.data.datasets[2].data = repowerCF;
         pdfChart.update();
+
+        pdfAnnualChart.data.labels = baseLabels;
+        pdfAnnualChart.data.datasets[0].data = baseAnnualCF;
+        pdfAnnualChart.data.datasets[1].data = pcsAnnualCF;
+        pdfAnnualChart.data.datasets[2].data = repowerAnnualCF;
+        pdfAnnualChart.options.scales.y.min = annualYMin;
+        pdfAnnualChart.options.scales.y.max = annualYMax;
+        pdfAnnualChart.update();
+
+        // 拡大モーダルチャートのリアルタイム更新
+        if (zoomChart) {
+            zoomChart.data.labels = baseLabels;
+            zoomChart.data.datasets[0].data = baseCF;
+            zoomChart.data.datasets[1].data = pcsOptCF;
+            zoomChart.data.datasets[2].data = repowerCF;
+            zoomChart.update();
+        }
+        if (zoomChart2) {
+            zoomChart2.data.labels = baseLabels;
+            zoomChart2.data.datasets[0].data = baseAnnualCF;
+            zoomChart2.data.datasets[1].data = pcsAnnualCF;
+            zoomChart2.data.datasets[2].data = repowerAnnualCF;
+            zoomChart2.options.scales.y.min = annualYMin;
+            zoomChart2.options.scales.y.max = annualYMax;
+            zoomChart2.update();
+        }
 
         // ROI数値の計算
         const finalBase = baseCF[baseCF.length - 1];
@@ -1659,12 +2689,31 @@
         const netGainPcsOpt = finalPcsOpt - finalBase;
         const netGainRepower = finalRepower - finalBase;
 
-        // 投資回収期間の計算
-        const pcsOptAnnualDiff = (finalPcsOpt - finalBase + actualPcsOptCost) / simYears;
-        const paybackPcsOpt = netGainPcsOpt > 0 ? `${(actualPcsOptCost / pcsOptAnnualDiff).toFixed(1)}年` : '回収不能';
+        // 精密な差額回収年数（損益分岐点）の計算関数
+        function calculatePaybackPeriod(targetCF, baseCF) {
+            // 初期状態がすでに上回っている場合（追加投資額0など）
+            if (targetCF[0] >= baseCF[0]) return 0;
+            
+            for (let i = 1; i < targetCF.length; i++) {
+                const prevDiff = targetCF[i-1] - baseCF[i-1];
+                const currDiff = targetCF[i] - baseCF[i];
+                
+                // 前年がマイナス（下回っている）で、今年がプラス（上回っている）の場合
+                if (prevDiff < 0 && currDiff >= 0) {
+                    const absPrev = Math.abs(prevDiff);
+                    const interp = absPrev / (absPrev + currDiff);
+                    return (i - 1) + interp;
+                }
+            }
+            return null; // 回収不能
+        }
 
-        const repowerAnnualDiff = (finalRepower - finalBase + actualRepowerCost) / simYears;
-        const paybackRepower = netGainRepower > 0 ? `${(actualRepowerCost / repowerAnnualDiff).toFixed(1)}年` : '回収不能';
+        // 投資回収期間の計算
+        const pbPcs = calculatePaybackPeriod(pcsOptCF, baseCF);
+        const paybackPcsOpt = pbPcs !== null ? `${pbPcs.toFixed(1)}年` : '回収不能';
+
+        const pbRepower = calculatePaybackPeriod(repowerCF, baseCF);
+        const paybackRepower = pbRepower !== null ? `${pbRepower.toFixed(1)}年` : '回収不能';
 
         // オーナー用表示の更新
         const ownerAssetValueEl = document.getElementById('owner-asset-value');
@@ -1700,7 +2749,99 @@
                     pcsRiskDescEl.innerText = "🟢 低リスク（設計寿命・保証内）";
                 }
             }
+
+            // 生涯CFカードタイトルの動的更新
+            const lifetimeCfTitleEl = document.getElementById('owner-lifetime-cf-title');
+            const lifetimeCfDescEl = document.getElementById('owner-lifetime-cf-desc');
+            if (lifetimeCfTitleEl) {
+                lifetimeCfTitleEl.innerText = `💰 ${simYears}年予測生涯CF / EXPECTED CF`;
+            }
+            if (lifetimeCfDescEl) {
+                lifetimeCfDescEl.innerText = `※現状維持時の${simYears}年間累積推定収支（O&M費用・PCS修繕引当控除後）`;
+            }
+
+            // アラートの動的更新
+            const remainingFitYears = 20 - startYear;
+            const remainingFitMonths = remainingFitYears * 12;
+            
+            // 最初のPCS交換推奨年までの残り年数（pcsYear：スライダー設定値を使用）
+            const yearsToPcs = pcsYear - startYear;
+            
+            const pcsAlertTextEl = document.getElementById('owner-pcs-alert-text');
+            if (pcsAlertTextEl) {
+                if (yearsToPcs > 0) {
+                    pcsAlertTextEl.innerHTML = `<strong>🔧 パワコン更新アラート:</strong> 経過年数（稼働${startYear}年）に基づき、<strong>あと${yearsToPcs}年でパワーコンディショナ（PCS）の推奨交換時期（稼働後${pcsYear}年）</strong>に達します。交換費用（推定${Math.round(calculatedPcsCost).toLocaleString()}万円〜）の準備をご検討ください。`;
+                    document.getElementById('owner-pcs-alert').style.display = 'flex';
+                } else if (yearsToPcs === 0) {
+                    pcsAlertTextEl.innerHTML = `<strong>🔧 パワコン更新アラート:</strong> 本年はパワーコンディショナ（PCS）の<strong>推奨交換目安年（稼働後${pcsYear}年）</strong>です。突発的な故障リスク（現在${pcsRiskPercent}%）を回避するため、早急な一括交換をご検討ください。`;
+                    document.getElementById('owner-pcs-alert').style.display = 'flex';
+                } else {
+                    const overYears = Math.abs(yearsToPcs);
+                    pcsAlertTextEl.innerHTML = `<strong>🔧 パワコン更新アラート:</strong> パワーコンディショナ（PCS）の<strong>推奨交換目安年（稼働後${pcsYear}年）をすでに${overYears}年超過</strong>しています。突発故障確率が<strong>${pcsRiskPercent}%</strong>と極めて高いため、早急な一括交換またはリパワリングをご検討ください。`;
+                    document.getElementById('owner-pcs-alert').style.display = 'flex';
+                }
+            }
+            
+            const fitAlertTextEl = document.getElementById('owner-fit-alert-text');
+            if (fitAlertTextEl) {
+                if (remainingFitYears > 0) {
+                    fitAlertTextEl.innerHTML = `<strong>ℹ️ FIT終了アラート:</strong> 本発電所は稼働${startYear}年目であり、<strong>あと${remainingFitYears}年（${remainingFitMonths}ヶ月）でFIT買取期間が終了（卒FIT）</strong>します。買取単価の下落に備え、リパワリングによるFIP移行等の収益対策検討をお勧めします。`;
+                    document.getElementById('owner-fit-alert').style.display = 'flex';
+                } else {
+                    fitAlertTextEl.innerHTML = `<strong>ℹ️ FIT終了アラート:</strong> 本発電所は稼働${startYear}年が経過し、<strong>すでにFIT買取期間を満了（卒FIT）</strong>しています。速やかなFIP制度への移行、または自家消費・相対取引へのシフトをご検討ください。`;
+                    document.getElementById('owner-fit-alert').style.display = 'flex';
+                }
+            }
         }
+
+        // 平均年間手取りの計算
+        const avgBaseFit = baseFitYears > 0 ? Math.round(baseFitIncomeSum / baseFitYears) : 0;
+        const avgBasePost = basePostYears > 0 ? Math.round(basePostIncomeSum / basePostYears) : 0;
+
+        const avgPcsFit = pcsFitYears > 0 ? Math.round(pcsFitIncomeSum / pcsFitYears) : 0;
+        const avgPcsPost = pcsPostYears > 0 ? Math.round(pcsPostIncomeSum / pcsPostYears) : 0;
+
+        const avgRepowerFit = repowerFitYears > 0 ? Math.round(repowerFitIncomeSum / repowerFitYears) : 0;
+        const avgRepowerPost = repowerPostYears > 0 ? Math.round(repowerPostIncomeSum / repowerPostYears) : 0;
+
+        // ラベルの動的更新
+        document.getElementById('roi-sales-label').innerText = `${simYears}年累積売電額`;
+        document.getElementById('roi-cf-label').innerText = `${simYears}年生涯CF (手残り)`;
+        document.getElementById('pdf-roi-sales-label').innerText = `${simYears}年累積売電額`;
+        document.getElementById('pdf-roi-cf-label').innerText = `${simYears}年生涯CF (手残り)`;
+
+        // 平均年間手取りの反映
+        document.getElementById('roi-base-annual-fit').innerText = `${avgBaseFit.toLocaleString()}万円/年`;
+        document.getElementById('roi-pcs-annual-fit').innerText = `${avgPcsFit.toLocaleString()}万円/年`;
+        document.getElementById('roi-repower-annual-fit').innerText = `${avgRepowerFit.toLocaleString()}万円/年`;
+
+        const diffPcsFit = avgPcsFit - avgBaseFit;
+        const diffRepowerFit = avgRepowerFit - avgBaseFit;
+        document.getElementById('roi-pcs-annual-fit-diff').innerText = `+${diffPcsFit.toLocaleString()}万円/年`;
+        document.getElementById('roi-repower-annual-fit-diff').innerText = `+${diffRepowerFit.toLocaleString()}万円/年`;
+
+        document.getElementById('roi-base-annual-post').innerText = basePostYears > 0 ? `${avgBasePost.toLocaleString()}万円/年` : '-';
+        document.getElementById('roi-pcs-annual-post').innerText = basePostYears > 0 ? `${avgPcsPost.toLocaleString()}万円/年` : '-';
+        document.getElementById('roi-repower-annual-post').innerText = basePostYears > 0 ? `${avgRepowerPost.toLocaleString()}万円/年` : '-';
+
+        const diffPcsPost = avgPcsPost - avgBasePost;
+        const diffRepowerPost = avgRepowerPost - avgBasePost;
+        document.getElementById('roi-pcs-annual-post-diff').innerText = basePostYears > 0 ? `+${diffPcsPost.toLocaleString()}万円/年` : '-';
+        document.getElementById('roi-repower-annual-post-diff').innerText = basePostYears > 0 ? `+${diffRepowerPost.toLocaleString()}万円/年` : '-';
+
+        document.getElementById('pdf-roi-base-annual-fit').innerText = `${avgBaseFit.toLocaleString()}万円/年`;
+        document.getElementById('pdf-roi-pcs-annual-fit').innerText = `${avgPcsFit.toLocaleString()}万円/年`;
+        document.getElementById('pdf-roi-repower-annual-fit').innerText = `${avgRepowerFit.toLocaleString()}万円/年`;
+
+        document.getElementById('pdf-roi-pcs-annual-fit-diff').innerText = `+${diffPcsFit.toLocaleString()}万円/年`;
+        document.getElementById('pdf-roi-repower-annual-fit-diff').innerText = `+${diffRepowerFit.toLocaleString()}万円/年`;
+
+        document.getElementById('pdf-roi-base-annual-post').innerText = basePostYears > 0 ? `${avgBasePost.toLocaleString()}万円/年` : '-';
+        document.getElementById('pdf-roi-pcs-annual-post').innerText = basePostYears > 0 ? `${avgPcsPost.toLocaleString()}万円/年` : '-';
+        document.getElementById('pdf-roi-repower-annual-post').innerText = basePostYears > 0 ? `${avgRepowerPost.toLocaleString()}万円/年` : '-';
+
+        document.getElementById('pdf-roi-pcs-annual-post-diff').innerText = basePostYears > 0 ? `+${diffPcsPost.toLocaleString()}万円/年` : '-';
+        document.getElementById('pdf-roi-repower-annual-post-diff').innerText = basePostYears > 0 ? `+${diffRepowerPost.toLocaleString()}万円/年` : '-';
 
         // 表示の更新
         document.getElementById('roi-pcs-investment').innerText = `${actualPcsOptCost}万円`;
@@ -1758,11 +2899,19 @@
 
         const pdfHazardText = document.getElementById('pdf-hazard-text');
         const pdfHazardSection = document.getElementById('pdf-hazard-section');
-        if (currentMode === 'fp-enhanced' && document.getElementById('fp-hazard-checkbox').checked && data.hazard.includes("警戒")) {
+        const hasLandslide = data.hazard.includes("警戒") || data.hazard.includes("土砂");
+        const hasFlood = data.hazard.includes("浸水") || data.hazard.includes("洪水");
+        
+        if (currentMode === 'fp-enhanced' && document.getElementById('fp-hazard-checkbox').checked && (hasLandslide || hasFlood)) {
             pdfHazardSection.style.display = 'block';
             pdfHazardText.innerText = data.hazard;
         } else {
             pdfHazardSection.style.display = 'none';
+        }
+        
+        // アラートアコーディオンのヘッダー件数を更新
+        if (typeof updateAlertAccordionHeader === 'function') {
+            updateAlertAccordionHeader();
         }
     }
 
@@ -1784,9 +2933,125 @@
 
     // ウィンドウ外クリックでモーダルを閉じる
     window.onclick = function(event) {
-        const modal = document.getElementById('pdf-modal');
-        if (event.target === modal) {
-            modal.style.display = 'none';
+        const pdfModal = document.getElementById('pdf-modal');
+        const guideModal = document.getElementById('guide-modal');
+        if (event.target === pdfModal) {
+            pdfModal.style.display = 'none';
+        }
+        if (event.target === guideModal) {
+            guideModal.style.display = 'none';
+        }
+    }
+
+    // ご利用ガイドモーダルの制御
+    function openGuideModal() {
+        document.getElementById('guide-modal').style.display = 'flex';
+        switchGuideTab('usage'); // 初期表示は「使い方」タブ
+    }
+
+    function closeGuideModal() {
+        document.getElementById('guide-modal').style.display = 'none';
+    }
+
+    // ガイド内のタブ切り替え
+    function switchGuideTab(tabName) {
+        // すべてのコンテンツを非表示に
+        document.querySelectorAll('.guide-tab-content').forEach(el => el.style.display = 'none');
+        // すべてのタブボタンのactiveクラスとスタイルをリセット
+        document.querySelectorAll('.guide-tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+            btn.style.color = 'var(--text-secondary)';
+            btn.style.borderBottom = 'none';
+            btn.style.fontWeight = 'normal';
+        });
+
+        // ターゲットコンテンツを表示
+        document.getElementById(`guide-tab-${tabName}`).style.display = 'block';
+        // ターゲットタブボタンをアクティブ化
+        const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+        if (activeBtn) {
+            activeBtn.classList.add('active');
+            activeBtn.style.color = '#60a5fa';
+            activeBtn.style.borderBottom = '2px solid #60a5fa';
+            activeBtn.style.fontWeight = 'bold';
+        }
+    }
+
+
+    // アラートアコーディオンの開閉制御
+    function toggleAlertAccordion() {
+        const content = document.getElementById('alert-details-content');
+        const arrow = document.getElementById('alert-summary-arrow');
+        const header = document.getElementById('alert-summary-header');
+        if (content.style.display === 'none') {
+            content.style.display = 'flex';
+            arrow.style.transform = 'rotate(180deg)';
+            header.style.background = 'rgba(245, 158, 11, 0.15)';
+        } else {
+            content.style.display = 'none';
+            arrow.style.transform = 'rotate(0deg)';
+            header.style.background = 'rgba(245, 158, 11, 0.08)';
+        }
+    }
+
+    // アラートの有効数をカウントしてアコーディオンヘッダーを動的に更新
+    function updateAlertAccordionHeader() {
+        const pcsAlert = document.getElementById('owner-pcs-alert');
+        const fitAlert = document.getElementById('owner-fit-alert');
+        const hazardAlert = document.getElementById('hazard-alert');
+        const summaryContainer = document.getElementById('alert-summary-container');
+        const summaryTitle = document.getElementById('alert-summary-title');
+        const summaryIcon = document.getElementById('alert-summary-icon');
+        const summaryHeader = document.getElementById('alert-summary-header');
+        
+        if (!summaryContainer) return;
+        
+        let count = 0;
+        let hasWarning = false;
+        
+        // PCSアラート状態チェック
+        if (pcsAlert && pcsAlert.style.display !== 'none' && pcsAlert.classList.contains('owner-only')) {
+            // 親要素（owner-only）が非表示でないか確認
+            const isOwnerVisible = window.getComputedStyle(pcsAlert).display !== 'none';
+            if (isOwnerVisible) {
+                count++;
+                hasWarning = true;
+            }
+        }
+        
+        // FITアラート状態チェック
+        if (fitAlert && fitAlert.style.display !== 'none' && fitAlert.classList.contains('owner-only')) {
+            const isOwnerVisible = window.getComputedStyle(fitAlert).display !== 'none';
+            if (isOwnerVisible) {
+                count++;
+            }
+        }
+        
+        // ハザードアラート状態チェック
+        if (hazardAlert && hazardAlert.style.display !== 'none') {
+            // シンプルバージョン（standard）時はhazard-alertが表示されている
+            // 詳細バージョン（fp-enhanced）時もトグルONなら表示される
+            const isHazardVisible = window.getComputedStyle(hazardAlert).display !== 'none';
+            if (isHazardVisible) {
+                count++;
+                hasWarning = true;
+            }
+        }
+        
+        if (count === 0) {
+            summaryContainer.style.display = 'none';
+        } else {
+            summaryContainer.style.display = 'block';
+            summaryTitle.innerText = `発電所に関するステータス・警告（${count}件）があります（クリックで展開）`;
+            if (hasWarning) {
+                summaryIcon.innerText = '⚠️';
+                summaryTitle.style.color = '#fbbf24';
+                summaryHeader.style.color = '#fbbf24';
+            } else {
+                summaryIcon.innerText = 'ℹ️';
+                summaryTitle.style.color = '#60a5fa';
+                summaryHeader.style.color = '#60a5fa';
+            }
         }
     }
 
@@ -1807,7 +3072,7 @@
     // オーナーアクション（PPA相談）の実行
     function triggerPpaConsult() {
         const id = document.getElementById('solar-id').value;
-        const capacity = (demoData[id] || demoData["SR-78901"]).capacity;
+        const capacity = (demoData[id] || demoData["A614245G36"]).capacity;
         document.getElementById('modal-icon-area').innerText = "⚡";
         document.getElementById('modal-title').innerText = "PPA移行・環境価値相談（デモ）";
         document.getElementById('modal-message').innerHTML = `
@@ -1821,7 +3086,7 @@
     // オーナーアクション（蓄電池アグリゲーション相談）の実行
     function triggerAggregationConsult() {
         const id = document.getElementById('solar-id').value;
-        const capacity = (demoData[id] || demoData["SR-78901"]).capacity;
+        const capacity = (demoData[id] || demoData["A614245G36"]).capacity;
         document.getElementById('modal-icon-area').innerText = "🔋";
         document.getElementById('modal-title').innerText = "蓄電池アグリゲーション相談（デモ）";
         document.getElementById('modal-message').innerHTML = `
@@ -1838,6 +3103,171 @@
         document.getElementById('action-modal').style.display = 'none';
     }
 
+    // 拡大用チャート変数
+    let zoomChart = null;
+    let zoomChart2 = null;
+
+    // グラフのモーダル拡大表示（累計と単年を同時に表示して詳細比較）
+    function openChartZoom(type) {
+        if (zoomChart) {
+            zoomChart.destroy();
+            zoomChart = null;
+        }
+        if (zoomChart2) {
+            zoomChart2.destroy();
+            zoomChart2 = null;
+        }
+        
+        const zoomCanvas1 = document.getElementById('zoomChartCanvas');
+        const zoomCtx1 = zoomCanvas1.getContext('2d');
+        const zoomCanvas2 = document.getElementById('zoomChartCanvas2');
+        const zoomCtx2 = zoomCanvas2.getContext('2d');
+
+        // 1. 累積キャッシュフロー（左）の複製と描画
+        const clonedDatasets1 = cfChart.data.datasets.map(ds => {
+            return {
+                label: ds.label,
+                data: [...ds.data],
+                borderColor: ds.borderColor,
+                backgroundColor: ds.backgroundColor,
+                borderWidth: ds.borderWidth,
+                tension: ds.tension,
+                fill: ds.fill,
+                pointStyle: ds.pointStyle,
+                pointRadius: ds.pointRadius,
+                pointHoverRadius: ds.pointHoverRadius,
+                pointBackgroundColor: ds.pointBackgroundColor,
+                pointBorderColor: ds.pointBorderColor
+            };
+        });
+
+        const clonedData1 = {
+            labels: [...cfChart.data.labels],
+            datasets: clonedDatasets1
+        };
+
+        const zoomOptions1 = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        color: '#ffffff',
+                        font: { size: 13, weight: 'bold' }
+                    }
+                },
+                tooltip: {
+                    bodyFont: { size: 14 },
+                    titleFont: { size: 14 }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: '#334155', offset: false },
+                    ticks: { color: '#e2e8f0', font: { size: 12 } },
+                    offset: false
+                },
+                y: {
+                    grid: { color: '#334155' },
+                    ticks: {
+                        color: '#e2e8f0',
+                        font: { size: 12 },
+                        callback: function(value) { return value.toLocaleString() + '万円'; }
+                    }
+                }
+            }
+        };
+
+        // 先にモーダルを開いてDOM要素の正しい高さ・幅（アスペクト比）を確定させる
+        const modal = document.getElementById('chart-zoom-modal');
+        modal.style.display = 'flex';
+        modal.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        zoomChart = new Chart(zoomCtx1, {
+            type: cfChart.config.type,
+            data: clonedData1,
+            options: zoomOptions1
+        });
+
+        // 2. 年間手取り収支（右）の複製と描画
+        const clonedDatasets2 = annualChart.data.datasets.map(ds => {
+            return {
+                label: ds.label,
+                data: [...ds.data],
+                borderColor: ds.borderColor,
+                backgroundColor: ds.backgroundColor,
+                borderWidth: ds.borderWidth,
+                tension: ds.tension,
+                fill: ds.fill,
+                pointStyle: ds.pointStyle,
+                pointRadius: ds.pointRadius,
+                pointHoverRadius: ds.pointHoverRadius,
+                pointBackgroundColor: ds.pointBackgroundColor,
+                pointBorderColor: ds.pointBorderColor
+            };
+        });
+
+        const clonedData2 = {
+            labels: [...annualChart.data.labels],
+            datasets: clonedDatasets2
+        };
+
+        const zoomOptions2 = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        color: '#ffffff',
+                        font: { size: 13, weight: 'bold' }
+                    }
+                },
+                tooltip: {
+                    bodyFont: { size: 14 },
+                    titleFont: { size: 14 }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: '#334155', offset: false },
+                    ticks: { color: '#e2e8f0', font: { size: 12 } },
+                    offset: false
+                },
+                y: {
+                    grid: { color: '#334155' },
+                    min: annualYMin,
+                    max: annualYMax,
+                    ticks: {
+                        color: '#e2e8f0',
+                        font: { size: 12 },
+                        callback: function(value) { return value.toLocaleString() + '万円'; }
+                    }
+                }
+            }
+        };
+
+        zoomChart2 = new Chart(zoomCtx2, {
+            type: annualChart.config.type,
+            data: clonedData2,
+            options: zoomOptions2
+        });
+    }
+
+    // 拡大モーダルクローズ
+    function closeChartZoomModal() {
+        document.getElementById('chart-zoom-modal').style.display = 'none';
+        if (zoomChart) {
+            zoomChart.destroy();
+            zoomChart = null;
+        }
+        if (zoomChart2) {
+            zoomChart2.destroy();
+            zoomChart2 = null;
+        }
+    }
+
     // 起動処理
     window.onload = function() {
         const today = new Date();
@@ -1845,8 +3275,32 @@
         document.getElementById('pdf-current-date').innerText = today.toISOString().split('T')[0];
         
         initCharts();
-        switchMode('standard'); // 初期状態はスタンダード
+        loadDemoData();
+        switchMode('fp-enhanced'); // 初期状態はブラッシュアップ版（FP拡張）
     };
+
+    // 印刷前後のチャート色動的最適化
+    window.onbeforeprint = function() {
+        changeChartColorsForPrint(true);
+    };
+    window.onafterprint = function() {
+        changeChartColorsForPrint(false);
+    };
+
+    function changeChartColorsForPrint(isPrint) {
+        const textColor = isPrint ? '#0f172a' : '#94a3b8';
+        const gridColor = isPrint ? '#cbd5e1' : '#334155';
+        
+        [cfChart, annualChart].forEach(chart => {
+            if (!chart) return;
+            chart.options.scales.x.grid.color = gridColor;
+            chart.options.scales.y.grid.color = gridColor;
+            chart.options.scales.x.ticks.color = textColor;
+            chart.options.scales.y.ticks.color = textColor;
+            chart.options.plugins.legend.labels.color = textColor;
+            chart.update('none');
+        });
+    }
 </script>
 
 <!-- アクションシミュレーションモーダル -->
@@ -1858,6 +3312,8 @@
         <button type="button" class="btn-action" style="margin: 0; width: 100%; padding: 12px 0; background: var(--border-color); border: none; color: white; font-weight: bold;" onclick="closeActionModal()">モーダルを閉じる</button>
     </div>
 </div>
+
+
 
 </body>
 </html>
