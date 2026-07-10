@@ -1138,7 +1138,7 @@
                     <span>🏗️ リパワリング投資額（万円）</span>
                     <span id="repower-cost-val" style="font-weight: bold; color: var(--accent-color);">800</span>
                 </label>
-                <input type="range" id="repower-cost" class="slider" min="100" max="2500" step="50" value="800" oninput="updateSimulation()">
+                <input type="range" id="repower-cost" class="slider" min="0" max="2500" step="50" value="800" oninput="updateSimulation()">
             </div>
 
             <div class="form-group">
@@ -1147,6 +1147,14 @@
                     <span id="generation-boost-val" style="font-weight: bold; color: var(--accent-color);">15</span>
                 </label>
                 <input type="range" id="generation-boost" class="slider" min="5" max="30" step="1" value="15" oninput="updateSimulation()">
+            </div>
+
+            <div class="form-group">
+                <label for="repower-year" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <span>📅 リパワリング実行時期</span>
+                    <span id="repower-year-val" style="font-weight: bold; color: var(--accent-color);">今すぐ（0年後）</span>
+                </label>
+                <input type="range" id="repower-year" class="slider" min="0" max="10" step="1" value="0" oninput="updateSimulation()">
             </div>
 
             <!-- 初期バージョン用：標準パワコン更新費用 -->
@@ -1348,7 +1356,7 @@
                 </div>
                 <div class="spec-summary" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
                     <div class="spec-card">
-                        <div class="spec-label">発電所名 / 所在地</div>
+                        <div class="spec-label">発電事業社名 / 所在地</div>
                         <div class="spec-value" style="font-size: 0.95rem; line-height: 1.3;" id="spec-name">ワイヤーエナジー吉野川発電所<br><span style="font-size: 0.75rem; color: var(--text-secondary); font-weight: normal;">徳島県吉野川市</span></div>
                     </div>
                     <div class="spec-card info">
@@ -1372,29 +1380,29 @@
             <!-- オーナー専用：アセット資産評価額表示 (上部配置、最大幅制限で間延び防止) -->
             <div class="owner-only" style="max-width: 900px; width: 100%; margin-bottom: 25px;">
                 <div style="font-size: 0.85rem; font-weight: bold; color: var(--text-primary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-                    <span>💎 アセット資産評価（そらスコ査定）</span>
+                    <span>💎 アセット資産評価</span>
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
                     <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(59, 130, 246, 0.3); padding: 12px 15px; border-radius: 8px;">
-                        <div style="font-size: 0.65rem; color: #60a5fa; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">💎 アセット評価額</div>
+                        <div style="font-size: 0.75rem; color: #60a5fa; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">💎 アセット評価額</div>
                         <div style="font-size: 1.3rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 3px;">
                             <span style="color: #60a5fa; font-size: 1rem;">¥</span><span id="owner-asset-value">24,500,000</span>
                         </div>
-                        <div style="font-size: 0.6rem; color: var(--text-secondary); margin-top: 3px;">※設備状態や経費・立地リスクを反映し、残存FIT収益を割引率5%で現在価値に換算した査定価格</div>
+                        <div id="owner-asset-value-desc" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 3px;">※設備状態や運営経費、立地リスク等を考慮し、残存FIT期間の将来予測手取り収支から算出した現在の資産評価額</div>
                     </div>
                     <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(16, 185, 129, 0.3); padding: 12px 15px; border-radius: 8px;">
-                        <div id="owner-lifetime-cf-title" style="font-size: 0.65rem; color: #34d399; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">💰 20年予測生涯CF</div>
+                        <div id="owner-lifetime-cf-title" style="font-size: 0.75rem; color: #34d399; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">💰 予測生涯CF</div>
                         <div style="font-size: 1.3rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 3px;">
                             <span style="color: #34d399; font-size: 1rem;">¥</span><span id="owner-lifetime-cf">39,800,000</span>
                         </div>
-                        <div id="owner-lifetime-cf-desc" style="font-size: 0.6rem; color: var(--text-secondary); margin-top: 3px;">※現状維持時の20年間累積推定収支</div>
+                        <div id="owner-lifetime-cf-desc" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 3px;">※現状維持時の累積推定収支</div>
                     </div>
-                    <div class="card" id="pcs-risk-card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid #fbbf24; padding: 12px 15px; border-radius: 8px;">
-                        <div style="font-size: 0.65rem; color: #fbbf24; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">⚠️ パワコン故障確率</div>
+                    <div class="card" id="pcs-risk-card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(245, 158, 11, 0.4); padding: 12px 15px; border-radius: 8px;">
+                        <div style="font-size: 0.75rem; color: #fbbf24; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">⚠️ パワコン故障確率</div>
                         <div style="font-size: 1.3rem; font-weight: bold; color: #fbbf24; display: flex; align-items: baseline; gap: 3px;">
                             <span id="pcs-risk-percent">12%</span>
                         </div>
-                        <div style="font-size: 0.6rem; color: var(--text-secondary); margin-top: 3px;" id="pcs-risk-desc">※シグモイド故障確率モデルによる予測</div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 3px;" id="pcs-risk-desc">※シグモイド故障確率モデルによる予測</div>
                     </div>
                 </div>
             </div>
@@ -1506,6 +1514,61 @@
                         ※プランAは高効率PCS化に伴う発電改善効果（改善率スライダー連動）を想定。<br>
                         ※プランBは過積載容量を1.4倍に増設（1.3倍超の超過分には0.85のピークカット減衰補正を適用した実効1.385倍）し、かつ高効率PCS化とパネル高効率化による発電量向上（向上率スライダー連動）を織り込んでいます。<br>
                         ※蓄電池ONの場合は、15年周期で同容量の蓄電池再交換コスト（15万円/kWh）が発生する前提で経費に算入しています。
+                    </div>
+                </div>
+
+                <!-- そらバリュAI フローティングチャットウィジェット -->
+                <div id="soravalu-ai-widget" style="position: fixed; bottom: 20px; right: 20px; z-index: 2000; font-family: inherit;">
+                    <!-- チャット起動ボタン（閉じた状態） -->
+                    <button id="ai-widget-toggle-btn" type="button" onclick="toggleAiWidget()" style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border: none; padding: 12px 20px; border-radius: 50px; font-weight: bold; font-size: 0.85rem; cursor: pointer; box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.5); transition: transform 0.2s, box-shadow 0.2s; border: 1px solid rgba(255,255,255,0.15);">
+                        <span style="font-size: 1.2rem; line-height: 1;">🤖</span>
+                        <span>そらバリュAIに相談</span>
+                    </button>
+
+                    <!-- チャットウィンドウ（開いた状態、初期は非表示） -->
+                    <div id="soravalu-ai-container" style="display: none; width: 420px; height: 550px; background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid rgba(96, 165, 250, 0.3); border-radius: 16px; padding: 0; box-shadow: 0 20px 50px -10px rgba(0,0,0,0.7); flex-direction: column; overflow: hidden; border: 1px solid rgba(96, 165, 250, 0.3);">
+                        <!-- ヘッダー -->
+                        <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(30, 41, 59, 0.8); border-bottom: 1px solid rgba(255,255,255,0.1); padding: 15px 20px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 1.3rem;">🤖</span>
+                                <div>
+                                    <h4 style="margin: 0; font-size: 0.95rem; font-weight: bold; color: white; display: flex; align-items: center; gap: 5px;">
+                                        そらバリュAI <span style="background: rgba(96, 165, 250, 0.2); color: #60a5fa; font-size: 0.6rem; padding: 1px 5px; border-radius: 8px; font-weight: 500;">Beta</span>
+                                    </h4>
+                                    <span style="font-size: 0.75rem; color: var(--text-secondary);">シミュレーション分析アシスタント</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span id="ai-typing-indicator" style="font-size: 0.75rem; color: #60a5fa; display: none;">分析中...</span>
+                                <button type="button" onclick="toggleAiWidget()" style="background: none; border: none; color: var(--text-secondary); font-size: 1.2rem; cursor: pointer; padding: 0; line-height: 1;">&times;</button>
+                            </div>
+                        </div>
+
+                        <!-- ボディ（スクロールコンテンツ） -->
+                        <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 15px; overflow: hidden; height: calc(100% - 65px);">
+                            <!-- チャット履歴表示エリア -->
+                            <div id="ai-chat-history" style="flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; padding-right: 5px; font-size: 0.85rem; line-height: 1.45; max-height: 330px;">
+                                <!-- AIの初期メッセージ -->
+                                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 10px 12px; border-radius: 8px 8px 8px 0; color: #e2e8f0; align-self: flex-start; max-width: 90%;">
+                                    こんにちは！「そらバリュAI」です。現在のシミュレーション結果に基づき、アセットの価値最大化に向けたアドバイスをリアルタイムに提供します。気になる質問を選択するか、メッセージを入力してください。
+                                </div>
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <!-- クイック質問ボタン -->
+                                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                    <button type="button" class="btn-reset" onclick="askSoraValuAI('risk')" style="margin: 0; font-size: 0.75rem; padding: 4px 8px; border-radius: 12px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); color: #f87171; cursor: pointer;">📌 現状維持のリスクは？</button>
+                                    <button type="button" class="btn-reset" onclick="askSoraValuAI('recommend')" style="margin: 0; font-size: 0.75rem; padding: 4px 8px; border-radius: 12px; background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.25); color: #34d399; cursor: pointer;">💡 どちらがおすすめ？</button>
+                                    <button type="button" class="btn-reset" onclick="askSoraValuAI('hazard')" style="margin: 0; font-size: 0.75rem; padding: 4px 8px; border-radius: 12px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); color: #fbbf24; cursor: pointer;">🌋 ハザードの影響は？</button>
+                                </div>
+
+                                <!-- 入力フィールド -->
+                                <div style="display: flex; gap: 6px;">
+                                    <input type="text" id="ai-chat-input" placeholder="例: 蓄電池のメリットは？" style="flex-grow: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 8px 10px; font-size: 0.85rem; color: white; outline: none;">
+                                    <button type="button" class="btn-action" onclick="sendUserMessage()" style="margin: 0; padding: 0 12px; font-size: 0.8rem; border-radius: 6px; white-space: nowrap;">送信</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1813,14 +1876,18 @@
                     if (isFirst) return 'star';
                 }
             } else {
-                // プランA・プランB：現状維持のデータを初めて上回る（差額が0以上になる）点
+                const isRepower = (dsIdx === 2);
+                const repowerYearVal = isRepower && document.getElementById('repower-year') ? parseInt(document.getElementById('repower-year').value) : 0;
+                if (isRepower && idx < repowerYearVal) return 'circle';
+                
                 const baseData = chart.data.datasets[0].data;
                 if (baseData && baseData.length > idx) {
                     const diff = data[idx] - baseData[idx];
-                    const hasInvestment = (data[0] - baseData[0]) < 0;
+                    const hasInvestment = data.some((val, k) => (val - baseData[k]) < 0);
                     if (hasInvestment && diff >= 0 && idx > 0) {
                         let isFirst = true;
-                        for (let j = 1; j < idx; j++) {
+                        const startIdx = isRepower ? repowerYearVal : 1;
+                        for (let j = startIdx; j < idx; j++) {
                             if ((data[j] - baseData[j]) >= 0) { isFirst = false; break; }
                         }
                         if (isFirst) return 'star';
@@ -1846,13 +1913,18 @@
                     if (isFirst) return 9;
                 }
             } else {
+                const isRepower = (dsIdx === 2);
+                const repowerYearVal = isRepower && document.getElementById('repower-year') ? parseInt(document.getElementById('repower-year').value) : 0;
+                if (isRepower && idx < repowerYearVal) return 4;
+                
                 const baseData = chart.data.datasets[0].data;
                 if (baseData && baseData.length > idx) {
                     const diff = data[idx] - baseData[idx];
-                    const hasInvestment = (data[0] - baseData[0]) < 0;
+                    const hasInvestment = data.some((val, k) => (val - baseData[k]) < 0);
                     if (hasInvestment && diff >= 0 && idx > 0) {
                         let isFirst = true;
-                        for (let j = 1; j < idx; j++) {
+                        const startIdx = isRepower ? repowerYearVal : 1;
+                        for (let j = startIdx; j < idx; j++) {
                             if ((data[j] - baseData[j]) >= 0) { isFirst = false; break; }
                         }
                         if (isFirst) return 9;
@@ -1878,13 +1950,18 @@
                     if (isFirst) return 11;
                 }
             } else {
+                const isRepower = (dsIdx === 2);
+                const repowerYearVal = isRepower && document.getElementById('repower-year') ? parseInt(document.getElementById('repower-year').value) : 0;
+                if (isRepower && idx < repowerYearVal) return 6;
+                
                 const baseData = chart.data.datasets[0].data;
                 if (baseData && baseData.length > idx) {
                     const diff = data[idx] - baseData[idx];
-                    const hasInvestment = (data[0] - baseData[0]) < 0;
+                    const hasInvestment = data.some((val, k) => (val - baseData[k]) < 0);
                     if (hasInvestment && diff >= 0 && idx > 0) {
                         let isFirst = true;
-                        for (let j = 1; j < idx; j++) {
+                        const startIdx = isRepower ? repowerYearVal : 1;
+                        for (let j = startIdx; j < idx; j++) {
                             if ((data[j] - baseData[j]) >= 0) { isFirst = false; break; }
                         }
                         if (isFirst) return 11;
@@ -1910,13 +1987,18 @@
                     if (isFirst) return '#fbbf24';
                 }
             } else {
+                const isRepower = (dsIdx === 2);
+                const repowerYearVal = isRepower && document.getElementById('repower-year') ? parseInt(document.getElementById('repower-year').value) : 0;
+                if (isRepower && idx < repowerYearVal) return context.dataset.borderColor;
+                
                 const baseData = chart.data.datasets[0].data;
                 if (baseData && baseData.length > idx) {
                     const diff = data[idx] - baseData[idx];
-                    const hasInvestment = (data[0] - baseData[0]) < 0;
+                    const hasInvestment = data.some((val, k) => (val - baseData[k]) < 0);
                     if (hasInvestment && diff >= 0 && idx > 0) {
                         let isFirst = true;
-                        for (let j = 1; j < idx; j++) {
+                        const startIdx = isRepower ? repowerYearVal : 1;
+                        for (let j = startIdx; j < idx; j++) {
                             if ((data[j] - baseData[j]) >= 0) { isFirst = false; break; }
                         }
                         if (isFirst) return '#fbbf24';
@@ -1942,13 +2024,18 @@
                     if (isFirst) return '#ffffff';
                 }
             } else {
+                const isRepower = (dsIdx === 2);
+                const repowerYearVal = isRepower && document.getElementById('repower-year') ? parseInt(document.getElementById('repower-year').value) : 0;
+                if (isRepower && idx < repowerYearVal) return context.dataset.borderColor;
+                
                 const baseData = chart.data.datasets[0].data;
                 if (baseData && baseData.length > idx) {
                     const diff = data[idx] - baseData[idx];
-                    const hasInvestment = (data[0] - baseData[0]) < 0;
+                    const hasInvestment = data.some((val, k) => (val - baseData[k]) < 0);
                     if (hasInvestment && diff >= 0 && idx > 0) {
                         let isFirst = true;
-                        for (let j = 1; j < idx; j++) {
+                        const startIdx = isRepower ? repowerYearVal : 1;
+                        for (let j = startIdx; j < idx; j++) {
                             if ((data[j] - baseData[j]) >= 0) { isFirst = false; break; }
                         }
                         if (isFirst) return '#ffffff';
@@ -2302,14 +2389,28 @@
     // デモデータのロード
     function loadDemoData() {
         // オプションのリセット
-        document.getElementById('sim-years').value = "20";
         document.getElementById('fip-checkbox').checked = false;
         document.getElementById('battery-checkbox').checked = false;
         document.getElementById('battery-capacity-group').style.display = 'none';
+        document.getElementById('repower-year').value = "0";
+        document.getElementById('repower-year-val').innerText = "今すぐ（0年後）";
 
         const id = document.getElementById('solar-id').value;
         const data = demoData[id];
         if (data) {
+            const remainingYears = 20 - data.elapsedYears;
+            const simYearsSelect = document.getElementById('sim-years');
+            if (simYearsSelect) {
+                simYearsSelect.innerHTML = `
+                    <option value="${remainingYears}" selected>残存FIT期間（${remainingYears}年間）</option>
+                    <option value="15">今から15年間</option>
+                    <option value="20">今から20年間</option>
+                    <option value="25">今から25年間</option>
+                    <option value="30">今から30年間</option>
+                    <option value="35">今から35年間</option>
+                    <option value="40">今から40年間</option>
+                `;
+            }
             document.getElementById('spec-name').innerHTML = `${data.name}<br><span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: normal;">${data.location}</span>`;
             const overcapacityRate = Math.round((data.panelCapacity / data.capacity) * 100);
             document.getElementById('spec-capacity').innerHTML = `${data.panelCapacity.toFixed(1)}<span class="spec-unit">kW</span>`;
@@ -2395,6 +2496,7 @@
         // パラメータ取得
         const repowerCost = parseFloat(document.getElementById('repower-cost').value);
         const generationBoost = parseFloat(document.getElementById('generation-boost').value) / 100;
+        const repowerYear = parseInt(document.getElementById('repower-year').value);
         
         // 元のPCSコストも取得（standardモード用）
         const pcsCost = parseFloat(document.getElementById('pcs-cost').value);
@@ -2414,6 +2516,21 @@
         
         // 蓄電池容量値テキストの更新
         document.getElementById('battery-capacity-val').innerText = batteryCapacity;
+
+        // リパワリング実行時期の数値表示更新
+        const repowerYearVal = document.getElementById('repower-year-val');
+        if (repowerYear === 0) {
+            repowerYearVal.innerText = "今すぐ（0年後）";
+        } else {
+            const id = document.getElementById('solar-id').value;
+            const data = demoData[id] || demoData["A614245G36"];
+            const limitDiffYear = pcsYear - data.elapsedYears; // 吉野川なら 12 - 8 = 4
+            if (repowerYear === limitDiffYear) {
+                repowerYearVal.innerText = `${repowerYear}年後 (PCS寿命期)`;
+            } else {
+                repowerYearVal.innerText = `${repowerYear}年後`;
+            }
+        }
 
         // スライダー数値表示更新
         document.getElementById('repower-cost-val').innerText = repowerCost;
@@ -2479,13 +2596,18 @@
             actualPcsOptCost = Math.round(calculatedPcsCost * (1 + marginPercent / 100));
         }
 
+        // 純粋なリパワリング投資額（EPCマージン適用後）を保持し、ループ内で差し引く
+        const pureRepowerCost = actualRepowerCost;
+
         // 蓄電池の導入費用（15万円/kWh）を初期コストに加算
         const batteryCost = batteryCapacity * 15;
 
         // 初期費用適用（ハザード初期対策費用も加算）
         let currentBaseSum = batteryActive ? -batteryCost : 0;
         let currentPcsOptSum = -actualPcsOptCost - (batteryActive ? batteryCost : 0) - hazardInitialMitigationCost;
-        let currentRepowerSum = -actualRepowerCost - (batteryActive ? batteryCost : 0) - hazardInitialMitigationCost;
+        
+        // プランBの初期累積CF：リパワリング投資およびハザード初期対策は、実行年にループ内で引く
+        let currentRepowerSum = batteryActive ? -batteryCost : 0;
 
         // ROI用に初期表示される合計投資額の修正用変数（ハザード対策費用も含める）
         actualRepowerCost = actualRepowerCost + (batteryActive ? batteryCost : 0) + hazardInitialMitigationCost;
@@ -2497,6 +2619,8 @@
         let totalPcsOptSales = 0;
         let totalRepowerSales = 0;
         let dcfAssetValue = 0; // 理論的DCF法によるアセット評価額（現在価値の累積）
+        let dcfAssetValuePcs = 0;
+        let dcfAssetValueRepower = 0;
         const discountRate = 0.05; // アセット査定用の期待収益率（割引率 5%）
 
         // 年間手取り集計用変数
@@ -2616,6 +2740,10 @@
                 }
             }
             currentPcsOptSum += (pcsOptIncome - pcsOptExpense);
+            if (i > 0 && year <= 20) {
+                const yearFreeCF_pcs = pcsOptIncome - pcsOptExpense;
+                dcfAssetValuePcs += yearFreeCF_pcs / Math.pow(1 + discountRate, i);
+            }
             pcsOptCF.push(Math.round(currentPcsOptSum));
 
             // -----------------
@@ -2624,40 +2752,81 @@
             // 決定事項: リパワリング時に過積載容量を1.4倍に増設。1.3倍を超える超過分には0.85の減衰補正を適用
             // パネル実効容量向上係数 = 1.3 + (1.4 - 1.3) * 0.85 = 1.385倍
             const repowerCapacityFactor = 1.385;
-            // リパワリングしているため、FIT期間（20年）を超えても老朽化の加速や追加故障リスク（finalEffLoss）は発生しない
-            // モジュールは最新の新品に交換されるため、経年劣化率は古い実績を引き継がず、標準の0.005ベースの60%低減とする
-            const repowerEfficiency = (1 + generationBoost) * (1 - (i * (0.005 * 0.6))) * (1 - effLoss);
-            const repowerStdGen = capacity * 1150;
-            const repowerIncome = (i === 0) ? 0 : (repowerStdGen * repowerCapacityFactor * repowerEfficiency * price * (1 - finalSuppressionRate)) / 10000;
-            if (i > 0) totalRepowerSales += repowerIncome;
-
+            
+            let repowerIncome = 0;
             let repowerExpense = 0;
-            if (i > 0) {
+            let repowerRunningExpense = 0;
+            
+            if (repowerCost === 0) {
+                // リパワリングしない場合は現状維持と同期
+                repowerIncome = baseIncome;
+                repowerExpense = baseExpense;
+                repowerRunningExpense = omCost + hazardInsuranceSurcharge + (fipActive ? (baseIncome * 0.02) : 0);
+            } else if (i < repowerYear) {
+                // リパワリング実行前は現状維持と同期
+                repowerIncome = baseIncome;
+                repowerExpense = baseExpense;
+                repowerRunningExpense = omCost + hazardInsuranceSurcharge + (fipActive ? (baseIncome * 0.02) : 0);
+            } else {
+                // リパワリング実行および実行後
+                const yearsSinceRepower = i - repowerYear;
+                // モジュールは最新の新品に交換されるため、経年劣化率は古い実績を引き継がず、標準の0.005ベースの60%低減とする
+                const repowerEfficiency = (1 + generationBoost) * (1 - (yearsSinceRepower * (0.005 * 0.6))) * (1 - effLoss);
+                const repowerStdGen = capacity * 1150;
+                
+                repowerIncome = (i === 0) ? 0 : (repowerStdGen * repowerCapacityFactor * repowerEfficiency * price * (1 - finalSuppressionRate)) / 10000;
+                
                 repowerExpense = omCost + hazardInsuranceSurcharge;
                 
-                // リパワリング後は、リパワリング実行後（シミュレーション開始i年目）から寿命pcsLifeごとにPCSのみの再交換が発生する
-                const isRepowerPcsReplacementYear = (i > 0 && i % pcsLife === 0);
+                // 実行年に初期投資コストおよびハザード初期対策費用が計上される
+                if (i === repowerYear) {
+                    repowerExpense += pureRepowerCost;
+                    repowerExpense += hazardInitialMitigationCost;
+                }
+                
+                // リパワリング時点から起算したPCS寿命(pcsLife)で再交換
+                const isRepowerPcsReplacementYear = (yearsSinceRepower > 0 && yearsSinceRepower % pcsLife === 0);
                 if (isRepowerPcsReplacementYear) {
                     repowerExpense += calculatedPcsCost;
                 }
-                if (isBatteryReplacementYear) {
-                    repowerExpense += batteryCost; // 蓄電池の再交換
-                }
                 
+                if (isBatteryReplacementYear) {
+                    repowerExpense += batteryCost;
+                }
                 if (fipActive) {
                     repowerExpense += (repowerIncome * 0.02);
                 }
                 if (i === simYears) {
                     repowerExpense += (100 + hazardSurcharge);
                 }
+                
+                repowerRunningExpense = omCost + hazardInsuranceSurcharge + (fipActive ? (repowerIncome * 0.02) : 0);
+            }
+
+            if (i > 0) {
+                // 売上累計
+                totalRepowerSales += repowerIncome;
             }
             currentRepowerSum += (repowerIncome - repowerExpense);
+            if (i > 0 && year <= 20) {
+                const yearFreeCF_repower = repowerIncome - repowerExpense;
+                dcfAssetValueRepower += yearFreeCF_repower / Math.pow(1 + discountRate, i);
+            }
             repowerCF.push(Math.round(currentRepowerSum));
 
             // 単年キャッシュフローのプッシュ
             const baseAnnualVal = (i === 0) ? (batteryActive ? -batteryCost : 0) : (baseIncome - baseExpense);
             const pcsAnnualVal = (i === 0) ? -actualPcsOptCost : (pcsOptIncome - pcsOptExpense);
-            const repowerAnnualVal = (i === 0) ? -actualRepowerCost : (repowerIncome - repowerExpense);
+            
+            let repowerAnnualVal = 0;
+            if (repowerCost === 0) {
+                repowerAnnualVal = baseAnnualVal;
+            } else if (i === 0) {
+                // 0年目の初期費用。今すぐ実行ならリパワ投資額、そうでないなら蓄電池費用のみ
+                repowerAnnualVal = (repowerYear === 0) ? -pureRepowerCost - (batteryActive ? batteryCost : 0) - hazardInitialMitigationCost : -(batteryActive ? batteryCost : 0) - hazardInitialMitigationCost;
+            } else {
+                repowerAnnualVal = (repowerIncome - repowerExpense);
+            }
 
             baseAnnualCF.push(Math.round(baseAnnualVal));
             pcsAnnualCF.push(Math.round(pcsAnnualVal));
@@ -2666,7 +2835,6 @@
             // 定常経費（PCS交換費用や撤去予備費などの単発コストを除いた毎年の定常的な経費）
             const baseRunningExpense = omCost + hazardInsuranceSurcharge + (fipActive ? (baseIncome * 0.02) : 0);
             const pcsRunningExpense = omCost + hazardInsuranceSurcharge + (fipActive ? (pcsOptIncome * 0.02) : 0);
-            const repowerRunningExpense = omCost + hazardInsuranceSurcharge + (fipActive ? (repowerIncome * 0.02) : 0);
 
             const baseNetRunning = baseIncome - baseRunningExpense;
             const pcsNetRunning = pcsOptIncome - pcsRunningExpense;
@@ -2682,6 +2850,14 @@
                     pcsPostIncomeSum += pcsNetRunning; pcsPostYears++;
                     repowerPostIncomeSum += repowerNetRunning; repowerPostYears++;
                 }
+            }
+        }
+        
+        // リパワリングしない（repowerCost === 0）の場合の完全な現状維持同期処理
+        if (repowerCost === 0) {
+            for (let k = 0; k <= simYears; k++) {
+                repowerCF[k] = baseCF[k];
+                repowerAnnualCF[k] = baseAnnualCF[k];
             }
         }
 
@@ -2753,14 +2929,19 @@
 
         // 精密な差額回収年数（損益分岐点）の計算関数
         function calculatePaybackPeriod(targetCF, baseCF) {
-            // 初期状態がすでに上回っている場合（追加投資額0など）
-            if (targetCF[0] >= baseCF[0]) return 0;
+            let hasInvested = false;
+            for (let i = 0; i < targetCF.length; i++) {
+                if (targetCF[i] - baseCF[i] < 0) {
+                    hasInvested = true;
+                }
+            }
+            
+            if (!hasInvested) return 0;
             
             for (let i = 1; i < targetCF.length; i++) {
                 const prevDiff = targetCF[i-1] - baseCF[i-1];
                 const currDiff = targetCF[i] - baseCF[i];
                 
-                // 前年がマイナス（下回っている）で、今年がプラス（上回っている）の場合
                 if (prevDiff < 0 && currDiff >= 0) {
                     const absPrev = Math.abs(prevDiff);
                     const interp = absPrev / (absPrev + currDiff);
@@ -2775,16 +2956,33 @@
         const paybackPcsOpt = pbPcs !== null ? `${pbPcs.toFixed(1)}年` : '回収不能';
 
         const pbRepower = calculatePaybackPeriod(repowerCF, baseCF);
-        const paybackRepower = pbRepower !== null ? `${pbRepower.toFixed(1)}年` : '回収不能';
+        const paybackRepower = pbRepower !== null ? (pbRepower > 0 && repowerYear > 0 ? `${(pbRepower - repowerYear).toFixed(1)}年 (投資から)` : `${pbRepower.toFixed(1)}年`) : '回収不能';
 
-        // オーナー用表示の更新
+        // オーナー用表示の更新（プランB：フル・リパワリング適用後のシミュレーション結果を動的に連動反映！！！）
         const ownerAssetValueEl = document.getElementById('owner-asset-value');
         const ownerLifetimeCfEl = document.getElementById('owner-lifetime-cf');
+        const ownerAssetValueDescEl = document.getElementById('owner-asset-value-desc');
+        const ownerLifetimeCfTitleEl = document.getElementById('owner-lifetime-cf-title');
+        const ownerLifetimeCfDescEl = document.getElementById('owner-lifetime-cf-desc');
+        
         if (ownerAssetValueEl && ownerLifetimeCfEl) {
-            const formattedCF = Math.round(finalBase * 10000);
-            const formattedVal = Math.round(dcfAssetValue * 10000);
+            const selectedCF = repowerCost === 0 ? finalBase : finalRepower;
+            const selectedVal = repowerCost === 0 ? dcfAssetValue : dcfAssetValueRepower;
+            
+            const formattedCF = Math.round(selectedCF * 10000);
+            const formattedVal = Math.round(selectedVal * 10000);
             ownerLifetimeCfEl.innerText = formattedCF.toLocaleString();
             ownerAssetValueEl.innerText = formattedVal.toLocaleString();
+
+            if (repowerCost === 0) {
+                if (ownerAssetValueDescEl) ownerAssetValueDescEl.innerText = "※設備状態や運営経費、立地リスク等を考慮し、残存FIT期間の将来予測手取り収支から算出した現在の資産評価額";
+                if (ownerLifetimeCfTitleEl) ownerLifetimeCfTitleEl.innerText = "💰 予測生涯CF";
+                if (ownerLifetimeCfDescEl) ownerLifetimeCfDescEl.innerText = "※現状維持時の累積推定収支";
+            } else {
+                if (ownerAssetValueDescEl) ownerAssetValueDescEl.innerText = "※プランB（フルリパワリング）実行後の、残存FIT期間の予測手取り収支から算出した現在の資産評価額";
+                if (ownerLifetimeCfTitleEl) ownerLifetimeCfTitleEl.innerText = "💰 プランB生涯CF";
+                if (ownerLifetimeCfDescEl) ownerLifetimeCfDescEl.innerText = "※プランB（フルリパワリング）実行後の累積推定収支";
+            }
 
             // PCS故障確率（シグモイド予測モデル）の計算
             const elapsed = data.elapsedYears; // 経過年数
@@ -2798,15 +2996,15 @@
             if (pcsRiskPercentEl && pcsRiskCardEl && pcsRiskDescEl) {
                 pcsRiskPercentEl.innerText = `${pcsRiskPercent}%`;
                 if (pcsRiskPercent >= 80) {
-                    pcsRiskCardEl.style.borderColor = "#ef4444";
+                    pcsRiskCardEl.style.borderColor = "rgba(239, 68, 68, 0.4)";
                     pcsRiskPercentEl.style.color = "#ef4444";
                     pcsRiskDescEl.innerText = "🚨 故障確率極めて高（即時交換推奨）";
                 } else if (pcsRiskPercent >= 40) {
-                    pcsRiskCardEl.style.borderColor = "#f59e0b";
+                    pcsRiskCardEl.style.borderColor = "rgba(245, 158, 11, 0.4)";
                     pcsRiskPercentEl.style.color = "#f59e0b";
                     pcsRiskDescEl.innerText = "⚠️ 故障確率上昇中（寿命目安超過）";
                 } else {
-                    pcsRiskCardEl.style.borderColor = "#10b981";
+                    pcsRiskCardEl.style.borderColor = "rgba(16, 185, 129, 0.4)";
                     pcsRiskPercentEl.style.color = "#10b981";
                     pcsRiskDescEl.innerText = "🟢 低リスク（設計寿命・保証内）";
                 }
@@ -3368,6 +3566,193 @@
             chart.options.plugins.legend.labels.color = textColor;
             chart.update('none');
         });
+    }
+
+    // ==========================================
+    // そらバリュAI (シミュレーション対話アシスタント)
+    // ==========================================
+    function askSoraValuAI(type, customText = "") {
+        const chatHistory = document.getElementById('ai-chat-history');
+        const typingIndicator = document.getElementById('ai-typing-indicator');
+        if (!chatHistory) return;
+
+        let userMsg = "";
+        let aiMsg = "";
+
+        // パラメータ取得
+        const repowerCost = parseFloat(document.getElementById('repower-cost').value);
+        const generationBoost = parseFloat(document.getElementById('generation-boost').value);
+        const simYears = parseInt(document.getElementById('sim-years').value) || 20;
+        const id = document.getElementById('solar-id').value;
+        const data = demoData[id] || demoData["A614245G36"];
+        
+        // 各種金額の取得
+        const baseCFText = document.getElementById('roi-base-cf')?.innerText || "0万円";
+        const pcsCFText = document.getElementById('roi-pcs-cf')?.innerText || "0万円";
+        const repowerCFText = document.getElementById('roi-repower-cf')?.innerText || "0万円";
+        const assetValueText = document.getElementById('owner-asset-value')?.innerText || "0円";
+        const paybackRepowerText = document.getElementById('roi-repower-payback')?.innerText || "回収不能";
+
+        const fpMode = currentMode === 'fp-enhanced';
+        const hazardInsuranceSurcharge = fpMode && data.hazard.includes("警戒") ? 5 : (data.hazard.includes("浸水") ? 8 : 0);
+
+        if (type === 'risk') {
+            userMsg = "現状維持（プラン①）の最大のリスクは？";
+            const pcsRiskPercentText = document.getElementById('pcs-risk-percent')?.innerText || "0%";
+            aiMsg = `<strong>現状維持（プラン①）の主なリスク分析結果：</strong><br><br>` +
+                    `1. <strong>PCSの老朽化リスク</strong>: <br>` +
+                    `　現在のPCS故障確率は <strong>${pcsRiskPercentText}</strong> と算出されています。既に運転開始から ${data.elapsedYears}年が経過しており、間もなく設計寿命（12年）を迎えるため、突発的な故障による売電停止や修繕費用の急増が懸念されます。<br>` +
+                    `2. <strong>FIT終了後の収支悪化</strong>: <br>` +
+                    `　残存FIT期間終了（残り ${20 - data.elapsedYears}年）の翌年以降は、売電単価が 8.5円/kWh まで急落します。この状態でO&M費用等の維持経費がかかり続けると、単年収支が赤字化する可能性があります。<br>` +
+                    `3. <strong>ハザード立地リスク</strong>: <br>` +
+                    `　当アセットは「${data.hazard}」エリアに属しています。万が一の被災時の復旧コストや、保険料上昇（年数万円）が発生する可能性があるため、適切なリスク引当や事前対策が推奨されます。`;
+        } else if (type === 'recommend') {
+            userMsg = "プランA（PCS交換）とプランB（リパワリング）どちらがおすすめ？";
+            
+            if (repowerCost === 0) {
+                aiMsg = `<strong>推奨プランの選定アドバイス：</strong><br><br>` +
+                        `現在、リパワリング投資額が <strong>0万円</strong> に設定されているため、プランBは機能していません。<br>` +
+                        `左側スライダーで「リパワリング投資額」を設定することで、パネル増設（実効1.385倍）や効率改善（+${generationBoost}%）を伴う「プランB：フルリパワリング」の期待収支を算出して比較することができます。ぜひスライダーを動かしてみてください。`;
+            } else {
+                const diffCF = parseFloat(repowerCFText.replace(/[^0-9]/g, '')) - parseFloat(baseCFText.replace(/[^0-9]/g, ''));
+                aiMsg = `<strong>推奨プランの選定アドバイス：</strong><br><br>` +
+                        `結論から申し上げますと、<strong>プランB（フルリパワリング）が極めて有望</strong>です。<br><br>` +
+                        `・<strong>収支の最大化</strong>: プランBの${simYears}年間の累積CFは <strong>${repowerCFText}</strong> となり、現状維持（${baseCFText}）と比較して <strong>+${diffCF}万円</strong> の上乗せが見込めます。<br>` +
+                        `・<strong>投資回収</strong>: 初期投資に ${repowerCost}万円 を要しますが、過積載の1.385倍化と発電量向上効果により、回収期間は <strong>${paybackRepowerText}</strong> と非常にスピーディです。<br>` +
+                        `・<strong>アセット延命</strong>: モジュールを最新の高効率品に全交換するため、将来30〜40年の超長期運用（FIT期間外も含む）にも高い耐性を誇ります。中期的な機器延命のみを目指す場合はプランA（PCS交換のみ：累積CF ${pcsCFText}）も選択肢になりますが、事業性・資産価値を最大化する観点ではプランBが最適です。`;
+            }
+        } else if (type === 'hazard') {
+            userMsg = "立地リスク（ハザード）の影響と対策は？";
+            const hazardText = data.hazard || "特になし";
+            aiMsg = `<strong>立地リスク（ハザード情報）と想定対策：</strong><br><br>` +
+                    `・<strong>現在のハザード分類</strong>: 「<strong>${hazardText}</strong>」<br>` +
+                    `・<strong>経済的影響</strong>: <br>` +
+                    `　ハザードエリア内の発電所は、災害による物理的損壊リスクのほか、火災・水害保険料の特約追加等で年間運営経費（年 ${hazardInsuranceSurcharge}万円）が加算され、収支を圧迫します。<br>` +
+                    `・<strong>推奨される対策</strong>: <br>` +
+                    `　1. <strong>ハザード連動スイッチの適用</strong>: 左メニューの「ハザードリスク連動」を有効にすることで、初期の浸水防止工事費用（100万円等）や毎年加算される保険料を織り込んだ「真の事業計画」を把握できます。<br>` +
+                    `　2. <strong>物理的対策</strong>: プランBの工事の際、同時に架台のかさ上げ（浸水対策）や土留め整備を施すことで、アセットの健全性を維持し、金融機関からの融資評価やアセットの担保価値（現在の評価額：<strong>¥${assetValueText}</strong>）を安定させることができます。`;
+        } else if (type === 'custom') {
+            userMsg = customText;
+            const text = customText.toLowerCase();
+            if (text.includes("蓄電池") || text.includes("バッテリー") || text.includes("電池")) {
+                aiMsg = `<strong>蓄電池（バッテリー）併設に関する分析：</strong><br><br>` +
+                        `蓄電池の併設オプションの追加シミュレーションに関するアドバイスです。<br>` +
+                        `・<strong>導入メリット</strong>: <br>` +
+                        `　FIP移行時のピークシフト（市場単価が高い時間帯への売電シフト）により、売電単価が大幅に向上するシナリオをシミュレーションできます。<br>` +
+                        `・<strong>コストと寿命</strong>: <br>` +
+                        `　初期の蓄電池投資により手残りCFは減少しますが、FIP制度との組み合わせによって「プランB」のポテンシャルを最大化できます。なお、蓄電池は15年周期でのセル再交換費用を織り込んでいます。`;
+            } else if (text.includes("fip") || text.includes("市場") || text.includes("転換")) {
+                aiMsg = `<strong>FIP制度への転換（市場連動化）に関する分析：</strong><br><br>` +
+                        `固定価格のFIT制度から、卸電力市場単価に連動するFIP制度へ移行した場合のアドバイスです。<br>` +
+                        `・<strong>現状</strong>: FIP制度単体では、出力制御時間帯のゼロ値化や市場単価の乱高下に晒されるリスクがあります。<br>` +
+                        `・<strong>最大化の鍵</strong>: <br>` +
+                        `　「蓄電池」を併設することで、日中の発電を蓄電し、市場価格の高騰する夕方〜夜間に放電・売電することで、収支効率を劇的に高めることができます。ぜひ「FIP制度への転換」と「蓄電池併設」の双方をONにしてシミュレーションの推移をご確認ください。`;
+            } else if (text.includes("売却") || text.includes("出口") || text.includes("exit") || text.includes("処分") || text.includes("うる") || text.includes("売る")) {
+                aiMsg = `<strong>アセットの適切な売却時期（Exit戦略）の分析：</strong><br><br>` +
+                        `現在のシミュレーション（アセット評価額：<strong>¥${assetValueText}</strong>）に基づき、以下の3つの売却シナリオが考えられます。<br><br>` +
+                        `1. <strong>現状維持（プラン①）で早期売却する場合【推奨：1〜2年以内】</strong><br>` +
+                        `　現状維持のまま売却を検討される場合、<strong>「今すぐ（1〜2年以内）」</strong>が最良のタイミングです。本発電所は経過年数 ${data.elapsedYears}年であり、12年目に予定されているPCS一括交換（200万円）や、終了年月（${data.fitEndDate}）に伴う売電単価下落の前に売却することで、最も手元に残るキャッシュを最大化できます。<br>` +
+                        `2. <strong>プランB（リパワリング）実施後に売却する場合【推奨：5〜7年後】</strong><br>` +
+                        `　プランBを実行すると、アセットの発電能力が劇的に向上し、アセット評価額を大幅に高めることができます。プランBの投資回収期間は <strong>${paybackRepowerText}</strong> ですので、投資回収が完了する <strong>5〜7年目</strong> に、セカンダリー市場で「リパワリング済みの高利回り優良アセット」として高値売却を目指す出口戦略が極めて合理的です。<br>` +
+                        `3. <strong>卒FIT直前に売却する場合【推奨：運転開始から18〜20年目】</strong><br>` +
+                        `　20年間のFIT売電収入を最大限手元に回収した上で、卒FITアセットとして新電力等に売却、または自家消費用アセットとして隣接企業にPPA売却する出口です。`;
+            } else if (text.includes("回収") || text.includes("投資") || text.includes("payback") || text.includes("元が取れる")) {
+                aiMsg = `<strong>投資回収期間（投資効率）に関する分析：</strong><br><br>` +
+                        `現在のシミュレーション設定における投資回収の分析結果です。<br><br>` +
+                        `・<strong>プランA（PCS交換のみ：投資額 ${pcsCFText.includes('万円') ? pcsCFText : '約200万円'}）</strong>:<br>` +
+                        `　投資回収は <strong>${document.getElementById('roi-pcs-payback')?.innerText || '回収不能'}</strong> と予測されます。PCSを新品にするのみの守りの投資であるため、劇的な売電向上は見込めず、回収には時間がかかります。<br>` +
+                        `・<strong>プランB（フルリパワリング：投資額 ${repowerCost}万円）</strong>:<br>` +
+                        `　投資回収は <strong>${paybackRepowerText}</strong> と極めて優秀です。初期投資はかかりますが、過積載の1.385倍化と想定発電量 +${generationBoost}% 向上による増収効果が投資額を大きく上回るため、事業期間全体を通じて <strong>${repowerCFText}</strong> の手残りCFを生み出し、効率的な資産形成に繋がります。`;
+            } else if (text.includes("ppa") || text.includes("自家消費") || text.includes("自己消費") || text.includes("オフサイト")) {
+                aiMsg = `<strong>PPA（電力販売契約）および自家消費への切り替え分析：</strong><br><br>` +
+                        `卒FIT後、またはFIT期間中からのオンサイト/オフサイトPPAモデルへの切り替えは、アセット価値を維持する重要な選択肢です。<br><br>` +
+                        `・<strong>FIT終了後（卒FIT）の対策として</strong>:<br>` +
+                        `　本発電所は ${data.fitEndDate} にFIT売電が終了し、売電単価が 8.5円/kWh に下がりますが、隣接する工場や施設とPPAを締結し、電気を直接 15円〜20円/kWh 程度で供給（自家消費化）できれば、アセットの収益性をFIT終了後も高く維持できます。<br>` +
+                        `・<strong>そらバリュのサポート</strong>:<br>` +
+                        `　画面左下の「PPA切り替え・相談窓口に問い合わせ」ボタンから、対象施設とのマッチングやPPAシミュレーションの詳細査定をシームレスに依頼可能です。`;
+            } else if (text.includes("リパワ") || text.includes("repower") || text.includes("パネル交換") || text.includes("機器交換")) {
+                aiMsg = `<strong>太陽光発電所における「リパワリング」の解説：</strong><br><br>` +
+                        `「リパワリング（Repowering）」とは、すでに数年間稼働している太陽光発電所において、経年劣化したパネルやパワコン（PCS）を最新の高効率機器に交換・増設することで、<strong>発電量と収益力を劇的に回復・向上させるリノベーション投資</strong>のことです。<br><br>` +
+                        `本シミュレーターの<strong>「プランB：フルリパワリング」</strong>では、具体的に以下の対策を想定しています。<br><br>` +
+                        `1. <strong>パネルの高効率化と過積載の最大化</strong><br>` +
+                        `　古い低効率パネルから最新の超高効率パネルへ全交換し、積載容量を現在の <strong>1.4倍（過積載）</strong> まで引き上げます。これにより、曇りの日や朝夕の発電量が大幅に底上げされます。<br>` +
+                        `2. <strong>最新パワコン（PCS）への交換</strong><br>` +
+                        `　変換効率が良く保証期間の長い最新PCSへ交換し、長期的な故障リスクと発電損失をシャットアウトします。<br><br>` +
+                        `・<strong>吉野川発電所でのシミュレーション効果</strong>:<br>` +
+                        `　投資額 <strong>${repowerCost}万円</strong> を投じることで、想定発電量を <strong>+${generationBoost}%</strong> 改善し、現状維持と比較して <strong>${repowerCFText}</strong> の累積CFを生み出し、延命する計画となっています。`;
+            } else if (text.includes("必要") || text.includes("なぜ") || text.includes("8年") || text.includes("意味ある") || text.includes("するべき")) {
+                aiMsg = `<strong>稼働後 ${data.elapsedYears}年 が経過した発電所でリパワリングが必要な理由：</strong><br><br>` +
+                        `結論から申し上げますと、<strong>「残存FIT期間がたっぷり（残り ${20 - data.elapsedYears}年）残っている『今』だからこそ、リパワリングの投資効果が最大化する」</strong>と言えます。理由は大きく3つあります。<br><br>` +
+                        `1. <strong>高単価での回収期間が十分に確保できるため</strong><br>` +
+                        `　本発電所のFIT売電単価は <strong>${data.fitPrice}円</strong> と非常に高単価です。プランBの回収期間は <strong>${paybackRepowerText}</strong> ですので、残り <strong>${20 - data.elapsedYears}年間</strong> のFIT期間中に投資額（${repowerCost}万円）を完全に回収しきり、残りのFIT期間（約7〜8年間）で高単価の増収メリットをまるまる純利益として享受できます。これがFIT終了直前（残り3〜4年など）になると、投資回収が間に合わず手遅れになります。<br>` +
+                        `2. <strong>8年前の機器と最新機器の『技術ギャップ』が非常に大きいため</strong><br>` +
+                        `　${data.fitCertDate ? data.fitCertDate.slice(0, 5) : "運転開始"}当時の太陽光パネルに比べ、現在の最新パネルはモジュール変換効率が約 20%〜30% 向上しています。これらを全交換し、積載率を <strong>1.4倍（過積載）</strong> に高めることで、同じ面積でも発電量が劇的に底上げされ、アセット価値（評価額：<strong>¥${assetValueText}</strong>）を最も効率よく引き上げられます。<br>` +
+                        `3. <strong>いずれ発生する「PCS交換費用」を包括してプラスにできるため</strong><br>` +
+                        `　現状維持でも、12年目（残り4年後）にはPCSの設計寿命に伴う一括交換費用（${pcsCFText}）が強制的に発生します。どうせ発生する「守りのコスト」を、発電量と売電収入を激増させる「攻めのリパワリング投資」の一部として統合・前倒し実行する方が、ライフサイクル全体の利回りは圧倒的に高くなります。`;
+            } else {
+                aiMsg = `ご質問ありがとうございます！現在のシミュレーション（アセット評価額：<strong>¥${assetValueText}</strong>、${simYears}年間累積CF：<strong>${repowerCFText}</strong>）に基づき解説いたします。<br><br>` +
+                        `・<strong>最も収益性が高いアプローチ</strong>: リパワリング投資（現在 ${repowerCost}万円）を実行し、想定発電量を +${generationBoost}% 向上させるプランBです。<br>` +
+                        `・<strong>将来の安定化に向けて</strong>: すでに経過年数 ${data.elapsedYears}年 となっているため、早期に対策を実施することで、将来にわたり安定的なキャッシュを確保できます。<br><br>` +
+                        `他にご質問（「蓄電池のメリットは？」「FIPに転換すべき？」など）がございましたらお気軽に入力してください。`;
+            }
+        }
+
+        // チャット画面への書き込み処理
+        appendChatMessage("user", userMsg);
+        
+        // タイピングアニメーション（0.3秒後）
+        if (typingIndicator) typingIndicator.style.display = 'inline';
+        setTimeout(() => {
+            if (typingIndicator) typingIndicator.style.display = 'none';
+            appendChatMessage("ai", aiMsg);
+        }, 350);
+    }
+
+    function appendChatMessage(sender, text) {
+        const chatHistory = document.getElementById('ai-chat-history');
+        if (!chatHistory) return;
+
+        const msgDiv = document.createElement('div');
+        if (sender === "user") {
+            msgDiv.style.cssText = "background: rgba(96, 165, 250, 0.1); border: 1px solid rgba(96, 165, 250, 0.25); padding: 8px 12px; border-radius: 8px 8px 0 8px; color: #93c5fd; align-self: flex-end; max-width: 90%; word-break: break-all; font-size: 0.85rem;";
+        } else {
+            msgDiv.style.cssText = "background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 10px 12px; border-radius: 8px 8px 8px 0; color: #e2e8f0; align-self: flex-start; max-width: 90%; font-size: 0.85rem;";
+        }
+        msgDiv.innerHTML = text;
+        chatHistory.appendChild(msgDiv);
+        
+        // スクロールを自動で最下部へ
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    function sendUserMessage() {
+        const input = document.getElementById('ai-chat-input');
+        if (!input) return;
+        const text = input.value.trim();
+        if (!text) return;
+        
+        input.value = "";
+        askSoraValuAI('custom', text);
+    }
+
+    // AIチャットウィジェットの表示切替
+    function toggleAiWidget() {
+        const toggleBtn = document.getElementById('ai-widget-toggle-btn');
+        const container = document.getElementById('soravalu-ai-container');
+        
+        if (container.style.display === 'none') {
+            container.style.display = 'flex';
+            toggleBtn.style.display = 'none';
+            
+            // チャット履歴を最下部へスクロール
+            setTimeout(() => {
+                const chatHistory = document.getElementById('ai-chat-history');
+                if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight;
+            }, 50);
+        } else {
+            container.style.display = 'none';
+            toggleBtn.style.display = 'flex';
+        }
     }
 </script>
 
