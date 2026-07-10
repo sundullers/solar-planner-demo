@@ -1389,14 +1389,24 @@
                             <div style="font-size: 1.35rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 3px;">
                                 <span style="color: #60a5fa; font-size: 1rem;">¥</span><span id="owner-asset-value">24,500,000</span>
                             </div>
+                            <!-- 差額メリット＆現在価値表示 -->
+                            <div id="owner-asset-value-diff-container" style="font-size: 0.7rem; color: #94a3b8; margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center;">
+                                <span>現状維持: ¥<span id="owner-asset-value-base">0</span></span>
+                                <span style="color: #60a5fa; font-weight: bold;" id="owner-asset-value-diff-wrap">(差額: <span id="owner-asset-value-diff-prefix">+</span>¥<span id="owner-asset-value-diff">0</span>)</span>
+                            </div>
                         </div>
-                        <div id="owner-asset-value-desc" style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.45; min-height: 40px;">※設備状態や運営経費、立地リスク等を考慮し、残存FIT期間の将来予測手取り収支から算出した現在の資産評価額</div>
+                        <div id="owner-asset-value-desc" style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.45; min-height: 40px;">※設備状態や運営経費、立地リスク等を考慮し、残存FIT期間 of 将来予測手取り収支から算出した現在の資産評価額</div>
                     </div>
                     <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(16, 185, 129, 0.3); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between;">
                         <div>
                             <div id="owner-lifetime-cf-title" style="font-size: 0.75rem; color: #34d399; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">💰 予測生涯CF</div>
                             <div style="font-size: 1.35rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 3px;">
                                 <span style="color: #34d399; font-size: 1rem;">¥</span><span id="owner-lifetime-cf">39,800,000</span>
+                            </div>
+                            <!-- 差額メリット＆現在価値表示 -->
+                            <div id="owner-lifetime-cf-diff-container" style="font-size: 0.7rem; color: #94a3b8; margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center;">
+                                <span>現状維持: ¥<span id="owner-lifetime-cf-base">0</span></span>
+                                <span style="color: #34d399; font-weight: bold;" id="owner-lifetime-cf-diff-wrap">(差額: <span id="owner-lifetime-cf-diff-prefix">+</span>¥<span id="owner-lifetime-cf-diff">0</span>)</span>
                             </div>
                         </div>
                         <div id="owner-lifetime-cf-desc" style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.45; min-height: 40px;">※現状維持時の累積推定収支</div>
@@ -2979,6 +2989,33 @@
             const formattedVal = Math.round(selectedVal * 10000);
             ownerLifetimeCfEl.innerText = formattedCF.toLocaleString();
             ownerAssetValueEl.innerText = formattedVal.toLocaleString();
+
+            const baseCFVal = Math.round(finalBase * 10000);
+            const baseAssetVal = Math.round(dcfAssetValue * 10000);
+            
+            const ownerAssetValueBaseEl = document.getElementById('owner-asset-value-base');
+            const ownerAssetValueDiffEl = document.getElementById('owner-asset-value-diff');
+            const ownerAssetValueDiffPrefixEl = document.getElementById('owner-asset-value-diff-prefix');
+            const ownerAssetValueDiffWrap = document.getElementById('owner-asset-value-diff-wrap');
+
+            const ownerLifetimeCfBaseEl = document.getElementById('owner-lifetime-cf-base');
+            const ownerLifetimeCfDiffEl = document.getElementById('owner-lifetime-cf-diff');
+            const ownerLifetimeCfDiffPrefixEl = document.getElementById('owner-lifetime-cf-diff-prefix');
+            const ownerLifetimeCfDiffWrap = document.getElementById('owner-lifetime-cf-diff-wrap');
+
+            if (ownerAssetValueBaseEl) ownerAssetValueBaseEl.innerText = baseAssetVal.toLocaleString();
+            if (ownerLifetimeCfBaseEl) ownerLifetimeCfBaseEl.innerText = baseCFVal.toLocaleString();
+
+            const diffAsset = formattedVal - baseAssetVal;
+            const diffCF = formattedCF - baseCFVal;
+
+            if (ownerAssetValueDiffEl) ownerAssetValueDiffEl.innerText = Math.abs(diffAsset).toLocaleString();
+            if (ownerAssetValueDiffPrefixEl) ownerAssetValueDiffPrefixEl.innerText = diffAsset >= 0 ? '+' : '-';
+            if (ownerAssetValueDiffWrap) ownerAssetValueDiffWrap.style.display = repowerCost === 0 ? 'none' : 'inline';
+
+            if (ownerLifetimeCfDiffEl) ownerLifetimeCfDiffEl.innerText = Math.abs(diffCF).toLocaleString();
+            if (ownerLifetimeCfDiffPrefixEl) ownerLifetimeCfDiffPrefixEl.innerText = diffCF >= 0 ? '+' : '-';
+            if (ownerLifetimeCfDiffWrap) ownerLifetimeCfDiffWrap.style.display = repowerCost === 0 ? 'none' : 'inline';
 
             if (repowerCost === 0) {
                 if (ownerAssetValueDescEl) ownerAssetValueDescEl.innerText = "※設備状態や運営経費、立地リスク等を考慮し、残存FIT期間の将来予測手取り収支から算出した現在の資産評価額";
