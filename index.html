@@ -483,7 +483,7 @@
         }
 
         .chart-container::after {
-            content: "🔍 拡大比較";
+            content: "🔍 拡大";
             position: absolute;
             top: 15px;
             right: 20px;
@@ -1352,16 +1352,19 @@
                         <div class="spec-value" style="font-size: 0.95rem; line-height: 1.3;" id="spec-name">ワイヤーエナジー吉野川発電所<br><span style="font-size: 0.75rem; color: var(--text-secondary); font-weight: normal;">徳島県吉野川市</span></div>
                     </div>
                     <div class="spec-card info">
-                        <div class="spec-label">システム容量</div>
-                        <div class="spec-value" id="spec-capacity">100.0<span class="spec-unit">kW</span></div>
+                        <div class="spec-label">設備出力 (パネル容量)</div>
+                        <div class="spec-value" id="spec-capacity" style="font-size: 1.2rem; font-weight: bold; color: var(--text-primary);">140.0<span class="spec-unit">kW</span></div>
+                        <div class="spec-sub" id="spec-capacity-sub" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; font-weight: normal; line-height: 1.3;">パワコン容量: 100.0 kW<br>積載率: 140%</div>
                     </div>
                     <div class="spec-card info">
                         <div class="spec-label">FIT売電単価</div>
-                        <div class="spec-value" id="spec-fit-price">32.0<span class="spec-unit">円</span></div>
+                        <div class="spec-value" id="spec-fit-price" style="font-size: 1.2rem; font-weight: bold; color: var(--text-primary);">32.0<span class="spec-unit">円</span></div>
+                        <div class="spec-sub" id="spec-fit-price-sub" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; font-weight: normal; line-height: 1.3;">新規認定日:<br>2017年3月28日</div>
                     </div>
                     <div class="spec-card danger">
                         <div class="spec-label">経過年数 / 残存FIT</div>
-                        <div class="spec-value" id="spec-years">8年<span class="spec-unit">/ 残り12年</span></div>
+                        <div class="spec-value" id="spec-years" style="font-size: 1.2rem; font-weight: bold; color: var(--text-primary);">8年<span class="spec-unit">/ 残り12年</span></div>
+                        <div class="spec-sub" id="spec-years-sub" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; font-weight: normal; line-height: 1.3;">終了年月:<br>2038年10月</div>
                     </div>
                 </div>
             </div>
@@ -1377,7 +1380,7 @@
                         <div style="font-size: 1.3rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 3px;">
                             <span style="color: #60a5fa; font-size: 1rem;">¥</span><span id="owner-asset-value">24,500,000</span>
                         </div>
-                        <div style="font-size: 0.6rem; color: var(--text-secondary); margin-top: 3px;">※現在の設備状態、残存FIT売電額、立地リスク等を考慮した期待残存収支</div>
+                        <div style="font-size: 0.6rem; color: var(--text-secondary); margin-top: 3px;">※設備状態や経費・立地リスクを反映し、残存FIT収益を割引率5%で現在価値に換算した査定価格</div>
                     </div>
                     <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(16, 185, 129, 0.3); padding: 12px 15px; border-radius: 8px;">
                         <div id="owner-lifetime-cf-title" style="font-size: 0.65rem; color: #34d399; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">💰 20年予測生涯CF</div>
@@ -1545,7 +1548,7 @@
                             <th>所在地</th><td id="pdf-spec-location">徳島県吉野川市</td>
                         </tr>
                         <tr>
-                            <th>システム容量</th><td id="pdf-spec-capacity">100.0 kW</td>
+                            <th>設備出力（パネル容量）</th><td id="pdf-spec-capacity">140.0 kW（パワコン容量: 100.0 kW / 積載率: 140%）</td>
                             <th>FIT売電単価</th><td id="pdf-spec-fit-price">32.0 円</td>
                         </tr>
                         <tr>
@@ -1740,24 +1743,33 @@
             name: "ワイヤーエナジー吉野川発電所",
             location: "徳島県吉野川市",
             capacity: 100.0,
+            panelCapacity: 146.2,
             fitPrice: 32,
             elapsedYears: 8,
+            fitCertDate: "2014年10月20日",
+            fitEndDate: "2038年4月",
             hazard: "吉野川洪水浸水想定区域（浸水深0.5m〜1.0m）に近接。浸水時の架台かさ上げ等の対策を推奨。"
         },
         "SR-78901": {
             name: "高松第3太陽光発電所",
             location: "香川県高松市",
             capacity: 49.5,
+            panelCapacity: 69.3,
             fitPrice: 24,
             elapsedYears: 10,
+            fitCertDate: "2015年12月15日",
+            fitEndDate: "2036年10月",
             hazard: "土砂災害警戒区域（イエローゾーン）に近接。撤去・解体時の予備費＋50万円を自動で見積もり。"
         },
         "SR-12345": {
             name: "岡山吉備太陽光ファーム",
             location: "岡山県岡山市",
             capacity: 85.0,
+            panelCapacity: 119.0,
             fitPrice: 32,
             elapsedYears: 8,
+            fitCertDate: "2017年8月10日",
+            fitEndDate: "2038年10月",
             hazard: "ハザードマップ上、災害リスクは極めて低いです（浸水・土砂災害区域外）。"
         }
     };
@@ -2299,9 +2311,13 @@
         const data = demoData[id];
         if (data) {
             document.getElementById('spec-name').innerHTML = `${data.name}<br><span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: normal;">${data.location}</span>`;
-            document.getElementById('spec-capacity').innerHTML = `${data.capacity}<span class="spec-unit">kW</span>`;
+            const overcapacityRate = Math.round((data.panelCapacity / data.capacity) * 100);
+            document.getElementById('spec-capacity').innerHTML = `${data.panelCapacity.toFixed(1)}<span class="spec-unit">kW</span>`;
+            document.getElementById('spec-capacity-sub').innerHTML = `パワコン容量: ${data.capacity.toFixed(1)} kW<br>積載率: ${overcapacityRate}%`;
             document.getElementById('spec-fit-price').innerHTML = `${data.fitPrice.toFixed(1)}<span class="spec-unit">円</span>`;
+            document.getElementById('spec-fit-price-sub').innerHTML = `新規認定日:<br>${data.fitCertDate}`;
             document.getElementById('spec-years').innerHTML = `${data.elapsedYears}年<span class="spec-unit">/ 残り${20 - data.elapsedYears}年</span>`;
+            document.getElementById('spec-years-sub').innerHTML = `終了年月:<br>${data.fitEndDate}`;
             
             // ハザード警告テキストの更新
             document.getElementById('hazard-alert-text').innerHTML = `<strong>ハザードリスク情報:</strong> ${data.hazard}`;
@@ -2477,8 +2493,11 @@
 
         // 累積売電額
         let totalBaseSales = 0;
+        let totalBaseFitSales = 0; // 残存FIT期間中の累積売電額（参考用）
         let totalPcsOptSales = 0;
         let totalRepowerSales = 0;
+        let dcfAssetValue = 0; // 理論的DCF法によるアセット評価額（現在価値の累積）
+        const discountRate = 0.05; // アセット査定用の期待収益率（割引率 5%）
 
         // 年間手取り集計用変数
         let baseFitIncomeSum = 0; let baseFitYears = 0;
@@ -2538,7 +2557,12 @@
             // -----------------
             const baseEfficiency = (1 - (year * finalEffDegradation)) * (1 - finalEffLoss);
             const baseIncome = (i === 0) ? 0 : (stdGen * baseEfficiency * price * (1 - finalSuppressionRate)) / 10000; // 万円
-            if (i > 0) totalBaseSales += baseIncome;
+            if (i > 0) {
+                totalBaseSales += baseIncome;
+                if (year <= 20) {
+                    totalBaseFitSales += baseIncome;
+                }
+            }
 
             let baseExpense = 0;
             if (i > 0) {
@@ -2559,6 +2583,10 @@
                 if (i === simYears) {
                     baseExpense += (100 + hazardSurcharge); // 最終年に撤去
                 }
+            }
+            if (i > 0 && year <= 20) {
+                const yearFreeCF = baseIncome - baseExpense;
+                dcfAssetValue += yearFreeCF / Math.pow(1 + discountRate, i);
             }
             currentBaseSum += (baseIncome - baseExpense);
             baseCF.push(Math.round(currentBaseSum));
@@ -2754,7 +2782,7 @@
         const ownerLifetimeCfEl = document.getElementById('owner-lifetime-cf');
         if (ownerAssetValueEl && ownerLifetimeCfEl) {
             const formattedCF = Math.round(finalBase * 10000);
-            const formattedVal = Math.round(finalBase * 0.62 * 10000);
+            const formattedVal = Math.round(dcfAssetValue * 10000);
             ownerLifetimeCfEl.innerText = formattedCF.toLocaleString();
             ownerAssetValueEl.innerText = formattedVal.toLocaleString();
 
@@ -2903,9 +2931,10 @@
         // 印刷用PDFデータの更新
         document.getElementById('pdf-spec-name').innerText = data.name;
         document.getElementById('pdf-spec-location').innerText = data.location;
-        document.getElementById('pdf-spec-capacity').innerText = `${data.capacity} kW`;
-        document.getElementById('pdf-spec-fit-price').innerText = `${data.fitPrice.toFixed(1)} 円`;
-        document.getElementById('pdf-spec-years').innerText = `${data.elapsedYears} 年`;
+        const overcapacityRate = Math.round((data.panelCapacity / data.capacity) * 100);
+        document.getElementById('pdf-spec-capacity').innerText = `${data.panelCapacity.toFixed(1)} kW（パワコン容量: ${data.capacity.toFixed(1)} kW / 積載率: ${overcapacityRate}%）`;
+        document.getElementById('pdf-spec-fit-price').innerText = `${data.fitPrice.toFixed(1)} 円（新規認定日: ${data.fitCertDate}）`;
+        document.getElementById('pdf-spec-years').innerText = `${data.elapsedYears} 年（終了年月: ${data.fitEndDate}）`;
         document.getElementById('pdf-spec-remaining').innerText = `${20 - data.elapsedYears} 年`;
         document.getElementById('pdf-id').innerText = id;
 
