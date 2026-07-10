@@ -1354,10 +1354,10 @@
                 <div style="font-size: 0.85rem; font-weight: bold; color: var(--text-primary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
                     <span>📋 発電所基本スペック</span>
                 </div>
-                <div class="spec-summary" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+                <div class="spec-summary" style="display: grid; grid-template-columns: 1.35fr 0.88fr 0.88fr 0.88fr; gap: 15px;">
                     <div class="spec-card">
                         <div class="spec-label">発電事業社名 / 所在地</div>
-                        <div class="spec-value" style="font-size: 0.95rem; line-height: 1.3;" id="spec-name">ワイヤーエナジー吉野川発電所<br><span style="font-size: 0.75rem; color: var(--text-secondary); font-weight: normal;">徳島県吉野川市</span></div>
+                        <div class="spec-value" style="font-size: 0.95rem; line-height: 1.3;" id="spec-name"><span style="font-weight: bold; color: var(--text-primary); font-size: 1.05rem; display: block; word-break: keep-all; overflow-wrap: break-word; margin-bottom: 4px;">株式会社ワイヤーエナジー</span><span style="font-size: 0.72rem; color: var(--text-secondary); font-weight: normal; line-height: 1.3; display: block;">徳島県吉野川市川島町桑村字中須2343-1</span></div>
                     </div>
                     <div class="spec-card info">
                         <div class="spec-label">設備出力 (パネル容量)</div>
@@ -1383,26 +1383,32 @@
                     <span>💎 アセット資産評価</span>
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
-                    <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(59, 130, 246, 0.3); padding: 12px 15px; border-radius: 8px;">
-                        <div style="font-size: 0.75rem; color: #60a5fa; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">💎 アセット評価額</div>
-                        <div style="font-size: 1.3rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 3px;">
-                            <span style="color: #60a5fa; font-size: 1rem;">¥</span><span id="owner-asset-value">24,500,000</span>
+                    <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(59, 130, 246, 0.3); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div style="font-size: 0.75rem; color: #60a5fa; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">💎 アセット評価額</div>
+                            <div style="font-size: 1.35rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 3px;">
+                                <span style="color: #60a5fa; font-size: 1rem;">¥</span><span id="owner-asset-value">24,500,000</span>
+                            </div>
                         </div>
-                        <div id="owner-asset-value-desc" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 3px;">※設備状態や運営経費、立地リスク等を考慮し、残存FIT期間の将来予測手取り収支から算出した現在の資産評価額</div>
+                        <div id="owner-asset-value-desc" style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.45; min-height: 40px;">※設備状態や運営経費、立地リスク等を考慮し、残存FIT期間の将来予測手取り収支から算出した現在の資産評価額</div>
                     </div>
-                    <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(16, 185, 129, 0.3); padding: 12px 15px; border-radius: 8px;">
-                        <div id="owner-lifetime-cf-title" style="font-size: 0.75rem; color: #34d399; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">💰 予測生涯CF</div>
-                        <div style="font-size: 1.3rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 3px;">
-                            <span style="color: #34d399; font-size: 1rem;">¥</span><span id="owner-lifetime-cf">39,800,000</span>
+                    <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(16, 185, 129, 0.3); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div id="owner-lifetime-cf-title" style="font-size: 0.75rem; color: #34d399; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">💰 予測生涯CF</div>
+                            <div style="font-size: 1.35rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 3px;">
+                                <span style="color: #34d399; font-size: 1rem;">¥</span><span id="owner-lifetime-cf">39,800,000</span>
+                            </div>
                         </div>
-                        <div id="owner-lifetime-cf-desc" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 3px;">※現状維持時の累積推定収支</div>
+                        <div id="owner-lifetime-cf-desc" style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.45; min-height: 40px;">※現状維持時の累積推定収支</div>
                     </div>
-                    <div class="card" id="pcs-risk-card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(245, 158, 11, 0.4); padding: 12px 15px; border-radius: 8px;">
-                        <div style="font-size: 0.75rem; color: #fbbf24; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">⚠️ パワコン故障確率</div>
-                        <div style="font-size: 1.3rem; font-weight: bold; color: #fbbf24; display: flex; align-items: baseline; gap: 3px;">
-                            <span id="pcs-risk-percent">12%</span>
+                    <div class="card" id="pcs-risk-card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(245, 158, 11, 0.4); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div style="font-size: 0.75rem; color: #fbbf24; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">⚠️ パワコン故障確率</div>
+                            <div style="font-size: 1.35rem; font-weight: bold; color: #fbbf24; display: flex; align-items: baseline; gap: 3px;">
+                                <span id="pcs-risk-percent">12%</span>
+                            </div>
                         </div>
-                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 3px;" id="pcs-risk-desc">※シグモイド故障確率モデルによる予測</div>
+                        <div style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.45; min-height: 40px;" id="pcs-risk-desc">※シグモイド故障確率モデルによる予測</div>
                     </div>
                 </div>
             </div>
@@ -2411,7 +2417,7 @@
                     <option value="40">今から40年間</option>
                 `;
             }
-            document.getElementById('spec-name').innerHTML = `${data.name}<br><span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: normal;">${data.location}</span>`;
+            document.getElementById('spec-name').innerHTML = `<span style="font-weight: bold; color: var(--text-primary); font-size: 1.05rem; display: block; word-break: keep-all; overflow-wrap: break-word; margin-bottom: 4px;">${data.name}</span><span style="font-size: 0.72rem; color: var(--text-secondary); font-weight: normal; line-height: 1.3; display: block;">${data.location}</span>`;
             const overcapacityRate = Math.round((data.panelCapacity / data.capacity) * 100);
             document.getElementById('spec-capacity').innerHTML = `${data.panelCapacity.toFixed(1)}<span class="spec-unit">kW</span>`;
             document.getElementById('spec-capacity-sub').innerHTML = `パワコン容量: ${data.capacity.toFixed(1)} kW<br>積載率: ${overcapacityRate}%`;
