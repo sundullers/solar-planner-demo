@@ -2764,7 +2764,8 @@
         const pcsYear = parseInt(document.getElementById('pcs-year').value);
         const fitPrice = parseFloat(document.getElementById('fit-price').value);
         const postFitPrice = parseFloat(document.getElementById('post-fit-price').value);
-        const decomCost = parseFloat(document.getElementById('master-decom-cost').value) || 100;
+        const decomCostVal = parseFloat(document.getElementById('master-decom-cost').value);
+        const decomCost = isNaN(decomCostVal) ? 100 : decomCostVal;
 
         // 将来オプション状態取得
         const fipActive = document.getElementById('fip-checkbox').checked;
