@@ -1077,6 +1077,9 @@
             <button type="button" class="btn-guide" onclick="openGuideModal()" style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
                 <span>📖 ご利用ガイド</span>
             </button>
+            <button type="button" class="btn-guide" onclick="openLogicGuideWithPassword()" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--accent-color); padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                <span>🔬 ロジック解説書</span>
+            </button>
         </div>
     </header>
 
@@ -1811,6 +1814,74 @@
         </div>
         <div class="modal-footer" style="border-top: 1px solid var(--border-color); padding: 15px 20px; display: flex; justify-content: flex-end;">
             <button class="btn-action" style="margin: 0; width: auto; background: var(--border-color); color: white;" onclick="closeGuideModal()">閉じる</button>
+        </div>
+    </div>
+</div>
+
+<!-- ロジック解説書モーダル (PW保護) -->
+<div id="logic-guide-modal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 850px; background: #0f172a; color: white; border: 1px solid var(--border-color); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+        <div class="modal-header" style="border-bottom: 1px solid var(--border-color); padding: 15px 20px;">
+            <h2 style="font-size: 1.2rem; color: #10b981; display: flex; align-items: center; gap: 8px; margin: 0;">
+                <span>🔬 シミュレーター計算ロジック解説書 (関係者限定)</span>
+            </h2>
+            <span class="close-modal" onclick="closeLogicGuideModal()" style="color: var(--text-secondary);">&times;</span>
+        </div>
+        <div class="modal-body" style="padding: 20px; max-height: 60vh; overflow-y: auto; font-size: 0.85rem; line-height: 1.6;">
+            <div style="background: rgba(16, 185, 129, 0.05); padding: 15px; border-radius: 8px; border-left: 4px solid #10b981; margin-bottom: 20px;">
+                <strong>本資料の目的:</strong><br>
+                本解説書は、太陽光発電所の個人オーナー様に向けて、シミュレーターの内部計算モデルや数式の前提条件を優しく解説するための営業資料・解説書です。
+            </div>
+            
+            <h3 style="color: #60a5fa; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin-top: 20px;">1. 年間の「発電量」の計算モデル</h3>
+            <p>想定発電量は以下の計算式をベースに毎年算出しています。</p>
+            <div style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 6px; font-family: monospace; margin: 10px 0;">
+                年間の発電量 (kWh) ＝ パワコン容量 (kW) × 1,150時間 × その年の発電効率 × 各種補正係数
+            </div>
+            <ul>
+                <li><strong>標準経年劣化:</strong> FIT期間内（20年目まで）は毎年 <strong>0.5%</strong> ずつ発電効率が低下します。21年目（卒FIT）以降は劣化速度が <strong>1.8倍（毎年 0.9%）</strong> に加速します。</li>
+                <li><strong>新品リセット効果:</strong> プランB（リパワリング）実行後は、パネルが全て新品になるため、実行した年から劣化スピードが <strong>毎年 0.3%（標準の40%減）</strong> に抑えられます。</li>
+            </ul>
+
+            <h3 style="color: #60a5fa; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin-top: 25px;">2. プランB（リパワリング）の発電量ブーストと制限</h3>
+            <p>プランBではパネルを過積載（1.4倍）に増設します。しかし、昼間のピークカット（パワコン許容上限超えのロス）が発生するため、以下の「実効増設率」を計算式に採用しています。</p>
+            <ul>
+                <li><strong>実効増設倍率:</strong> 1.3倍を超える超過分に対しては 0.85 の減衰補正を適用します。<br>
+                <code style="background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px;">1.3 + (1.4 - 1.3) × 0.85 ＝ 1.385倍</code></li>
+                <li><strong>発電量ブースト率:</strong> スライダーで設定した「想定発電量改善率（例: +15%）」がさらに掛け合われ、発電効率が劇的に向上します。</li>
+            </ul>
+
+            <h3 style="color: #60a5fa; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin-top: 25px;">3. FIP移行トグルON時の単価補正（蓄電池との連動）</h3>
+            <p>FIP（市場連動）制度を選択した場合、**蓄電池（バッテリー）の併設有無**によって売電単価が補正されます。</p>
+            <ul>
+                <li><strong>蓄電池あり ＋ FIP移行:</strong> 夕方の市場価格高騰時間帯を狙って売電（ピークシフト）できるため、**売電単価が 15% アップ** します。</li>
+                <li><strong>蓄電池なし ＋ FIP移行:</strong> 昼間の市場単価暴落時にそのまま売電せざるを得ないため（プロファイルロス）、**売電単価が 5% ダウン** します。</li>
+                <li><strong>FIP手数料:</strong> 運用の外部委託コスト（アグリゲーション紹介フィー）として、**年間の売電額の 2%** が運営経費に毎年加算されます。</li>
+            </ul>
+
+            <h3 style="color: #60a5fa; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin-top: 25px;">4. ハザードリスク連動時の追加経費</h3>
+            <p>ハザードトグルON時、土砂災害や浸水マップの区域内に近接している場合の追加経費を計上します。</p>
+            <ul>
+                <li><strong>年間損害保険料:</strong> 年間売電額の <strong>0.2%</strong> が毎年上乗せされます。</li>
+                <li><strong>解体・撤去費用:</strong> 最終年に <strong>50万円</strong> が加算されます。</li>
+                <li><strong>プランB浸水対策費:</strong> 浸水想定区域の場合、実行年の初期費用として「架台かさ上げ工事費」の <strong>100万円</strong> が自動計上されます。</li>
+            </ul>
+
+            <h3 style="color: #60a5fa; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin-top: 25px;">5. パワコン・蓄電池の更新サイクル</h3>
+            <ul>
+                <li><strong>パワコン再交換:</strong> メーカー設計寿命（デフォルト15年）ごとに一括再交換コストが発生します（0年目に新調した場合、15年後に再発生）。</li>
+                <li><strong>蓄電池再交換:</strong> 導入コスト（15万円/kWh）を0年目に計上し、15年経過時点で同額のバッテリーモジュール再取得費用が発生します。</li>
+            </ul>
+
+            <h3 style="color: #60a5fa; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin-top: 25px;">6. アセット評価額（資産価値）の算出モデル</h3>
+            <p>不動産評価でも使われる**DCF法（ディスカウント・キャッシュフロー法）**を採用しています。</p>
+            <div style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 6px; margin: 10px 0;">
+                アセット評価額 ＝ 残存FIT期間（最大20年）に得られる各年の純手取り額を、割引率（3.0%）で割り引いた現在価値の総和
+            </div>
+            <p>スライダー操作によってリパワリングの実行時期を遅らせると、将来CFの割引現在価値が下がり、高効率期間も短くなるため、上部のアセット評価額が滑らかに減少する様子をダイナミックに確認できます。</p>
+        </div>
+        <div class="modal-footer" style="border-top: 1px solid var(--border-color); padding: 15px 20px; display: flex; justify-content: flex-end;">
+            <button class="btn-action" style="margin: 0; width: auto; background: var(--border-color); color: white;" onclick="closeLogicGuideModal()">閉じる</button>
         </div>
     </div>
 </div>
@@ -3244,11 +3315,15 @@
     window.onclick = function(event) {
         const pdfModal = document.getElementById('pdf-modal');
         const guideModal = document.getElementById('guide-modal');
+        const logicGuideModal = document.getElementById('logic-guide-modal');
         if (event.target === pdfModal) {
             pdfModal.style.display = 'none';
         }
         if (event.target === guideModal) {
             guideModal.style.display = 'none';
+        }
+        if (event.target === logicGuideModal) {
+            logicGuideModal.style.display = 'none';
         }
     }
 
@@ -3260,6 +3335,20 @@
 
     function closeGuideModal() {
         document.getElementById('guide-modal').style.display = 'none';
+    }
+
+    // ロジック解説書モーダルの制御（PW保護付き）
+    function openLogicGuideWithPassword() {
+        const pw = prompt("ロジック解説書を開くには、関係者用のパスワードを入力してください。");
+        if (pw === "wire8181") {
+            document.getElementById('logic-guide-modal').style.display = 'flex';
+        } else if (pw !== null) {
+            alert("パスワードが正しくありません。");
+        }
+    }
+
+    function closeLogicGuideModal() {
+        document.getElementById('logic-guide-modal').style.display = 'none';
     }
 
     // ガイド内のタブ切り替え
