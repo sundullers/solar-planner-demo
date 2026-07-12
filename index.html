@@ -1430,14 +1430,16 @@
                         </div>
                         <div id="owner-lifetime-cf-desc" style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.45; min-height: 40px;">※現状維持時の累積推定収支</div>
                     </div>
-                    <div class="card" id="pcs-risk-card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(245, 158, 11, 0.4); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div class="card" id="repower-benefit-card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(16, 185, 129, 0.4); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between;">
                         <div>
-                            <div style="font-size: 0.75rem; color: #fbbf24; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">⚠️ パワコン故障確率</div>
-                            <div style="font-size: 1.35rem; font-weight: bold; color: #fbbf24; display: flex; align-items: baseline; gap: 3px;">
-                                <span id="pcs-risk-percent">12%</span>
+                            <div style="font-size: 0.75rem; color: #34d399; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">📊 リパワリング投資効果</div>
+                            <div style="font-size: 1.35rem; font-weight: bold; color: #34d399; display: flex; align-items: baseline; gap: 3px;">
+                                <span style="font-size: 1rem;">+¥</span><span id="repower-benefit-diff">0</span>
                             </div>
                         </div>
-                        <div style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.45; min-height: 40px;" id="pcs-risk-desc">※シグモイド故障確率モデルによる予測</div>
+                        <div style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.45; min-height: 40px;" id="repower-roi-desc">
+                            投資回収期間: --年<br>想定投資額: --万円
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3289,23 +3291,29 @@
             const pcsRiskProb = 1 / (1 + Math.exp(-kProb * (elapsed - pcsLife)));
             const pcsRiskPercent = Math.round(pcsRiskProb * 100);
 
-            const pcsRiskPercentEl = document.getElementById('pcs-risk-percent');
-            const pcsRiskCardEl = document.getElementById('pcs-risk-card');
-            const pcsRiskDescEl = document.getElementById('pcs-risk-desc');
-            if (pcsRiskPercentEl && pcsRiskCardEl && pcsRiskDescEl) {
-                pcsRiskPercentEl.innerText = `${pcsRiskPercent}%`;
-                if (pcsRiskPercent >= 80) {
-                    pcsRiskCardEl.style.borderColor = "rgba(239, 68, 68, 0.4)";
-                    pcsRiskPercentEl.style.color = "#ef4444";
-                    pcsRiskDescEl.innerText = "🚨 故障確率極めて高（即時交換推奨）";
-                } else if (pcsRiskPercent >= 40) {
-                    pcsRiskCardEl.style.borderColor = "rgba(245, 158, 11, 0.4)";
-                    pcsRiskPercentEl.style.color = "#f59e0b";
-                    pcsRiskDescEl.innerText = "⚠️ 故障確率上昇中（寿命目安超過）";
+            // リパワリング投資効果カードの更新
+            const repowerBenefitDiffEl = document.getElementById('repower-benefit-diff');
+            const repowerBenefitCardEl = document.getElementById('repower-benefit-card');
+            const repowerRoiDescEl = document.getElementById('repower-roi-desc');
+            
+            if (repowerBenefitDiffEl && repowerBenefitCardEl && repowerRoiDescEl) {
+                const diffCF = formattedCF - baseCFVal;
+                const diffCFMan = Math.round(diffCF / 10000);
+                
+                if (repowerCost === 0) {
+                    repowerBenefitDiffEl.innerText = "0";
+                    repowerRoiDescEl.innerHTML = `リパワリング未設定<br>※投資額: 0万円`;
+                    repowerBenefitCardEl.style.borderColor = "rgba(148, 163, 184, 0.4)"; // グレー
                 } else {
-                    pcsRiskCardEl.style.borderColor = "rgba(16, 185, 129, 0.4)";
-                    pcsRiskPercentEl.style.color = "#10b981";
-                    pcsRiskDescEl.innerText = "🟢 低リスク（設計寿命・保証内）";
+                    repowerBenefitDiffEl.innerText = diffCFMan.toLocaleString();
+                    repowerRoiDescEl.innerHTML = `投資回収期間: <strong>${paybackRepower}</strong><br>想定投資額: <strong>${repowerCost.toLocaleString()}万円</strong>`;
+                    if (diffCFMan > 0) {
+                        repowerBenefitCardEl.style.borderColor = "rgba(16, 185, 129, 0.4)"; // 緑（プラス効果）
+                        repowerBenefitDiffEl.style.color = "#34d399";
+                    } else {
+                        repowerBenefitCardEl.style.borderColor = "rgba(239, 68, 68, 0.4)"; // 赤（効果マイナス）
+                        repowerBenefitDiffEl.style.color = "#ef4444";
+                    }
                 }
             }
 
