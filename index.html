@@ -2743,9 +2743,13 @@
                 }
             }
 
-            // FIT売電単価スライダーの初期値をデモデータから自動セット
+            // FIT売電単価スライダーの初期値をデモデータから自動セット（卒FIT後想定単価も連動スケール）
             document.getElementById('fit-price').value = data.fitPrice;
             document.getElementById('fit-price-val').innerText = data.fitPrice.toFixed(1);
+            
+            const calcPostFitPrice = Math.max(5.0, Math.min(8.5, Math.round(data.fitPrice * 0.5 * 10) / 10));
+            document.getElementById('post-fit-price').value = calcPostFitPrice;
+            document.getElementById('post-fit-price-val').innerText = calcPostFitPrice.toFixed(1);
 
             // 発電所容量（kW）に基づき、リパワリング費用（約10万円/kW）とPCS一括交換費用の初期値をダイナミックに算出
             const masterPcsCostKw = parseFloat(document.getElementById('master-pcs-cost-kw')?.value) || 3.0;
