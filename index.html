@@ -1134,7 +1134,7 @@
                     </div>
                     <div class="form-group-sub">
                         <label>🏗️ 想定撤去・解体費用（万円）</label>
-                        <input type="number" id="master-decom-cost" class="input-text-sub" value="100" onchange="updateSimulation()">
+                        <input type="number" id="master-decom-cost" class="input-text-sub" value="100" onchange="syncDecomCost('master')">
                     </div>
                 </div>
             </div>
@@ -1268,6 +1268,15 @@
                             <span><span id="battery-capacity-val">50</span></span>
                         </label>
                         <input type="range" id="battery-capacity" class="slider" min="10" max="200" step="10" value="50" oninput="updateSimulation()" style="height: 4px; margin: 0;">
+                    </div>
+                    
+                    <!-- 想定撤去・解体費用スライダー（FP詳細モード限定で表示） -->
+                    <div class="form-group fp-only" style="border-top: 1px dashed var(--border-color); padding-top: 12px; margin-top: 5px; margin-bottom: 0;">
+                        <label for="option-decom-cost" style="font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <span>🏗️ 想定撤去・解体費用</span>
+                            <span style="font-weight: bold; color: var(--accent-color);"><span id="option-decom-cost-val">100</span>万円</span>
+                        </label>
+                        <input type="range" id="option-decom-cost" class="slider" min="0" max="500" step="5" value="100" oninput="syncDecomCost('option')" style="height: 4px; margin: 0; margin-top: 5px;">
                     </div>
                 </div>
             </div>
@@ -2522,8 +2531,33 @@
             if (decomInput) {
                 decomInput.value = calcDecomCost;
             }
+            const optionSlider = document.getElementById('option-decom-cost');
+            if (optionSlider) {
+                optionSlider.value = calcDecomCost;
+                document.getElementById('option-decom-cost-val').innerText = calcDecomCost;
+            }
         }
 
+        updateSimulation();
+    }
+
+    // 想定撤去・解体費用の双方向同期
+    function syncDecomCost(source) {
+        const masterInput = document.getElementById('master-decom-cost');
+        const optionSlider = document.getElementById('option-decom-cost');
+        const optionValDisplay = document.getElementById('option-decom-cost-val');
+        
+        if (!masterInput || !optionSlider || !optionValDisplay) return;
+        
+        if (source === 'master') {
+            const val = Math.min(500, Math.max(0, parseInt(masterInput.value) || 0));
+            optionSlider.value = val;
+            optionValDisplay.innerText = val;
+        } else {
+            const val = optionSlider.value;
+            masterInput.value = val;
+            optionValDisplay.innerText = val;
+        }
         updateSimulation();
     }
 
@@ -2670,6 +2704,13 @@
             const isHazardChecked = document.getElementById('fp-hazard-checkbox')?.checked || false;
             const calcDecomCost = Math.round(50 + (data.capacity * 1.0) + (isHazardChecked ? tempHazardSurcharge : 0));
             document.getElementById('master-decom-cost').value = calcDecomCost;
+            
+            // 将来オプション側のスライダーも同期
+            const optionDecomSlider = document.getElementById('option-decom-cost');
+            if (optionDecomSlider) {
+                optionDecomSlider.value = calcDecomCost;
+                document.getElementById('option-decom-cost-val').innerText = calcDecomCost;
+            }
 
             // 蓄電池容量の初期値とスライダーの最大値を発電所規模（容量kW）に応じて動的調整
             // 初期値目安：容量kWの約0.3倍、5kWh刻みに丸める
