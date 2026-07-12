@@ -1273,8 +1273,8 @@
                     <!-- 想定撤去・解体費用スライダー（FP詳細モード限定で表示） -->
                     <div class="form-group fp-only" style="border-top: 1px dashed var(--border-color); padding-top: 12px; margin-top: 5px; margin-bottom: 0;">
                         <label for="option-decom-cost" style="font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                            <span>🏗️ 想定撤去・解体費用</span>
-                            <span style="font-weight: bold; color: var(--accent-color);"><span id="option-decom-cost-val">100</span>万円</span>
+                            <span>🏗️ 想定撤去・解体費用（万円）</span>
+                            <span id="option-decom-cost-val" style="font-weight: bold; color: var(--accent-color);">100</span>
                         </label>
                         <input type="range" id="option-decom-cost" class="slider" min="0" max="500" step="5" value="100" oninput="syncDecomCost('option')" style="height: 4px; margin: 0; margin-top: 5px;">
                     </div>
