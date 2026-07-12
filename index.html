@@ -2033,6 +2033,16 @@
     // 徳島県データキャッシュ用
     let loadedTokushimaData = [];
 
+    // 設備IDからデータを取得する共通関数（demoDataおよび徳島データから横断検索）
+    function getSolarData(id) {
+        if (!id) return demoData["A614245G36"];
+        let data = demoData[id];
+        if (!data && loadedTokushimaData && loadedTokushimaData.length > 0) {
+            data = loadedTokushimaData.find(item => item.id === id);
+        }
+        return data || demoData["A614245G36"];
+    }
+
     // 徳島県データのロード
     async function preloadTokushimaData() {
         try {
@@ -2541,7 +2551,7 @@
 
         // ハザードトグルのON/OFFに応じて想定撤去費用を再計算して連動更新
         const id = document.getElementById('solar-id').value;
-        const data = demoData[id] || loadedTokushimaData.find(item => item.id === id) || demoData["A614245G36"];
+        const data = getSolarData(id);
         if (data) {
             let tempHazardSurcharge = 0;
             if (data.hazard.includes("土砂") || data.hazard.includes("イエロー")) {
@@ -2595,7 +2605,7 @@
         }
 
         const id = document.getElementById('solar-id').value;
-        const data = demoData[id] || demoData["A614245G36"];
+        const data = getSolarData(id);
         
         // 理論値の算出（出力抑制率2.9%を考慮）
         const stdGen = data.capacity * 1150;
@@ -2650,13 +2660,7 @@
 
         const id = document.getElementById('solar-id').value;
         
-        // まず既存の demoData から探す
-        let data = demoData[id];
-        
-        // なければ、プリロードされた徳島データから探す
-        if (!data && loadedTokushimaData.length > 0) {
-            data = loadedTokushimaData.find(item => item.id === id);
-        }
+        let data = getSolarData(id);
 
         if (data) {
             const remainingYears = Math.max(1, Math.round(20 - data.elapsedYears));
@@ -2815,7 +2819,7 @@
             repowerYearVal.innerText = "今すぐ（0年後）";
         } else {
             const id = document.getElementById('solar-id').value;
-            const data = demoData[id] || demoData["A614245G36"];
+            const data = getSolarData(id);
             const limitDiffYear = pcsYear - data.elapsedYears; // 吉野川なら 12 - 8 = 4
             if (repowerYear === limitDiffYear) {
                 repowerYearVal.innerText = `${repowerYear}年後 (PCS寿命期)`;
@@ -2837,7 +2841,7 @@
 
         // 現在表示されているスペック取得
         const id = document.getElementById('solar-id').value;
-        const data = demoData[id] || demoData["A614245G36"];
+        const data = getSolarData(id);
 
         const capacity = data.capacity;
         const startYear = data.elapsedYears;
@@ -3712,7 +3716,7 @@
     // オーナーアクション（PPA相談）の実行
     function triggerPpaConsult() {
         const id = document.getElementById('solar-id').value;
-        const capacity = (demoData[id] || demoData["A614245G36"]).capacity;
+        const capacity = getSolarData(id).capacity;
         document.getElementById('modal-icon-area').innerText = "⚡";
         document.getElementById('modal-title').innerText = "PPA移行・環境価値相談（デモ）";
         document.getElementById('modal-message').innerHTML = `
@@ -3726,7 +3730,7 @@
     // オーナーアクション（蓄電池アグリゲーション相談）の実行
     function triggerAggregationConsult() {
         const id = document.getElementById('solar-id').value;
-        const capacity = (demoData[id] || demoData["A614245G36"]).capacity;
+        const capacity = getSolarData(id).capacity;
         document.getElementById('modal-icon-area').innerText = "🔋";
         document.getElementById('modal-title').innerText = "蓄電池アグリゲーション相談（デモ）";
         document.getElementById('modal-message').innerHTML = `
@@ -3958,7 +3962,7 @@
         const generationBoost = parseFloat(document.getElementById('generation-boost').value);
         const simYears = parseInt(document.getElementById('sim-years').value) || 20;
         const id = document.getElementById('solar-id').value;
-        const data = demoData[id] || demoData["A614245G36"];
+        const data = getSolarData(id);
         
         // 各種金額の取得
         const baseCFText = document.getElementById('roi-base-cf')?.innerText || "0万円";
