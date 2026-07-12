@@ -1431,19 +1431,27 @@
                         <div id="owner-lifetime-cf-desc" style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.45; min-height: 40px;">※現状維持時の累積推定収支</div>
                     </div>
                     <div class="card" id="repower-benefit-card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(16, 185, 129, 0.4); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between;">
-                        <div>
-                            <div style="font-size: 0.75rem; color: #34d399; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">📊 リパワリング投資効果</div>
-                            <div style="display: flex; justify-content: space-between; align-items: baseline; width: 100%; margin-top: 5px;">
+                        <div style="display: flex; flex-direction: column; gap: 14px;">
+                            <!-- ① リパワリング投資効果 -->
+                            <div>
+                                <div style="font-size: 0.75rem; color: #34d399; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">📊 リパワリング投資効果</div>
                                 <div style="font-size: 1.35rem; font-weight: bold; color: #34d399; display: flex; align-items: baseline; gap: 3px;">
-                                    <span style="font-size: 0.9rem;">+¥</span><span id="repower-benefit-diff">0</span>
+                                    <span style="font-size: 1rem;">+¥</span><span id="repower-benefit-diff">0</span>
                                 </div>
+                            </div>
+                            
+                            <!-- ② 投資回収期間 (同じ書式で上下にスタック) -->
+                            <div>
+                                <div style="font-size: 0.75rem; color: #34d399; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">⏱️ 投資回収期間</div>
                                 <div style="font-size: 1.35rem; font-weight: bold; color: #34d399; display: flex; align-items: baseline; gap: 3px;" id="repower-roi-period-main-wrap">
-                                    <span id="repower-roi-period-main">--</span><span style="font-size: 0.85rem; font-weight: normal; color: var(--text-secondary);">年回収</span>
+                                    <span id="repower-roi-period-main">--</span><span style="font-size: 1rem; font-weight: normal; color: var(--text-secondary); margin-left: 2px;" id="repower-roi-period-unit">年</span>
                                 </div>
                             </div>
                         </div>
-                        <div id="repower-roi-desc" style="font-size: 0.7rem; color: #94a3b8; margin-top: 4px; display: flex; align-items: center; min-height: 40px;">
-                            <span>想定投資額: ¥<span id="repower-roi-cost">0</span></span>
+                        
+                        <!-- ③ 想定投資額 (サブテキスト) -->
+                        <div id="repower-roi-desc" style="font-size: 0.7rem; color: #94a3b8; margin-top: 12px; border-top: 1px dashed rgba(148, 163, 184, 0.15); padding-top: 8px;">
+                            想定投資額: ¥<span id="repower-roi-cost">0</span>
                         </div>
                     </div>
                 </div>
@@ -3301,7 +3309,7 @@
             const repowerBenefitCardEl = document.getElementById('repower-benefit-card');
             const repowerRoiCostEl = document.getElementById('repower-roi-cost');
             const repowerRoiPeriodMainEl = document.getElementById('repower-roi-period-main');
-            const repowerRoiPeriodMainWrap = document.getElementById('repower-roi-period-main-wrap');
+            const repowerRoiPeriodUnitEl = document.getElementById('repower-roi-period-unit');
             
             if (repowerBenefitDiffEl && repowerBenefitCardEl) {
                 const diffCF = formattedCF - baseCFVal;
@@ -3309,8 +3317,12 @@
                 if (repowerCost === 0) {
                     repowerBenefitDiffEl.innerText = "0";
                     if (repowerRoiCostEl) repowerRoiCostEl.innerText = "0";
-                    if (repowerRoiPeriodMainEl) repowerRoiPeriodMainEl.innerText = "--";
-                    if (repowerRoiPeriodMainWrap) repowerRoiPeriodMainWrap.style.display = 'none';
+                    if (repowerRoiPeriodMainEl) {
+                        repowerRoiPeriodMainEl.innerText = "--";
+                        repowerRoiPeriodMainEl.style.fontSize = "1.35rem";
+                        repowerRoiPeriodMainEl.style.color = "var(--text-secondary)";
+                    }
+                    if (repowerRoiPeriodUnitEl) repowerRoiPeriodUnitEl.style.display = 'inline';
                     repowerBenefitCardEl.style.borderColor = "rgba(148, 163, 184, 0.4)"; // グレー
                 } else {
                     repowerBenefitDiffEl.innerText = diffCF.toLocaleString();
@@ -3320,27 +3332,31 @@
                         repowerRoiCostEl.innerText = formattedCost.toLocaleString();
                     }
                     
-                    if (repowerRoiPeriodMainWrap) {
-                        repowerRoiPeriodMainWrap.style.display = 'flex';
-                        if (pbRepower === null) {
-                            repowerRoiPeriodMainWrap.innerHTML = `<span id="repower-roi-period-main" style="font-size: 1.15rem; color: #ef4444;">回収不能</span>`;
-                        } else {
-                            repowerRoiPeriodMainWrap.innerHTML = `<span id="repower-roi-period-main">${pbRepower.toFixed(1)}</span><span style="font-size: 0.85rem; font-weight: normal; color: var(--text-secondary);">年回収</span>`;
+                    if (pbRepower === null) {
+                        if (repowerRoiPeriodMainEl) {
+                            repowerRoiPeriodMainEl.innerText = "回収不能";
+                            repowerRoiPeriodMainEl.style.color = "#ef4444";
+                            repowerRoiPeriodMainEl.style.fontSize = "1.15rem";
+                        }
+                        if (repowerRoiPeriodUnitEl) repowerRoiPeriodUnitEl.style.display = 'none';
+                    } else {
+                        if (repowerRoiPeriodMainEl) {
+                            repowerRoiPeriodMainEl.innerText = pbRepower.toFixed(1);
+                            repowerRoiPeriodMainEl.style.color = diffCF > 0 ? "#34d399" : "#ef4444";
+                            repowerRoiPeriodMainEl.style.fontSize = "1.35rem";
+                        }
+                        if (repowerRoiPeriodUnitEl) {
+                            repowerRoiPeriodUnitEl.style.display = 'inline';
+                            repowerRoiPeriodUnitEl.style.color = "var(--text-secondary)";
                         }
                     }
                     
                     if (diffCF > 0) {
                         repowerBenefitCardEl.style.borderColor = "rgba(16, 185, 129, 0.4)"; // 緑（プラス効果）
                         repowerBenefitDiffEl.style.color = "#34d399";
-                        if (repowerRoiPeriodMainWrap && pbRepower !== null) {
-                            repowerRoiPeriodMainWrap.style.color = "#34d399";
-                        }
                     } else {
                         repowerBenefitCardEl.style.borderColor = "rgba(239, 68, 68, 0.4)"; // 赤（効果マイナス）
                         repowerBenefitDiffEl.style.color = "#ef4444";
-                        if (repowerRoiPeriodMainWrap && pbRepower !== null) {
-                            repowerRoiPeriodMainWrap.style.color = "#ef4444";
-                        }
                     }
                 }
             }
