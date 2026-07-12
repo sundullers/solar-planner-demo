@@ -1096,7 +1096,7 @@
             </div>
 
             <div class="form-group">
-                <label for="solar-id">🔍 そらスコID連携</label>
+                <label for="solar-id">🔍 設備ID</label>
                 <div style="display: flex; gap: 10px;">
                     <input type="text" id="solar-id" class="input-text" value="A614245G36">
                     <button type="button" class="btn-action" style="margin: 0; width: auto; padding: 0 15px; white-space: nowrap; flex-shrink: 0;" onclick="loadDemoData()">読込</button>
@@ -1775,7 +1775,7 @@
             <div id="guide-tab-usage" class="guide-tab-content" style="display: block; line-height: 1.6; font-size: 0.85rem;">
                 <h3 style="color: #60a5fa; font-size: 1rem; margin-top: 0; margin-bottom: 10px;">⚙️ 簡単な操作手順</h3>
                 <ol style="padding-left: 20px; margin-bottom: 20px;">
-                    <li style="margin-bottom: 8px;"><strong>そらスコID連携:</strong> 左側のID入力欄に発電所ID（デモ用: <code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">A614245G36</code> など）を入力して「読込」を押すと、発電所の実スペックや立地・ハザード情報が自動ロードされます。</li>
+                    <li style="margin-bottom: 8px;"><strong>設備ID:</strong> 左側のID入力欄に発電所ID（デモ用: <code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">A614245G36</code> など）を入力して「読込」を押すと、発電所の実スペックや立地・ハザード情報が自動ロードされます。</li>
                     <li style="margin-bottom: 8px;"><strong>スライダーパラメータ調整:</strong> リパワリングの投資額や、パワコンの更新コスト、想定する発電量改善率などのスライダーを動かすと、即座に右側のグラフとROI表が再計算されます。</li>
                     <li style="margin-bottom: 8px;"><strong>詳細オプション:</strong> 将来のFIP移行トグルや、蓄電池（バッテリー）併設時のシミュレーションも、トグルONにすることでリアルタイムに反映されます。</li>
                     <li style="margin-bottom: 8px;"><strong>提案書PDF出力:</strong> 左下の「提案書PDFプレビューを表示」（詳細バージョン時）をクリックすると、A4印刷に最適化された営業提案書が生成され、印刷・PDF保存が可能です。</li>
@@ -1993,6 +1993,23 @@
             hazard: "ハザードマップ上、災害リスクは極めて低いです（浸水・土砂災害区域外）。"
         }
     };
+
+    // 徳島県データキャッシュ用
+    let loadedTokushimaData = [];
+
+    // 徳島県データのロード
+    async function preloadTokushimaData() {
+        try {
+            const response = await fetch('./tokushima_solar.json');
+            if (response.ok) {
+                loadedTokushimaData = await response.json();
+                console.log(`Loaded ${loadedTokushimaData.length} Tokushima solar plants.`);
+            }
+        } catch (error) {
+            console.error("Failed to preload Tokushima solar data:", error);
+        }
+    }
+    preloadTokushimaData();
 
     // 状態管理
     let currentMode = 'standard';
@@ -2553,9 +2570,17 @@
         document.getElementById('repower-year-val').innerText = "今すぐ（0年後）";
 
         const id = document.getElementById('solar-id').value;
-        const data = demoData[id];
+        
+        // まず既存の demoData から探す
+        let data = demoData[id];
+        
+        // なければ、プリロードされた徳島データから探す
+        if (!data && loadedTokushimaData.length > 0) {
+            data = loadedTokushimaData.find(item => item.id === id);
+        }
+
         if (data) {
-            const remainingYears = 20 - data.elapsedYears;
+            const remainingYears = Math.max(1, Math.round(20 - data.elapsedYears));
             const simYearsSelect = document.getElementById('sim-years');
             if (simYearsSelect) {
                 simYearsSelect.innerHTML = `
