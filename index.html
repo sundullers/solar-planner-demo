@@ -3301,7 +3301,6 @@
             
             if (repowerBenefitDiffEl && repowerBenefitCardEl) {
                 const diffCF = formattedCF - baseCFVal;
-                const diffCFMan = Math.round(diffCF / 10000);
                 
                 if (repowerCost === 0) {
                     repowerBenefitDiffEl.innerText = "0";
@@ -3310,7 +3309,7 @@
                     if (repowerRoiPeriodWrap) repowerRoiPeriodWrap.style.display = 'none';
                     repowerBenefitCardEl.style.borderColor = "rgba(148, 163, 184, 0.4)"; // グレー
                 } else {
-                    repowerBenefitDiffEl.innerText = diffCFMan.toLocaleString();
+                    repowerBenefitDiffEl.innerText = diffCF.toLocaleString();
                     
                     if (repowerRoiCostEl) {
                         const formattedCost = Math.round(repowerCost * 10000);
@@ -3323,7 +3322,7 @@
                         repowerRoiPeriodWrap.style.display = 'inline';
                     }
                     
-                    if (diffCFMan > 0) {
+                    if (diffCF > 0) {
                         repowerBenefitCardEl.style.borderColor = "rgba(16, 185, 129, 0.4)"; // 緑（プラス効果）
                         repowerBenefitDiffEl.style.color = "#34d399";
                     } else {
