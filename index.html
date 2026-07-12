@@ -2583,7 +2583,8 @@
         if (!masterInput || !optionSlider || !optionValDisplay) return;
         
         if (source === 'master') {
-            const val = Math.min(500, Math.max(0, parseInt(masterInput.value) || 0));
+            const maxVal = parseFloat(optionSlider.max) || 500;
+            const val = Math.min(maxVal, Math.max(0, parseInt(masterInput.value) || 0));
             optionSlider.value = val;
             optionValDisplay.innerText = val;
         } else {
@@ -2727,6 +2728,32 @@
             
             document.getElementById('repower-cost').value = calcRepowerCost;
             document.getElementById('pcs-cost').value = calcPcsCost;
+
+            // パワコン台数と1台あたり単価の初期値＆スライダー上限の動的調整
+            let calcPcsCount = 10;
+            if (data.capacity >= 1000) {
+                calcPcsCount = Math.round(data.capacity / 100); // 100kWパワコン想定
+            } else if (data.capacity >= 100) {
+                calcPcsCount = Math.round(data.capacity / 10); // 10kWパワコン想定
+            } else {
+                calcPcsCount = Math.max(1, Math.round(data.capacity / 5)); // 5kWパワコン想定
+            }
+            
+            const calcPcsUnitCost = Math.round(calcPcsCost / calcPcsCount);
+            
+            const pcsCountSlider = document.getElementById('pcs-count');
+            if (pcsCountSlider) {
+                pcsCountSlider.max = Math.max(30, calcPcsCount * 2);
+                pcsCountSlider.value = calcPcsCount;
+                document.getElementById('pcs-count-val').innerText = calcPcsCount;
+            }
+            
+            const pcsUnitCostSlider = document.getElementById('pcs-unit-cost');
+            if (pcsUnitCostSlider) {
+                pcsUnitCostSlider.max = Math.max(50, calcPcsUnitCost * 2);
+                pcsUnitCostSlider.value = calcPcsUnitCost;
+                document.getElementById('pcs-unit-cost-val').innerText = calcPcsUnitCost;
+            }
 
             // 想定年間維持管理費（O&M費用）も容量に応じて自動設定（目安：約3,000円/kW、最低10万円）
             const calcOmCost = Math.max(10, Math.round(data.capacity * 0.3));
