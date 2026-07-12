@@ -1233,7 +1233,7 @@
                     <span>💴 卒FIT後想定買取単価（円/kWh）</span>
                     <span id="post-fit-price-val" style="font-weight: bold; color: var(--accent-color);">8.5</span>
                 </label>
-                <input type="range" id="post-fit-price" class="slider" min="5.0" max="12.0" step="0.5" value="8.5" oninput="updateSimulation()">
+                <input type="range" id="post-fit-price" class="slider" min="0.0" max="12.0" step="0.1" value="8.5" oninput="updateSimulation()">
             </div>
 
             <!-- 将来オプション設定（FIP転換・蓄電池併設） -->
@@ -2743,13 +2743,13 @@
                 }
             }
 
-            // FIT売電単価スライダーの初期値をデモデータから自動セット（卒FIT後想定単価も連動スケール）
+            // FIT売電単価スライダーの初期値をデモデータから自動セット
             document.getElementById('fit-price').value = data.fitPrice;
             document.getElementById('fit-price-val').innerText = data.fitPrice.toFixed(1);
             
-            const calcPostFitPrice = Math.max(5.0, Math.min(8.5, Math.round(data.fitPrice * 0.5 * 10) / 10));
-            document.getElementById('post-fit-price').value = calcPostFitPrice;
-            document.getElementById('post-fit-price-val').innerText = calcPostFitPrice.toFixed(1);
+            // 卒FIT後想定買取単価は、売電相場の共通基準として一律 8.5 円に初期化
+            document.getElementById('post-fit-price').value = 8.5;
+            document.getElementById('post-fit-price-val').innerText = "8.5";
 
             // 発電所容量（kW）に基づき、リパワリング費用（約10万円/kW）とPCS一括交換費用の初期値をダイナミックに算出
             const masterPcsCostKw = parseFloat(document.getElementById('master-pcs-cost-kw')?.value) || 3.0;
