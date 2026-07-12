@@ -1132,6 +1132,10 @@
                         <label>📈 買収想定マージン率（％）</label>
                         <input type="number" id="master-margin-percent" class="input-text-sub" value="10" onchange="updateSimulation()">
                     </div>
+                    <div class="form-group-sub">
+                        <label>🏗️ 想定撤去・解体費用（万円）</label>
+                        <input type="number" id="master-decom-cost" class="input-text-sub" value="100" onchange="updateSimulation()">
+                    </div>
                 </div>
             </div>
 
@@ -2502,6 +2506,24 @@
         } else {
             alertBox.style.display = 'none';
         }
+
+        // ハザードトグルのON/OFFに応じて想定撤去費用を再計算して連動更新
+        const id = document.getElementById('solar-id').value;
+        const data = demoData[id] || loadedTokushimaData.find(item => item.id === id) || demoData["A614245G36"];
+        if (data) {
+            let tempHazardSurcharge = 0;
+            if (data.hazard.includes("土砂") || data.hazard.includes("イエロー")) {
+                tempHazardSurcharge = 50;
+            } else if (data.hazard.includes("洪水") || data.hazard.includes("浸水")) {
+                tempHazardSurcharge = 30;
+            }
+            const calcDecomCost = Math.round(50 + (data.capacity * 1.0) + (isChecked ? tempHazardSurcharge : 0));
+            const decomInput = document.getElementById('master-decom-cost');
+            if (decomInput) {
+                decomInput.value = calcDecomCost;
+            }
+        }
+
         updateSimulation();
     }
 
@@ -2638,6 +2660,17 @@
             const calcOmCost = Math.max(10, Math.round(data.capacity * 0.3));
             document.getElementById('master-om-cost-year').value = calcOmCost;
 
+            // 想定撤去・解体費用の初期値を発電所規模とハザードリスクに応じて自動計算
+            let tempHazardSurcharge = 0;
+            if (data.hazard.includes("土砂") || data.hazard.includes("イエロー")) {
+                tempHazardSurcharge = 50;
+            } else if (data.hazard.includes("洪水") || data.hazard.includes("浸水")) {
+                tempHazardSurcharge = 30;
+            }
+            const isHazardChecked = document.getElementById('fp-hazard-checkbox')?.checked || false;
+            const calcDecomCost = Math.round(50 + (data.capacity * 1.0) + (isHazardChecked ? tempHazardSurcharge : 0));
+            document.getElementById('master-decom-cost').value = calcDecomCost;
+
             // 蓄電池容量の初期値とスライダーの最大値を発電所規模（容量kW）に応じて動的調整
             // 初期値目安：容量kWの約0.3倍、5kWh刻みに丸める
             const calcBatteryCapacity = Math.max(5, Math.round((data.capacity * 0.3) / 5) * 5);
@@ -2690,6 +2723,7 @@
         const pcsYear = parseInt(document.getElementById('pcs-year').value);
         const fitPrice = parseFloat(document.getElementById('fit-price').value);
         const postFitPrice = parseFloat(document.getElementById('post-fit-price').value);
+        const decomCost = parseFloat(document.getElementById('master-decom-cost').value) || 100;
 
         // 将来オプション状態取得
         const fipActive = document.getElementById('fip-checkbox').checked;
@@ -2887,7 +2921,7 @@
                 }
                 
                 if (i === simYears) {
-                    baseExpense += (100 + hazardSurcharge); // 最終年に撤去
+                    baseExpense += decomCost; // 最終年に撤去
                 }
             }
             if (i > 0 && year <= 20) {
@@ -2918,7 +2952,7 @@
                     pcsOptExpense += (pcsOptIncome * 0.02);
                 }
                 if (i === simYears) {
-                    pcsOptExpense += (100 + hazardSurcharge);
+                    pcsOptExpense += decomCost;
                 }
             }
             currentPcsOptSum += (pcsOptIncome - pcsOptExpense);
@@ -2979,7 +3013,7 @@
                     repowerExpense += (repowerIncome * 0.02);
                 }
                 if (i === simYears) {
-                    repowerExpense += (100 + hazardSurcharge);
+                    repowerExpense += decomCost;
                 }
                 
                 repowerRunningExpense = omCost + hazardInsuranceSurcharge + (fipActive ? (repowerIncome * 0.02) : 0);
