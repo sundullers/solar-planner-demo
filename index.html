@@ -1132,7 +1132,7 @@
                 <div class="accordion-body" id="accordion-body" style="display: none;">
                     <div class="form-group-sub">
                         <label>🏷️ 標準パワコン交換単価（万円/kW）</label>
-                        <input type="number" id="master-pcs-cost-kw" class="input-text-sub" value="3.0" onchange="updateSimulation()">
+                        <input type="number" id="master-pcs-cost-kw" class="input-text-sub" value="3.0" onchange="syncPcsCostFromMaster()">
                     </div>
                     <div class="form-group-sub">
                         <label>💰 想定年間維持管理費（万円/年）</label>
@@ -1225,7 +1225,7 @@
                     <span>💴 FIT売電単価（円/kWh）</span>
                     <span id="fit-price-val" style="font-weight: bold; color: var(--accent-color);">24.0</span>
                 </label>
-                <input type="range" id="fit-price" class="slider" min="10.0" max="42.0" step="1.0" value="24.0" oninput="updateSimulation()">
+                <input type="range" id="fit-price" class="slider" min="5.0" max="42.0" step="0.1" value="24.0" oninput="updateSimulation()">
             </div>
 
             <div class="form-group">
@@ -2595,6 +2595,41 @@
         updateSimulation();
     }
 
+    // マスタの標準パワコン交換単価（万円/kW）が変更された際の連動処理
+    function syncPcsCostFromMaster() {
+        const masterPcsCostKwEl = document.getElementById('master-pcs-cost-kw');
+        if (!masterPcsCostKwEl) return;
+        const masterPcsCostKw = parseFloat(masterPcsCostKwEl.value) || 3.0;
+        
+        const id = document.getElementById('solar-id').value;
+        const data = getSolarData(id);
+        if (!data) return;
+        
+        // 新しいPCS合計目安費用（容量kW * 単価万円/kW）
+        const calcPcsCost = Math.round(data.capacity * masterPcsCostKw);
+        
+        // 通常モードのスライダーを更新（上限も動的に拡張）
+        const pcsCostSlider = document.getElementById('pcs-cost');
+        if (pcsCostSlider) {
+            pcsCostSlider.max = Math.max(800, calcPcsCost * 2.5);
+            pcsCostSlider.value = calcPcsCost;
+            document.getElementById('pcs-cost-val').innerText = calcPcsCost;
+        }
+        
+        // 詳細モードの1台あたり単価を更新
+        const pcsCount = parseInt(document.getElementById('pcs-count').value) || 10;
+        const calcPcsUnitCost = Math.round(calcPcsCost / pcsCount);
+        
+        const pcsUnitCostSlider = document.getElementById('pcs-unit-cost');
+        if (pcsUnitCostSlider) {
+            pcsUnitCostSlider.max = Math.max(50, calcPcsUnitCost * 2);
+            pcsUnitCostSlider.value = calcPcsUnitCost;
+            document.getElementById('pcs-unit-cost-val').innerText = calcPcsUnitCost;
+        }
+        
+        updateSimulation();
+    }
+
     // 実績値逆算キャリブレーションの適用
     function applyCalibration() {
         if (currentMode !== 'fp-enhanced') return;
@@ -2712,9 +2747,10 @@
             document.getElementById('fit-price').value = data.fitPrice;
             document.getElementById('fit-price-val').innerText = data.fitPrice.toFixed(1);
 
-            // 発電所容量（kW）に基づき、リパワリング費用（約10万円/kW）とPCS一括交換費用（約2万円/kW）の初期値をダイナミックに算出
+            // 発電所容量（kW）に基づき、リパワリング費用（約10万円/kW）とPCS一括交換費用の初期値をダイナミックに算出
+            const masterPcsCostKw = parseFloat(document.getElementById('master-pcs-cost-kw')?.value) || 3.0;
             const calcRepowerCost = Math.round(data.capacity * 10);
-            const calcPcsCost = Math.round(data.capacity * 2);
+            const calcPcsCost = Math.round(data.capacity * masterPcsCostKw);
             
             // 発電所規模に応じてスライダーの最大値（上限）を動的に引き上げる（初期値の約2倍、最低保証値はHTML初期値に準拠）
             const repowerCostSlider = document.getElementById('repower-cost');
