@@ -2690,6 +2690,17 @@
             // 発電所容量（kW）に基づき、リパワリング費用（約10万円/kW）とPCS一括交換費用（約2万円/kW）の初期値をダイナミックに算出
             const calcRepowerCost = Math.round(data.capacity * 10);
             const calcPcsCost = Math.round(data.capacity * 2);
+            
+            // 発電所規模に応じてスライダーの最大値（上限）を動的に引き上げる（初期値の約2倍、最低保証値はHTML初期値に準拠）
+            const repowerCostSlider = document.getElementById('repower-cost');
+            if (repowerCostSlider) {
+                repowerCostSlider.max = Math.max(2500, calcRepowerCost * 2);
+            }
+            const pcsCostSlider = document.getElementById('pcs-cost');
+            if (pcsCostSlider) {
+                pcsCostSlider.max = Math.max(800, calcPcsCost * 2.5);
+            }
+            
             document.getElementById('repower-cost').value = calcRepowerCost;
             document.getElementById('pcs-cost').value = calcPcsCost;
 
