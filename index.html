@@ -1402,7 +1402,7 @@
                     <span>💎 アセット資産評価</span>
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
-                    <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(59, 130, 246, 0.3); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(59, 130, 246, 0.3); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; justify-content: flex-start;">
                         <div>
                             <div style="font-size: 0.75rem; color: #60a5fa; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">💎 アセット評価額</div>
                             <div style="font-size: 1.35rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 3px;">
@@ -1414,9 +1414,9 @@
                                 <span style="color: #60a5fa; font-weight: bold;" id="owner-asset-value-diff-wrap">(差額: <span id="owner-asset-value-diff-prefix">+</span>¥<span id="owner-asset-value-diff">0</span>)</span>
                             </div>
                         </div>
-                        <div id="owner-asset-value-desc" style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.45; min-height: 40px;">※設備状態や運営経費、立地リスク等を考慮し、残存FIT期間 of 将来予測手取り収支から算出した現在の資産評価額</div>
+                        <div id="owner-asset-value-desc" style="font-size: 0.68rem; color: var(--text-secondary); margin-top: auto; padding-top: 15px; line-height: 1.45; min-height: 40px;">※設備状態や運営経費、立地リスク等を考慮し、残存FIT期間 of 将来予測手取り収支から算出した現在の資産評価額</div>
                     </div>
-                    <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(16, 185, 129, 0.3); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(16, 185, 129, 0.3); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; justify-content: flex-start;">
                         <div>
                             <div id="owner-lifetime-cf-title" style="font-size: 0.75rem; color: #34d399; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">💰 予測生涯CF</div>
                             <div style="font-size: 1.35rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 3px;">
@@ -1428,9 +1428,9 @@
                                 <span style="color: #34d399; font-weight: bold;" id="owner-lifetime-cf-diff-wrap">(差額: <span id="owner-lifetime-cf-diff-prefix">+</span>¥<span id="owner-lifetime-cf-diff">0</span>)</span>
                             </div>
                         </div>
-                        <div id="owner-lifetime-cf-desc" style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.45; min-height: 40px;">※現状維持時の累積推定収支</div>
+                        <div id="owner-lifetime-cf-desc" style="font-size: 0.68rem; color: var(--text-secondary); margin-top: auto; padding-top: 15px; line-height: 1.45; min-height: 40px;">※現状維持時の累積推定収支</div>
                     </div>
-                    <div class="card" id="repower-benefit-card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(16, 185, 129, 0.4); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div class="card" id="repower-benefit-card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(16, 185, 129, 0.4); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; justify-content: flex-start;">
                         <div style="display: flex; flex-direction: column; gap: 14px;">
                             <!-- ① リパワリング投資効果 -->
                             <div>
@@ -1450,7 +1450,7 @@
                         </div>
                         
                         <!-- ③ 想定投資額 (サブテキスト) -->
-                        <div id="repower-roi-desc" style="font-size: 0.7rem; color: #94a3b8; margin-top: 12px; border-top: 1px dashed rgba(148, 163, 184, 0.15); padding-top: 8px;">
+                        <div id="repower-roi-desc" style="font-size: 0.7rem; color: #94a3b8; margin-top: auto; padding-top: 15px; border-top: 1px dashed rgba(148, 163, 184, 0.15); width: 100%;">
                             想定投資額: ¥<span id="repower-roi-cost">0</span>
                         </div>
                     </div>
