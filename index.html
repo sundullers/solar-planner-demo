@@ -2751,6 +2751,15 @@
             document.getElementById('post-fit-price').value = 8.5;
             document.getElementById('post-fit-price-val').innerText = "8.5";
 
+            // 残存FIT期間に合わせてリパワリング実行時期スライダーの最大値を動的に制御（例：残り20年なら最大20年後、残り5年なら最大5年後）
+            const remainingFitYears = Math.max(1, 20 - data.elapsedYears);
+            const repowerYearSlider = document.getElementById('repower-year');
+            if (repowerYearSlider) {
+                repowerYearSlider.max = remainingFitYears;
+                repowerYearSlider.value = 0;
+                document.getElementById('repower-year-val').innerText = "今すぐ（0年後）";
+            }
+
             // 発電所容量（kW）に基づき、リパワリング費用（約10万円/kW）とPCS一括交換費用の初期値をダイナミックに算出
             const masterPcsCostKw = parseFloat(document.getElementById('master-pcs-cost-kw')?.value) || 3.0;
             const calcRepowerCost = Math.round(data.capacity * 10);
