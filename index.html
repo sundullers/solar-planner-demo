@@ -1437,8 +1437,9 @@
                                 <span style="font-size: 1rem;">+¥</span><span id="repower-benefit-diff">0</span>
                             </div>
                         </div>
-                        <div style="font-size: 0.68rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.45; min-height: 40px;" id="repower-roi-desc">
-                            投資回収期間: --年<br>想定投資額: --万円
+                        <div id="repower-roi-desc" style="font-size: 0.7rem; color: #94a3b8; margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; min-height: 40px;">
+                            <span>想定投資額: ¥<span id="repower-roi-cost">0</span></span>
+                            <span style="color: #34d399; font-weight: bold;" id="repower-roi-period-wrap">(回収: <span id="repower-roi-period">--</span>)</span>
                         </div>
                     </div>
                 </div>
@@ -3294,19 +3295,34 @@
             // リパワリング投資効果カードの更新
             const repowerBenefitDiffEl = document.getElementById('repower-benefit-diff');
             const repowerBenefitCardEl = document.getElementById('repower-benefit-card');
-            const repowerRoiDescEl = document.getElementById('repower-roi-desc');
+            const repowerRoiCostEl = document.getElementById('repower-roi-cost');
+            const repowerRoiPeriodEl = document.getElementById('repower-roi-period');
+            const repowerRoiPeriodWrap = document.getElementById('repower-roi-period-wrap');
             
-            if (repowerBenefitDiffEl && repowerBenefitCardEl && repowerRoiDescEl) {
+            if (repowerBenefitDiffEl && repowerBenefitCardEl) {
                 const diffCF = formattedCF - baseCFVal;
                 const diffCFMan = Math.round(diffCF / 10000);
                 
                 if (repowerCost === 0) {
                     repowerBenefitDiffEl.innerText = "0";
-                    repowerRoiDescEl.innerHTML = `リパワリング未設定<br>※投資額: 0万円`;
+                    if (repowerRoiCostEl) repowerRoiCostEl.innerText = "0";
+                    if (repowerRoiPeriodEl) repowerRoiPeriodEl.innerText = "--";
+                    if (repowerRoiPeriodWrap) repowerRoiPeriodWrap.style.display = 'none';
                     repowerBenefitCardEl.style.borderColor = "rgba(148, 163, 184, 0.4)"; // グレー
                 } else {
                     repowerBenefitDiffEl.innerText = diffCFMan.toLocaleString();
-                    repowerRoiDescEl.innerHTML = `投資回収期間: <strong>${paybackRepower}</strong><br>想定投資額: <strong>${repowerCost.toLocaleString()}万円</strong>`;
+                    
+                    if (repowerRoiCostEl) {
+                        const formattedCost = Math.round(repowerCost * 10000);
+                        repowerRoiCostEl.innerText = formattedCost.toLocaleString();
+                    }
+                    if (repowerRoiPeriodEl) {
+                        repowerRoiPeriodEl.innerText = paybackRepower;
+                    }
+                    if (repowerRoiPeriodWrap) {
+                        repowerRoiPeriodWrap.style.display = 'inline';
+                    }
+                    
                     if (diffCFMan > 0) {
                         repowerBenefitCardEl.style.borderColor = "rgba(16, 185, 129, 0.4)"; // 緑（プラス効果）
                         repowerBenefitDiffEl.style.color = "#34d399";
