@@ -2922,7 +2922,6 @@
         }
 
         // ハザードリスク連動の処理（FPモード限定）
-        let hazardSurcharge = 0;
         let hazardInsuranceSurcharge = 0;
         let hazardInitialMitigationCost = 0; // 初期対策費用（架台かさ上げ等）
         
@@ -2931,10 +2930,10 @@
             const hasFlood = data.hazard.includes("浸水") || data.hazard.includes("洪水");
             
             if (hasLandslide) {
-                hazardSurcharge = 50; // 撤去予備費50万円
+                // 撤予備費50万円はUI側イベントでdecomCostに自動加算・同期されます
                 hazardInsuranceSurcharge = 5; // 想定保険料年5万円アップ
             } else if (hasFlood) {
-                hazardSurcharge = 30; // 水害用撤去予備費30万円
+                // 水害用撤去予備費30万円はUI側イベントでdecomCostに自動加算・同期されます
                 hazardInsuranceSurcharge = 8; // 水災特約追加による想定保険料年8万円アップ
                 hazardInitialMitigationCost = 100; // 浸水対策（架台かさ上げ工事）費用100万円
             }
