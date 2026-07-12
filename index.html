@@ -11,6 +11,16 @@
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        @keyframes chatFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
         :root {
             --bg-primary: #0f172a;
             --bg-secondary: #1e293b;
@@ -4069,7 +4079,7 @@
         setTimeout(() => {
             if (typingIndicator) typingIndicator.style.display = 'none';
             appendChatMessage("ai", aiMsg);
-        }, 350);
+        }, 1000);
     }
 
     function appendChatMessage(sender, text) {
@@ -4078,9 +4088,9 @@
 
         const msgDiv = document.createElement('div');
         if (sender === "user") {
-            msgDiv.style.cssText = "background: rgba(96, 165, 250, 0.1); border: 1px solid rgba(96, 165, 250, 0.25); padding: 8px 12px; border-radius: 8px 8px 0 8px; color: #93c5fd; align-self: flex-end; max-width: 90%; word-break: break-all; font-size: 0.85rem;";
+            msgDiv.style.cssText = "background: rgba(96, 165, 250, 0.1); border: 1px solid rgba(96, 165, 250, 0.25); padding: 8px 12px; border-radius: 8px 8px 0 8px; color: #93c5fd; align-self: flex-end; max-width: 90%; word-break: break-all; font-size: 0.85rem; animation: chatFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;";
         } else {
-            msgDiv.style.cssText = "background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 10px 12px; border-radius: 8px 8px 8px 0; color: #e2e8f0; align-self: flex-start; max-width: 90%; font-size: 0.85rem;";
+            msgDiv.style.cssText = "background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 10px 12px; border-radius: 8px 8px 8px 0; color: #e2e8f0; align-self: flex-start; max-width: 90%; font-size: 0.85rem; animation: chatFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;";
         }
         msgDiv.innerHTML = text;
         chatHistory.appendChild(msgDiv);
