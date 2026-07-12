@@ -2743,9 +2743,10 @@
             const calcDecomCost = Math.round(50 + (data.capacity * 1.0) + (isHazardChecked ? tempHazardSurcharge : 0));
             document.getElementById('master-decom-cost').value = calcDecomCost;
             
-            // 将来オプション側のスライダーも同期
+            // 将来オプション側のスライダーも同期（上限も規模に応じて動的に拡張）
             const optionDecomSlider = document.getElementById('option-decom-cost');
             if (optionDecomSlider) {
+                optionDecomSlider.max = Math.max(500, calcDecomCost * 2);
                 optionDecomSlider.value = calcDecomCost;
                 document.getElementById('option-decom-cost-val').innerText = calcDecomCost;
             }
