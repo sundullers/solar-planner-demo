@@ -3020,7 +3020,7 @@
         // 決定事項：出力抑制率の適用（基本2.9%）
         // 蓄電池がある場合は、容量に応じて出力抑制を最大85%削減（回避）可能
         const baseSuppressionRate = 0.029; 
-        const suppressionReduction = batteryActive ? Math.min(0.85, batteryCapacity / 100) : 0.0;
+        const suppressionReduction = batteryActive ? Math.min(0.85, (batteryCapacity / (capacity || 100)) / 2.0) : 0.0;
         const finalSuppressionRate = baseSuppressionRate * (1 - suppressionReduction);
 
         for (let i = 0; i <= simYears; i++) {
@@ -4141,17 +4141,17 @@
                         `　古い低効率パネルから最新の超高効率パネルへ全交換し、積載容量を現在の <strong>1.4倍（過積載）</strong> まで引き上げます。これにより、曇りの日や朝夕の発電量が大幅に底上げされます。<br>` +
                         `2. <strong>最新パワコン（PCS）への交換</strong><br>` +
                         `　変換効率が良く保証期間の長い最新PCSへ交換し、長期的な故障リスクと発電損失をシャットアウトします。<br><br>` +
-                        `・<strong>吉野川発電所でのシミュレーション効果</strong>:<br>` +
-                        `　投資額 <strong>${repowerCost}万円</strong> を投じることで、想定発電量を <strong>+${generationBoost}%</strong> 改善し、現状維持と比較して <strong>${repowerCFText}</strong> の累積CFを生み出し、延命する計画となっています。`;
+                        `・<strong>${data.name}でのシミュレーション効果</strong>:<br>` +
+                        `　投資額 <strong>${repowerCost}万円</strong> を投じることで、想定発電量を <strong>+${generationBoost}%</strong> 改善し、現状維持と比較して <strong>${repowerCFText}</strong> の累積CFを生み出す計画となっています。`;
             } else if (text.includes("必要") || text.includes("なぜ") || text.includes("8年") || text.includes("意味ある") || text.includes("するべき")) {
                 aiMsg = `<strong>稼働後 ${data.elapsedYears}年 が経過した発電所でリパワリングが必要な理由：</strong><br><br>` +
                         `結論から申し上げますと、<strong>「残存FIT期間がたっぷり（残り ${20 - data.elapsedYears}年）残っている『今』だからこそ、リパワリングの投資効果が最大化する」</strong>と言えます。理由は大きく3つあります。<br><br>` +
                         `1. <strong>高単価での回収期間が十分に確保できるため</strong><br>` +
                         `　本発電所のFIT売電単価は <strong>${data.fitPrice}円</strong> と非常に高単価です。プランBの回収期間は <strong>${paybackRepowerText}</strong> ですので、残り <strong>${20 - data.elapsedYears}年間</strong> のFIT期間中に投資額（${repowerCost}万円）を完全に回収しきり、残りのFIT期間（約7〜8年間）で高単価の増収メリットをまるまる純利益として享受できます。これがFIT終了直前（残り3〜4年など）になると、投資回収が間に合わず手遅れになります。<br>` +
-                        `2. <strong>8年前の機器と最新機器の『技術ギャップ』が非常に大きいため</strong><br>` +
-                        `　${data.fitCertDate ? data.fitCertDate.slice(0, 5) : "運転開始"}当時の太陽光パネルに比べ、現在の最新パネルはモジュール変換効率が約 20%〜30% 向上しています。これらを全交換し、積載率を <strong>1.4倍（過積載）</strong> に高めることで、同じ面積でも発電量が劇的に底上げされ、アセット価値（評価額：<strong>¥${assetValueText}</strong>）を最も効率よく引き上げられます。<br>` +
+                        `2. <strong>パネルの『技術世代ギャップ』を活用できるため</strong><br>` +
+                        `　初期（稼働${data.elapsedYears}年）の太陽光パネルに比べ、現在の最新パネルはモジュール変換効率や実効出力が著しく向上しています。これらを最新型へ全交換し、積載率を <strong>1.4倍（過積載）</strong> に高めることで、同じ土地面積であっても年間発電量を劇的に底上げでき、アセット価値（評価額：<strong>${assetValueText}</strong>）を効率よく引き上げられます。<br>` +
                         `3. <strong>いずれ発生する「PCS交換費用」を包括してプラスにできるため</strong><br>` +
-                        `　現状維持でも、12年目（残り4年後）にはPCSの設計寿命に伴う一括交換費用（${pcsCFText}）が強制的に発生します。どうせ発生する「守りのコスト」を、発電量と売電収入を激増させる「攻めのリパワリング投資」の一部として統合・前倒し実行する方が、ライフサイクル全体の利回りは圧倒的に高くなります。`;
+                        `　現状維持でも、設計寿命に伴うPCS一括交換（推定${pcsCFText}）が将来発生します。どうせ発生する「守りのコスト」を、発電量を激増させる「攻めのリパワリング投資」に統合・前倒し実行する方が、ライフサイクル全体の利回りは圧倒的に高くなります。`;
             } else {
                 aiMsg = `ご質問ありがとうございます！現在のシミュレーション（アセット評価額：<strong>¥${assetValueText}</strong>、${simYears}年間累積CF：<strong>${repowerCFText}</strong>）に基づき解説いたします。<br><br>` +
                         `・<strong>最も収益性が高いアプローチ</strong>: リパワリング投資（現在 ${repowerCost}万円）を実行し、想定発電量を +${generationBoost}% 向上させるプランBです。<br>` +
