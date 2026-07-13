@@ -1212,7 +1212,7 @@
                         <input type="number" id="master-om-cost-year" class="input-text-sub" value="15" onchange="updateSimulation()">
                     </div>
                     <div class="form-group-sub">
-                        <label>📈 買収想定マージン率（％）</label>
+                        <label>📈 開発施工管理費率（％）</label>
                         <input type="number" id="master-margin-percent" class="input-text-sub" value="10" onchange="updateSimulation()">
                     </div>
                     <div class="form-group-sub">
@@ -3734,7 +3734,7 @@
         if (currentMode === 'fp-enhanced') {
             const marginVal = Math.round(calculatedPcsCost * marginPercent / 100);
             pcsCostBreakdown += `・基本交換: ${calculatedPcsCost}万円<br>`;
-            if (marginVal > 0) pcsCostBreakdown += `・マージン(${marginPercent}%): +${marginVal}万円<br>`;
+            if (marginVal > 0) pcsCostBreakdown += `・開発施工管理費(${marginPercent}%): +${marginVal}万円<br>`;
             if (batteryActive) pcsCostBreakdown += `・蓄電池併設: +${batteryCost}万円<br>`;
             if (document.getElementById('fp-hazard-checkbox').checked && hazardInitialMitigationCost > 0) {
                 pcsCostBreakdown += `・ハザード対策: +${hazardInitialMitigationCost}万円<br>`;
@@ -3748,7 +3748,7 @@
         const repowerMarginVal = (currentMode === 'fp-enhanced') ? Math.round(repowerCost * marginPercent / 100) : 0;
         
         repowerCostBreakdown += `・リパワリング: ${repowerBase}万円<br>`;
-        if (repowerMarginVal > 0) repowerCostBreakdown += `・マージン(${marginPercent}%): +${repowerMarginVal}万円<br>`;
+        if (repowerMarginVal > 0) repowerCostBreakdown += `・開発施工管理費(${marginPercent}%): +${repowerMarginVal}万円<br>`;
         if (batteryActive) repowerCostBreakdown += `・蓄電池併設: +${batteryCost}万円<br>`;
         
         const isHazardChecked = (currentMode === 'fp-enhanced' && document.getElementById('fp-hazard-checkbox').checked) || (currentMode === 'standard');
