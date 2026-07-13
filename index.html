@@ -1446,7 +1446,7 @@
                             <div>
                                 <div style="font-size: 0.75rem; color: #34d399; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">📊 リパワリング投資効果</div>
                                 <div style="font-size: 1.35rem; font-weight: bold; color: #34d399; display: flex; align-items: baseline; gap: 3px;">
-                                    <span style="font-size: 1rem;">+¥</span><span id="repower-benefit-diff">0</span>
+                                    <span id="repower-benefit-diff">0</span>
                                 </div>
                             </div>
                             
@@ -3088,8 +3088,8 @@
                     baseExpense += decomCost; // 最終年に撤去
                 }
             }
-            if (i > 0 && year <= 20) {
-                const yearFreeCF = baseIncome - baseExpense;
+            if (i >= 0 && year <= 20) {
+                const yearFreeCF = (i === 0) ? baseAnnualVal : (baseIncome - baseExpense);
                 dcfAssetValue += yearFreeCF / Math.pow(1 + discountRate, i);
             }
             currentBaseSum += (baseIncome - baseExpense);
@@ -3122,8 +3122,8 @@
                 }
             }
             currentPcsOptSum += (pcsOptIncome - pcsOptExpense);
-            if (i > 0 && year <= 20) {
-                const yearFreeCF_pcs = pcsOptIncome - pcsOptExpense;
+            if (i >= 0 && year <= 20) {
+                const yearFreeCF_pcs = (i === 0) ? pcsAnnualVal : (pcsOptIncome - pcsOptExpense);
                 dcfAssetValuePcs += yearFreeCF_pcs / Math.pow(1 + discountRate, i);
             }
             pcsOptCF.push(Math.round(currentPcsOptSum));
@@ -3187,8 +3187,8 @@
                 totalRepowerSales += repowerIncome;
             }
             currentRepowerSum += (repowerIncome - repowerExpense);
-            if (i > 0 && year <= 20) {
-                const yearFreeCF_repower = repowerIncome - repowerExpense;
+            if (i >= 0 && year <= 20) {
+                const yearFreeCF_repower = (i === 0) ? repowerAnnualVal : (repowerIncome - repowerExpense);
                 dcfAssetValueRepower += yearFreeCF_repower / Math.pow(1 + discountRate, i);
             }
             repowerCF.push(Math.round(currentRepowerSum));
@@ -3417,7 +3417,8 @@
                     if (repowerRoiPeriodUnitEl) repowerRoiPeriodUnitEl.style.display = 'inline';
                     repowerBenefitCardEl.style.borderColor = "rgba(148, 163, 184, 0.4)"; // グレー
                 } else {
-                    repowerBenefitDiffEl.innerText = diffCF.toLocaleString();
+                    const sign = diffCF > 0 ? "+¥" : (diffCF < 0 ? "-¥" : "¥");
+                    repowerBenefitDiffEl.innerText = sign + Math.abs(diffCF).toLocaleString();
                     
                     if (repowerRoiCostEl) {
                         const formattedCost = Math.round(repowerCost * 10000);
