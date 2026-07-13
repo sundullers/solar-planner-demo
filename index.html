@@ -3089,7 +3089,7 @@
                 }
             }
             if (i >= 0 && year <= 20) {
-                const yearFreeCF = (i === 0) ? baseAnnualVal : (baseIncome - baseExpense);
+                const yearFreeCF = (i === 0) ? (batteryActive ? -batteryCost : 0) : (baseIncome - baseExpense);
                 dcfAssetValue += yearFreeCF / Math.pow(1 + discountRate, i);
             }
             currentBaseSum += (baseIncome - baseExpense);
@@ -3123,7 +3123,7 @@
             }
             currentPcsOptSum += (pcsOptIncome - pcsOptExpense);
             if (i >= 0 && year <= 20) {
-                const yearFreeCF_pcs = (i === 0) ? pcsAnnualVal : (pcsOptIncome - pcsOptExpense);
+                const yearFreeCF_pcs = (i === 0) ? -actualPcsOptCost : (pcsOptIncome - pcsOptExpense);
                 dcfAssetValuePcs += yearFreeCF_pcs / Math.pow(1 + discountRate, i);
             }
             pcsOptCF.push(Math.round(currentPcsOptSum));
@@ -3188,7 +3188,7 @@
             }
             currentRepowerSum += (repowerIncome - repowerExpense);
             if (i >= 0 && year <= 20) {
-                const yearFreeCF_repower = (i === 0) ? repowerAnnualVal : (repowerIncome - repowerExpense);
+                const yearFreeCF_repower = (i === 0) ? ((repowerYear === 0) ? -pureRepowerCost - (batteryActive ? batteryCost : 0) - hazardInitialMitigationCost : -(batteryActive ? batteryCost : 0) - hazardInitialMitigationCost) : (repowerIncome - repowerExpense);
                 dcfAssetValueRepower += yearFreeCF_repower / Math.pow(1 + discountRate, i);
             }
             repowerCF.push(Math.round(currentRepowerSum));
