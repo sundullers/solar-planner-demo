@@ -2043,6 +2043,14 @@
         return data || demoData["A614245G36"];
     }
 
+    // パネル容量とパワコン容量から、過積載カットを考慮した年間標準発電量を計算
+    function calcStandardGeneration(panelCapacity, capacity) {
+        const overcapacityRate = panelCapacity / capacity;
+        // 過積載カットロス率の簡易モデル（積載率1.5倍超なら12%ロス、1.3倍超なら5%ロス、1.1倍超なら2%ロス）
+        const lossFactor = overcapacityRate > 1.5 ? 0.12 : (overcapacityRate > 1.3 ? 0.05 : (overcapacityRate > 1.1 ? 0.02 : 0.0));
+        return Math.round(panelCapacity * 1150 * (1 - lossFactor));
+    }
+
     // 徳島県データのロード
     async function preloadTokushimaData() {
         try {
@@ -2644,7 +2652,7 @@
         const data = getSolarData(id);
         
         // 理論値の算出（出力抑制率2.9%を考慮）
-        const stdGen = data.capacity * 1150;
+        const stdGen = calcStandardGeneration(data.panelCapacity, data.capacity);
         const currentEfficiency = 1 - (data.elapsedYears * 0.005);
         const theoreticalIncome = (stdGen * currentEfficiency * data.fitPrice * (1 - 0.029)) / 10000;
 
@@ -2842,7 +2850,7 @@
             
             // 直近1年の売電額の初期値を理論想定値から自動計算して入力
             const currentEfficiency = 1 - (data.elapsedYears * 0.005);
-            const stdGen = data.capacity * 1150;
+            const stdGen = calcStandardGeneration(data.panelCapacity, data.capacity);
             const initialExpectedRevenue = Math.round((stdGen * currentEfficiency * data.fitPrice * (1 - 0.029)) / 10000);
             document.getElementById('actual-revenue-input').value = initialExpectedRevenue;
 
@@ -3003,8 +3011,8 @@
         let repowerFitIncomeSum = 0; let repowerFitYears = 0;
         let repowerPostIncomeSum = 0; let repowerPostYears = 0;
 
-        // 年間標準発電量推定（高松：約1,150kWh/kW/年）
-        const stdGen = capacity * 1150 * calRatio; 
+        // 年間標準発電量推定（過積載カットロス考慮）
+        const stdGen = calcStandardGeneration(data.panelCapacity, data.capacity) * calRatio; 
         const simYears = parseInt(document.getElementById('sim-years').value) || 20;
 
 
@@ -3144,7 +3152,7 @@
                 const yearsSinceRepower = i - repowerYear;
                 // モジュールは最新の新品に交換されるため、経年劣化率は古い実績を引き継がず、標準の0.005ベースの60%低減とする
                 const repowerEfficiency = (1 + generationBoost) * (1 - (yearsSinceRepower * (0.005 * 0.6))) * (1 - effLoss);
-                const repowerStdGen = capacity * 1150;
+                const repowerStdGen = calcStandardGeneration(data.panelCapacity, data.capacity);
                 
                 repowerIncome = (i === 0) ? 0 : (repowerStdGen * repowerCapacityFactor * repowerEfficiency * price * (1 - finalSuppressionRate)) / 10000;
                 
@@ -3792,13 +3800,14 @@
     // オーナーアクション（PPA相談）の実行
     function triggerPpaConsult() {
         const id = document.getElementById('solar-id').value;
-        const capacity = getSolarData(id).capacity;
+        const data = getSolarData(id);
+        const annualGen = calcStandardGeneration(data.panelCapacity, data.capacity);
         document.getElementById('modal-icon-area').innerText = "⚡";
         document.getElementById('modal-title').innerText = "PPA移行・環境価値相談（デモ）";
         document.getElementById('modal-message').innerHTML = `
             <strong>卒FIT・環境価値PPA相談窓口への問い合わせデモ</strong><br><br>
-            本発電所 [<strong>${id}</strong>] の将来発電予測（年間約${Math.round(capacity * 1150).toLocaleString()}kWh）に基づき、自家消費PPAおよび環境価値取引プランの査定依頼を送信しました。<br><br>
-            <span style="color: #10b981; font-weight: bold;">✔ 問い合わせチケットの起票完了 (開発チームよりご連絡します)</span>
+            本発電所 [<strong>${id}</strong>] の将来発電予測（年間約${annualGen.toLocaleString()}kWh）に基づき、自家消費PPAおよび環境価値取引プランの査定依頼を送信しました。<br><br>
+            <span style="color: #10b981; font-weight: bold;">✔ 問い合わせチケット of 起票完了 (開発チームよりご連絡します)</span>
         `;
         document.getElementById('action-modal').style.display = 'flex';
     }
