@@ -1464,7 +1464,7 @@
                     </div>
                     <div class="spec-card info">
                         <div class="spec-label">FIT売電単価</div>
-                        <div class="spec-value" id="spec-fit-price" style="font-size: 1.2rem; font-weight: bold; color: var(--text-primary); display: flex; align-items: center;">32.0<span class="spec-unit">円</span><span onclick="focusFitPriceSlider()" style="cursor: pointer; font-size: 0.72rem; color: #60a5fa; margin-left: 8px; font-weight: normal; border: 1px solid rgba(96,165,250,0.3); padding: 1px 5px; border-radius: 4px; background: rgba(96,165,250,0.05); display: inline-flex; align-items: center; gap: 2px;" title="FIT売電単価が実際と異なる場合はクリックして修正">✏️修正</span></div>
+                        <div class="spec-value" style="font-size: 1.2rem; font-weight: bold; color: var(--text-primary); display: flex; align-items: center;"><span id="spec-fit-price">32.0</span><span class="spec-unit">円</span><span onclick="focusFitPriceSlider()" style="cursor: pointer; font-size: 0.72rem; color: #60a5fa; margin-left: 8px; font-weight: normal; border: 1px solid rgba(96,165,250,0.3); padding: 1px 5px; border-radius: 4px; background: rgba(96,165,250,0.05); display: inline-flex; align-items: center; gap: 2px;" title="FIT売電単価が実際と異なる場合はクリックして修正">✏️修正</span></div>
                         <div class="spec-sub" id="spec-fit-price-sub" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; font-weight: normal; line-height: 1.3;">新規認定日:<br>2017年3月28日</div>
                     </div>
                     <div class="spec-card danger">
@@ -2806,7 +2806,7 @@
             const overcapacityRate = Math.round((data.panelCapacity / data.capacity) * 100);
             document.getElementById('spec-capacity').innerHTML = `${data.panelCapacity.toFixed(1)}<span class="spec-unit">kW</span>`;
             document.getElementById('spec-capacity-sub').innerHTML = `パワコン容量: ${data.capacity.toFixed(1)} kW<br>積載率: ${overcapacityRate}%`;
-            document.getElementById('spec-fit-price').innerHTML = `${data.fitPrice.toFixed(1)}<span class="spec-unit">円</span>`;
+            document.getElementById('spec-fit-price').innerText = data.fitPrice.toFixed(1);
             document.getElementById('spec-fit-price-sub').innerHTML = `新規認定日:<br>${data.fitCertDate}`;
             document.getElementById('spec-years').innerHTML = `${data.elapsedYears}年<span class="spec-unit">/ 残り${20 - data.elapsedYears}年</span>`;
             document.getElementById('spec-years-sub').innerHTML = `終了年月:<br>${data.fitEndDate}`;
