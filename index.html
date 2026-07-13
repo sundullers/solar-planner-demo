@@ -3084,6 +3084,11 @@
         const pcsLife = parseFloat(document.getElementById('pcs-design-life').value);
         const pcsYear = parseInt(document.getElementById('pcs-year').value);
         const fitPrice = parseFloat(document.getElementById('fit-price').value);
+        // 右側の基本スペックカード内のFIT単価の表示を、左側のスライダー値と同期（双方向バインディング）
+        const specFitPriceEl = document.getElementById('spec-fit-price');
+        if (specFitPriceEl) {
+            specFitPriceEl.innerText = fitPrice.toFixed(1);
+        }
         const postFitPrice = parseFloat(document.getElementById('post-fit-price').value);
         const decomCostVal = parseFloat(document.getElementById('master-decom-cost').value);
         const decomCost = isNaN(decomCostVal) ? 100 : decomCostVal;
