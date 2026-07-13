@@ -3129,9 +3129,8 @@
             // -----------------
             // ③ プランB：フルリパワリング
             // -----------------
-            // 決定事項: リパワリング時に過積載容量を1.4倍に増設。1.3倍を超える超過分には0.85の減衰補正を適用
-            // パネル実効容量向上係数 = 1.3 + (1.4 - 1.3) * 0.85 = 1.385倍
-            const repowerCapacityFactor = 1.385;
+            // すでにrepowerStdGenでpanelCapacity（過積載含む）を参照しているため、二重掛けを防ぐため1.0とします
+            const repowerCapacityFactor = 1.0;
             
             let repowerIncome = 0;
             let repowerExpense = 0;
