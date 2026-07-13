@@ -3754,19 +3754,18 @@
         
         if (currentMode === 'fp-enhanced') {
             pcsCostBreakdown += `・基本交換: ${purePcsCost}万円<br>`;
-            if (pcsMarginVal > 0) pcsCostBreakdown += `・開発施工管理費(${marginPercent}%): +${pcsMarginVal}万円<br>`;
-            if (batteryActive) pcsCostBreakdown += `·蓄電池併設: +${batteryCost}万円<br>`;
+            if (pcsMarginVal > 0) pcsCostBreakdown += `<span style="padding-left: 8px; color: var(--text-secondary);">（内、開発施工管理費: ${pcsMarginVal}万円）</span><br>`;
+            if (batteryActive) pcsCostBreakdown += `・蓄電池併設: +${batteryCost}万円<br>`;
             if (document.getElementById('fp-hazard-checkbox').checked && hazardInitialMitigationCost > 0) {
                 pcsCostBreakdown += `・ハザード対策: +${hazardInitialMitigationCost}万円<br>`;
             }
         } else {
-            // 標準モード時はシンプルに
-            pcsCostBreakdown += `・基本交換: ${purePcsCost}万円<br>`;
-            if (pcsMarginVal > 0) pcsCostBreakdown += `・開発施工管理費(${marginPercent}%): +${pcsMarginVal}万円<br>`;
+            // 標準モード時は一般オーナーの不審感・混乱を防ぐため管理費内訳を非表示にし、総基本額のみを提示
+            pcsCostBreakdown += `・PCS一括交換: ${actualPcsOptCost}万円<br>`;
         }
 
         repowerCostBreakdown += `・リパワリング: ${pureRepowerCost}万円<br>`;
-        if (repowerMarginVal > 0) repowerCostBreakdown += `・開発施工管理費(${marginPercent}%): +${repowerMarginVal}万円<br>`;
+        if (repowerMarginVal > 0) repowerCostBreakdown += `<span style="padding-left: 8px; color: var(--text-secondary);">（内、開発施工管理費: ${repowerMarginVal}万円）</span><br>`;
         if (batteryActive) repowerCostBreakdown += `・蓄電池併設: +${batteryCost}万円<br>`;
         
         const isHazardChecked = (currentMode === 'fp-enhanced' && document.getElementById('fp-hazard-checkbox').checked) || (currentMode === 'standard');
