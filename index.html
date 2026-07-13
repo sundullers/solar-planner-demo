@@ -2860,12 +2860,20 @@
                 }
             }
 
-            // 発電所容量（kW）に基づき、リパワリング費用（約10万円/kW）とPCS一括交換費用の初期値をダイナミックに算出
+            // 共通の計算マスター単価（パネル容量基準の万円/kW）を定義
+            const masterRepowerCostKw = 7.0;    // 相場下限かつ初期値の基準単価（7万円/kW）
+            const masterRepowerCostKwMax = 12.0; // 相場上限の基準単価（12万円/kW）
+
+            // パネル容量（kW）に基づき、リパワリング費用（初期値）をダイナミックに算出（50万単位丸め）
+            let calcRepowerCost = Math.round(data.panelCapacity * masterRepowerCostKw);
+            calcRepowerCost = Math.max(50, Math.round(calcRepowerCost / 50) * 50);
+
+            // パワコン容量（kW）に基づき、PCS一括交換費用の初期値を算出（50万単位丸め）
             const masterPcsCostKw = parseFloat(document.getElementById('master-pcs-cost-kw')?.value) || 3.0;
-            const calcRepowerCost = Math.round(data.capacity * 10);
-            const calcPcsCost = Math.round(data.capacity * masterPcsCostKw);
+            let calcPcsCost = Math.round(data.capacity * masterPcsCostKw);
+            calcPcsCost = Math.max(50, Math.round(calcPcsCost / 50) * 50);
             
-            // 発電所規模に応じてスライダーの最大値（上限）を動的に引き上げる（初期値の約2倍、最低保証値はHTML初期値に準拠）
+            // 発電所規模に応じてスライダーの最大値（上限）を動的に引き上げる
             const repowerCostSlider = document.getElementById('repower-cost');
             if (repowerCostSlider) {
                 repowerCostSlider.max = Math.max(2500, calcRepowerCost * 2);
@@ -2875,13 +2883,11 @@
                 pcsCostSlider.max = Math.max(800, calcPcsCost * 2.5);
             }
             
-            // 発電所規模（パネル容量）に基づいてリパワリング相場目安を計算し、表示を動的更新する（ハードコードの排除）
+            // 発電所規模（パネル容量）に基づいてリパワリング相場目安を動的更新（初期値と下限値が数学的に完全一致する設計）
             const costGuidelineEl = document.getElementById('repower-cost-guideline');
             if (costGuidelineEl) {
-                // 相場下限：約8万円/kW、相場上限：約15万円/kW
-                const lowerRange = Math.round(data.panelCapacity * 8); 
-                const upperRange = Math.round(data.panelCapacity * 15);
-                // 表示をすっきりさせるため、50万円単位で丸める
+                const lowerRange = Math.round(data.panelCapacity * masterRepowerCostKw); 
+                const upperRange = Math.round(data.panelCapacity * masterRepowerCostKwMax);
                 const lowerRounded = Math.max(50, Math.round(lowerRange / 50) * 50);
                 const upperRounded = Math.max(100, Math.round(upperRange / 50) * 50);
                 
