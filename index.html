@@ -3106,7 +3106,9 @@
             let pcsOptExpense = 0;
             if (i > 0) {
                 pcsOptExpense = omCost + hazardInsuranceSurcharge;
-                if (isPcsReplacementYear) {
+                // プランAは0年目に新品へ一括交換されるため、次の定期交換はシミュレーション開始からpcsLife年ごとに発生します
+                const isPcsOptReplacementYear = (i > 0 && i % pcsLife === 0);
+                if (isPcsOptReplacementYear) {
                     pcsOptExpense += calculatedPcsCost; // 定期的なPCS交換
                 }
                 if (isBatteryReplacementYear) {
