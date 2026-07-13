@@ -1464,7 +1464,13 @@
                     </div>
                     <div class="spec-card info">
                         <div class="spec-label">FIT売電単価</div>
-                        <div class="spec-value" style="font-size: 1.2rem; font-weight: bold; color: var(--text-primary); display: flex; align-items: center;"><span id="spec-fit-price">32.0</span><span class="spec-unit">円</span><span onclick="focusFitPriceSlider()" style="cursor: pointer; font-size: 0.72rem; color: #60a5fa; margin-left: 8px; font-weight: normal; border: 1px solid rgba(96,165,250,0.3); padding: 1px 5px; border-radius: 4px; background: rgba(96,165,250,0.05); display: inline-flex; align-items: center; gap: 2px;" title="FIT売電単価が実際と異なる場合はクリックして修正">✏️修正</span></div>
+                        <div class="spec-value" style="font-size: 1.2rem; font-weight: bold; color: var(--text-primary); display: flex; align-items: center; gap: 4px;">
+                            <span id="spec-fit-price-display-container" style="display: inline-flex; align-items: center; cursor: pointer; border-bottom: 1px dashed rgba(255,255,255,0.3); padding-bottom: 2px;" onclick="startInPlaceEdit()" title="クリックしてFIT単価を直接修正">
+                                <span id="spec-fit-price">32.0</span><span class="spec-unit" style="font-size: 0.8rem; font-weight: normal; margin-left: 2px; color: var(--text-secondary);">円</span>
+                                <span style="font-size: 0.72rem; color: #60a5fa; margin-left: 6px; font-weight: normal; display: inline-flex; align-items: center;" title="FIT単価を変更・修正する">✏️</span>
+                            </span>
+                            <input type="number" id="spec-fit-price-input" step="0.1" min="5.0" max="42.0" style="display: none; width: 80px; background: #0f172a; border: 1px solid #3b82f6; color: white; border-radius: 4px; padding: 2px 6px; font-size: 1.1rem; font-weight: bold; text-align: center; outline: none;" onkeydown="handleInPlaceEditKey(event)" onblur="commitInPlaceEdit()">
+                        </div>
                         <div class="spec-sub" id="spec-fit-price-sub" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; font-weight: normal; line-height: 1.3;">新規認定日:<br>2017年3月28日</div>
                     </div>
                     <div class="spec-card danger">
@@ -2976,27 +2982,69 @@
         });
     }
 
-    // FIT売電単価が間違っている場合にスライダーを露出させフォーカスする
-    function focusFitPriceSlider() {
-        const advancedToggle = document.getElementById('toggle-advanced-mode');
-        if (advancedToggle && !advancedToggle.checked) {
-            advancedToggle.checked = true;
-            toggleAdvancedMode();
+    // FIT売電単価のインプレース（カード内直接）編集の開始
+    function startInPlaceEdit() {
+        const displayContainer = document.getElementById('spec-fit-price-display-container');
+        const input = document.getElementById('spec-fit-price-input');
+        const displayVal = document.getElementById('spec-fit-price');
+        
+        if (displayContainer && input && displayVal) {
+            const priceVal = parseFloat(displayVal.innerText);
+            displayContainer.style.display = 'none';
+            input.style.display = 'inline-block';
+            input.value = isNaN(priceVal) ? "32.0" : priceVal.toFixed(1);
+            input.focus();
+            input.select();
         }
+    }
+
+    // キー押下時のハンドリング (Enterで確定、Escapeでキャンセル)
+    function handleInPlaceEditKey(event) {
+        if (event.key === 'Enter') {
+            commitInPlaceEdit();
+        } else if (event.key === 'Escape') {
+            cancelInPlaceEdit();
+        }
+    }
+
+    // 編集の確定（コミット）
+    function commitInPlaceEdit() {
+        const displayContainer = document.getElementById('spec-fit-price-display-container');
+        const input = document.getElementById('spec-fit-price-input');
+        const displayVal = document.getElementById('spec-fit-price');
         const fitPriceSlider = document.getElementById('fit-price');
-        if (fitPriceSlider) {
-            const container = fitPriceSlider.closest('.form-group');
-            if (container) {
-                container.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                // 一時的に枠線をゴールドにしてハイライト
-                container.style.transition = 'all 0.3s ease';
-                container.style.boxShadow = '0 0 15px rgba(251, 191, 36, 0.6)';
-                container.style.borderColor = '#fbbf24';
-                setTimeout(() => {
-                    container.style.boxShadow = 'none';
-                    container.style.borderColor = '';
-                }, 2000);
+        const fitPriceSliderVal = document.getElementById('fit-price-val');
+        
+        if (displayContainer && input && displayVal) {
+            let newValue = parseFloat(input.value);
+            if (isNaN(newValue) || newValue < 5.0) newValue = 5.0;
+            if (newValue > 42.0) newValue = 42.0;
+            
+            // 値の更新
+            displayVal.innerText = newValue.toFixed(1);
+            
+            // 左側サイドバーのスライダーと数値を連動
+            if (fitPriceSlider && fitPriceSliderVal) {
+                fitPriceSlider.value = newValue;
+                fitPriceSliderVal.innerText = newValue.toFixed(1);
             }
+            
+            // 表示の切り替え
+            input.style.display = 'none';
+            displayContainer.style.display = 'inline-flex';
+            
+            // シミュレーション再実行
+            updateSimulation();
+        }
+    }
+
+    // 編集のキャンセル
+    function cancelInPlaceEdit() {
+        const displayContainer = document.getElementById('spec-fit-price-display-container');
+        const input = document.getElementById('spec-fit-price-input');
+        if (displayContainer && input) {
+            input.style.display = 'none';
+            displayContainer.style.display = 'inline-flex';
         }
     }
 
