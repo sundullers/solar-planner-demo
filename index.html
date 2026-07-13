@@ -1123,6 +1123,19 @@
                 <div id="calibration-status" class="calibration-badge" style="display: none;"></div>
             </div>
 
+            <!-- シミュレーション評価期間 -->
+            <div class="form-group" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px;">
+                <label for="sim-years">📅 評価期間</label>
+                <select id="sim-years" class="input-text" onchange="updateSimulation()" style="width: 100%;">
+                    <option value="15">15年間</option>
+                    <option value="20" selected>20年間</option>
+                    <option value="25">25年間</option>
+                    <option value="30">30年間（FIT後存続考慮）</option>
+                    <option value="35">35年間（FIT後存続考慮）</option>
+                    <option value="40">40年間（FIT後存続考慮）</option>
+                </select>
+            </div>
+
             <!-- FP拡張モード専用：EPC標準マスタ -->
             <div class="fp-only accordion" id="fp-master-accordion">
                 <div class="accordion-title" onclick="toggleAccordion()">
@@ -1239,20 +1252,7 @@
             <!-- 将来オプション設定（FIP転換・蓄電池併設） -->
             <div class="form-group" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px;">
                 <label style="font-weight: 600; display: block; margin-bottom: 12px; color: var(--warning-color);">📌 将来オプション設定</label>
-                
                 <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <!-- シミュレーション評価期間 -->
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-                        <span style="font-size: 0.85rem;">📅 評価期間</span>
-                        <select id="sim-years" class="input-text-sub" onchange="updateSimulation()" style="width: auto; padding: 4px 10px; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 6px; font-size: 0.8rem;">
-                            <option value="15">15年間</option>
-                            <option value="20" selected>20年間</option>
-                            <option value="25">25年間</option>
-                            <option value="30">30年間（FIT後存続考慮）</option>
-                            <option value="35">35年間（FIT後存続考慮）</option>
-                            <option value="40">40年間（FIT後存続考慮）</option>
-                        </select>
-                    </div>
                     <!-- FIP転換トグル -->
                     <div style="display: flex; align-items: center; justify-content: space-between;">
                         <span style="font-size: 0.85rem;">🔄 FIP制度への転換（市場連動化）</span>
