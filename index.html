@@ -1467,7 +1467,7 @@
                         <div class="spec-value" style="font-size: 1.2rem; font-weight: bold; color: var(--text-primary); display: flex; align-items: center; gap: 4px;">
                             <span id="spec-fit-price-display-container" style="display: inline-flex; align-items: center; cursor: pointer; border-bottom: 1px dashed rgba(255,255,255,0.3); padding-bottom: 2px;" onclick="startInPlaceEdit()" title="クリックしてFIT単価を直接修正">
                                 <span id="spec-fit-price">32.0</span><span class="spec-unit" style="font-size: 0.8rem; font-weight: normal; margin-left: 2px; color: var(--text-secondary);">円</span>
-                                <span style="font-size: 0.72rem; color: #60a5fa; margin-left: 6px; font-weight: normal; display: inline-flex; align-items: center;" title="FIT単価を変更・修正する">✏️</span>
+                                <span style="font-size: 0.72rem; color: #60a5fa; margin-left: 6px; font-weight: normal; display: inline-flex; align-items: center; transform: scaleX(-1);" title="FIT単価を変更・修正する">✏️</span>
                             </span>
                             <input type="number" id="spec-fit-price-input" step="0.1" min="5.0" max="42.0" style="display: none; width: 80px; background: #0f172a; border: 1px solid #3b82f6; color: white; border-radius: 4px; padding: 2px 6px; font-size: 1.1rem; font-weight: bold; text-align: center; outline: none;" onkeydown="handleInPlaceEditKey(event)" onblur="commitInPlaceEdit()">
                         </div>
