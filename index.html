@@ -4077,12 +4077,31 @@
                         `現在、リパワリング投資額が <strong>0万円</strong> に設定されているため、プランBは機能していません。<br>` +
                         `左側スライダーで「リパワリング投資額」を設定することで、パネル増設（実効1.385倍）や効率改善（+${generationBoost}%）を伴う「プランB：フルリパワリング」の期待収支を算出して比較することができます。ぜひスライダーを動かしてみてください。`;
             } else {
-                const diffCF = parseFloat(repowerCFText.replace(/[^0-9]/g, '')) - parseFloat(baseCFText.replace(/[^0-9]/g, ''));
-                aiMsg = `<strong>推奨プランの選定アドバイス：</strong><br><br>` +
-                        `結論から申し上げますと、<strong>プランB（フルリパワリング）が極めて有望</strong>です。<br><br>` +
-                        `・<strong>収支の最大化</strong>: プランBの${simYears}年間の累積CFは <strong>${repowerCFText}</strong> となり、現状維持（${baseCFText}）と比較して <strong>+${diffCF}万円</strong> の上乗せが見込めます。<br>` +
-                        `・<strong>投資回収</strong>: 初期投資に ${repowerCost}万円 を要しますが、過積載の1.385倍化と発電量向上効果により、回収期間は <strong>${paybackRepowerText}</strong> と非常にスピーディです。<br>` +
-                        `・<strong>アセット延命</strong>: モジュールを最新の高効率品に全交換するため、将来30〜40年の超長期運用（FIT期間外も含む）にも高い耐性を誇ります。中期的な機器延命のみを目指す場合はプランA（PCS交換のみ：累積CF ${pcsCFText}）も選択肢になりますが、事業性・資産価値を最大化する観点ではプランBが最適です。`;
+                const baseVal = parseFloat(baseCFText.replace(/[^0-9-]/g, ''));
+                const repowerVal = parseFloat(repowerCFText.replace(/[^0-9-]/g, ''));
+                const pcsVal = parseFloat(pcsCFText.replace(/[^0-9-]/g, ''));
+                
+                const diffCF = repowerVal - baseVal;
+                const diffPcsCF = pcsVal - baseVal;
+                
+                let adviceText = "";
+                if (diffCF > 0 && diffCF > diffPcsCF) {
+                    adviceText = `結論から申し上げますと、アセット全体の価値と累積収益を最大化できる<strong>プランB（フルリパワリング）が最もおすすめ</strong>です。<br><br>` +
+                                 `・<strong>収支の最大化</strong>: プランBの${simYears}年間の累積CFは <strong>${repowerCFText}</strong> となり、現状維持（${baseCFText}）と比較して <strong>+${diffCF.toLocaleString()}万円</strong> の上乗せが見込めます。<br>` +
+                                 `・<strong>投資回収</strong>: 初期投資に ${repowerCost}万円 を要しますが、過積載の1.385倍化と発電量向上効果により、回収期間は <strong>${paybackRepowerText}</strong> と合理的です。<br>` +
+                                 `・<strong>アセット延命</strong>: モジュールを最新の高効率品に全交換するため、将来30〜40年の超長期運用（FIT期間外も含む）にも高い耐性を誇ります。中期的な機器延命のみを目指す場合はプランA（PCS交換のみ：累積CF ${pcsCFText}）も選択肢になりますが、事業性・資産価値を最大化する観点ではプランBが最適です。`;
+                } else if (diffPcsCF > 0 && diffPcsCF >= diffCF) {
+                    adviceText = `結論から申し上げますと、コストを抑えつつ機器の故障リスクを回避できる<strong>プランA（PCS一括交換）が最もおすすめ</strong>です。<br><br>` +
+                                 `・<strong>収支の改善</strong>: プランAの${simYears}年間の累積CFは <strong>${pcsCFText}</strong> となり、現状維持（${baseCFText}）と比較して <strong>+${diffPcsCF.toLocaleString()}万円</strong> の上乗せが見込めます。<br>` +
+                                 `・<strong>リパワリング（プランB）との比較</strong>: プランBは投資額（${repowerCost}万円）が大きく、今回の${simYears}年シミュレーションでは回収しきれず、現状維持を下回る赤字（<strong>-${Math.abs(diffCF).toLocaleString()}万円</strong>）となるため、今回の条件では推奨いたしません。`;
+                } else {
+                    adviceText = `結論から申し上げますと、追加の大型投資は行わず、<strong>現状維持（成り行き）で進めるか、早期の売却Exit</strong>を強く推奨いたします。<br><br>` +
+                                 `・<strong>投資対効果の分析</strong>: <br>` +
+                                 `　プランB（フルリパワリング）は累積CFが現状維持を下回る赤字（<strong>-${Math.abs(diffCF).toLocaleString()}万円</strong>）となり、プランA（PCS一括交換）も赤字（<strong>-${Math.abs(diffPcsCF).toLocaleString()}万円</strong>）となるため、どちらのプランも投資回収が困難です。<br>` +
+                                 `・<strong>推奨アクション</strong>: <br>` +
+                                 `　余計な修繕や改修への追加投資を最小限に抑えつつ、現在の高いFIT単価（${data.fitPrice}円）での売電利益を現状維持のまま享受し続けるか、あるいは12年目のPCS一括交換の前に、セカンダリー市場でアセット（現在の評価額：<strong>¥${assetValueText}</strong>）を早期売却するExit戦略が最も合理的です。`;
+                }
+                aiMsg = `<strong>推奨プランの選定アドバイス：</strong><br><br>` + adviceText;
             }
         } else if (type === 'hazard') {
             userMsg = "立地リスク（ハザード）の影響と対策は？";
