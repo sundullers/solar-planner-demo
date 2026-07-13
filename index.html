@@ -3143,14 +3143,18 @@
                 repowerIncome = baseIncome;
                 repowerExpense = baseExpense;
                 repowerRunningExpense = omCost + hazardInsuranceSurcharge + (fipActive ? (baseIncome * 0.02) : 0);
-            } else if (i < repowerYear) {
-                // リパワリング実行前は現状維持と同期
+            } else if (i <= repowerYear) {
+                // リパワリング実行前および実行当年（効果は翌年から発現）
                 repowerIncome = baseIncome;
                 repowerExpense = baseExpense;
+                if (i === repowerYear) {
+                    repowerExpense += pureRepowerCost;
+                    repowerExpense += hazardInitialMitigationCost;
+                }
                 repowerRunningExpense = omCost + hazardInsuranceSurcharge + (fipActive ? (baseIncome * 0.02) : 0);
             } else {
-                // リパワリング実行および実行後
-                const yearsSinceRepower = i - repowerYear;
+                // リパワリング実行の翌年以降（効果発現）
+                const yearsSinceRepower = i - repowerYear - 1;
                 // モジュールは最新の新品に交換されるため、経年劣化率は古い実績を引き継がず、標準の0.005ベースの60%低減とする
                 const repowerEfficiency = (1 + generationBoost) * (1 - (yearsSinceRepower * (0.005 * 0.6))) * (1 - effLoss);
                 const repowerStdGen = calcStandardGeneration(data.panelCapacity, data.capacity);
@@ -3158,12 +3162,6 @@
                 repowerIncome = (i === 0) ? 0 : (repowerStdGen * repowerCapacityFactor * repowerEfficiency * price * (1 - finalSuppressionRate)) / 10000;
                 
                 repowerExpense = omCost + hazardInsuranceSurcharge;
-                
-                // 実行年に初期投資コストおよびハザード初期対策費用が計上される
-                if (i === repowerYear) {
-                    repowerExpense += pureRepowerCost;
-                    repowerExpense += hazardInitialMitigationCost;
-                }
                 
                 // リパワリング時点から起算したPCS寿命(pcsLife)で再交換
                 const isRepowerPcsReplacementYear = (yearsSinceRepower > 0 && yearsSinceRepower % pcsLife === 0);
