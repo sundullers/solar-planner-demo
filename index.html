@@ -36,6 +36,53 @@
             --warning-color: #fbbf24;
         }
 
+        /* ツールチップ用のCSS */
+        .tooltip {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            background: #334155;
+            color: #94a3b8;
+            border-radius: 50%;
+            font-size: 0.65rem;
+            font-weight: bold;
+            cursor: help;
+            margin-left: 5px;
+            vertical-align: middle;
+            transition: all 0.2s ease;
+        }
+        .tooltip:hover {
+            background: #60a5fa;
+            color: #0f172a;
+        }
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: #f8fafc;
+            border: 1px solid #334155;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            line-height: 1.4;
+            white-space: normal;
+            width: 250px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 1000;
+        }
+        .tooltip:hover::after {
+            opacity: 1;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -1136,8 +1183,21 @@
                 </select>
             </div>
 
+            <!-- プロ向け詳細設定表示トグル（段階的開示用） -->
+            <div class="form-group" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px; margin-bottom: 20px;">
+                <label class="switch-container" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; margin-bottom: 0;">
+                    <span style="font-weight: bold; color: #fbbf24; font-size: 0.82rem; display: flex; align-items: center; gap: 4px;">
+                        <span>⚙️ プロ向け詳細設定を表示</span>
+                    </span>
+                    <label class="opt-switch" style="width: 36px; height: 20px; position: relative; display: inline-block;">
+                        <input type="checkbox" id="toggle-advanced-mode" onchange="toggleAdvancedMode()" style="opacity: 0; width: 0; height: 0;">
+                        <span class="opt-switch-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #334155; transition: .3s; border-radius: 20px;"></span>
+                    </label>
+                </label>
+            </div>
+
             <!-- FP拡張モード専用：EPC標準マスタ -->
-            <div class="fp-only accordion" id="fp-master-accordion">
+            <div class="fp-only accordion advanced-param" id="fp-master-accordion" style="display: none;">
                 <div class="accordion-title" onclick="toggleAccordion()">
                     <span>⚙️ EPC標準マスタ設定</span>
                     <span id="accordion-icon">▼</span>
@@ -1165,7 +1225,7 @@
             <!-- スライダーパラメータ -->
             <div class="form-group">
                 <label for="repower-cost" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                    <span>🏗️ リパワリング投資額（万円）</span>
+                    <span>🏗️ リパワリング投資額（万円） <span style="font-size: 0.68rem; color: var(--text-secondary); font-weight: normal; margin-left: 5px;">(相場: 1,200〜2,000万)</span></span>
                     <span id="repower-cost-val" style="font-weight: bold; color: var(--accent-color);">800</span>
                 </label>
                 <input type="range" id="repower-cost" class="slider" min="0" max="2500" step="50" value="800" oninput="updateSimulation()">
@@ -1173,7 +1233,7 @@
 
             <div class="form-group">
                 <label for="generation-boost" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                    <span>📈 想定発電量改善率（％）</span>
+                    <span>📈 想定発電量改善率（％） <span style="font-size: 0.68rem; color: var(--text-secondary); font-weight: normal; margin-left: 5px;">(目安: +12〜18%)</span></span>
                     <span id="generation-boost-val" style="font-weight: bold; color: var(--accent-color);">15</span>
                 </label>
                 <input type="range" id="generation-boost" class="slider" min="5" max="30" step="1" value="15" oninput="updateSimulation()">
@@ -1181,14 +1241,14 @@
 
             <div class="form-group">
                 <label for="repower-year" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                    <span>📅 リパワリング実行時期</span>
+                    <span>📅 リパワリング実行時期 <span style="font-size: 0.68rem; color: var(--text-secondary); font-weight: normal; margin-left: 5px;">(0=即時 / 最大10年後)</span></span>
                     <span id="repower-year-val" style="font-weight: bold; color: var(--accent-color);">今すぐ（0年後）</span>
                 </label>
                 <input type="range" id="repower-year" class="slider" min="0" max="10" step="1" value="0" oninput="updateSimulation()">
             </div>
 
             <!-- 初期バージョン用：標準パワコン更新費用 -->
-            <div class="form-group standard-only">
+            <div class="form-group standard-only advanced-param" style="display: none;">
                 <label for="pcs-cost" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                     <span>⚡ パワコン更新費用（万円）</span>
                     <span id="pcs-cost-val" style="font-weight: bold; color: var(--accent-color);">150</span>
@@ -1197,7 +1257,7 @@
             </div>
 
             <!-- パワコン（PCS）詳細設定（容量連動・設計寿命） -->
-            <div class="fp-only form-group" style="background: rgba(245, 158, 11, 0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.2); margin-bottom: 15px;">
+            <div class="fp-only form-group advanced-param" style="background: rgba(245, 158, 11, 0.05); padding: 12px; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.2); margin-bottom: 15px; display: none;">
                 <span style="font-size: 0.85rem; font-weight: bold; color: #fbbf24; display: block; margin-bottom: 10px;">⚡ パワコン（PCS）詳細調整</span>
                 
                 <div class="form-group-sub" style="margin-bottom: 10px;">
@@ -1225,7 +1285,7 @@
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group advanced-param" style="display: none;">
                 <label for="pcs-year" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                     <span>📅 想定パワコン更新年（年目）</span>
                     <span id="pcs-year-val" style="font-weight: bold; color: var(--accent-color);">12</span>
@@ -1233,7 +1293,7 @@
                 <input type="range" id="pcs-year" class="slider" min="10" max="20" step="1" value="12" oninput="updateSimulation()">
             </div>
 
-            <div class="form-group">
+            <div class="form-group advanced-param" style="display: none;">
                 <label for="fit-price" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                     <span>💴 FIT売電単価（円/kWh）</span>
                     <span id="fit-price-val" style="font-weight: bold; color: var(--accent-color);">24.0</span>
@@ -1241,7 +1301,7 @@
                 <input type="range" id="fit-price" class="slider" min="5.0" max="42.0" step="0.1" value="24.0" oninput="updateSimulation()">
             </div>
 
-            <div class="form-group">
+            <div class="form-group advanced-param" style="display: none;">
                 <label for="post-fit-price" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                     <span>💴 卒FIT後想定買取単価（円/kWh）</span>
                     <span id="post-fit-price-val" style="font-weight: bold; color: var(--accent-color);">8.5</span>
@@ -1250,7 +1310,7 @@
             </div>
 
             <!-- 将来オプション設定（FIP転換・蓄電池併設） -->
-            <div class="form-group" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px;">
+            <div class="form-group advanced-param" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px; display: none;">
                 <label style="font-weight: 600; display: block; margin-bottom: 12px; color: var(--warning-color);">📌 将来オプション設定</label>
                 <div style="display: flex; flex-direction: column; gap: 12px;">
                     <!-- FIP転換トグル -->
@@ -1406,15 +1466,28 @@
                 </div>
             </div>
 
+            <!-- AI診断結論カード (最上部配置で結論ファーストを徹底) -->
+            <div class="owner-only" id="ai-conclusion-card-container" style="max-width: 900px; width: 100%; margin-bottom: 20px; display: none;">
+                <div id="ai-conclusion-card" style="padding: 18px; border-radius: 8px; border-left: 5px solid #fbbf24; background: rgba(30, 41, 59, 0.6); border-top: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <div style="font-size: 0.9rem; font-weight: bold; color: white; display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        <span id="ai-conclusion-badge" style="background: #fbbf24; color: #0f172a; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 800;">AI推奨</span>
+                        <span id="ai-conclusion-title">最適な運用アクション</span>
+                    </div>
+                    <div id="ai-conclusion-body" style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.55;">
+                        シミュレーションを実行中...
+                    </div>
+                </div>
+            </div>
+
             <!-- オーナー専用：アセット資産評価額表示 (上部配置、最大幅制限で間延び防止) -->
             <div class="owner-only" style="max-width: 900px; width: 100%; margin-bottom: 25px;">
                 <div style="font-size: 0.85rem; font-weight: bold; color: var(--text-primary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-                    <span>💎 アセット資産評価</span>
+                    <span>💎 アセット資産評価 <span class="tooltip" data-tooltip="本シミュレータが財務・工学・立地リスク等の全変数から客観的に算出した、アセットの統合評価結果です。">?</span></span>
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
                     <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(59, 130, 246, 0.3); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; justify-content: flex-start;">
                         <div>
-                            <div style="font-size: 0.75rem; color: #60a5fa; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">💎 アセット評価額</div>
+                            <div style="font-size: 0.75rem; color: #60a5fa; font-weight: bold; margin-bottom: 3px; text-transform: uppercase; display: flex; align-items: center;">💎 アセット評価額 <span class="tooltip" data-tooltip="将来35〜40年間に設備が生み出す手残りCFの総額を、期待収益率（割引率 5%）で現在価値に割り戻したアセットの理論査定額です。セカンダリー市場での取引や融資評価の強固な基準になります。">?</span></div>
                             <div style="font-size: 1.35rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 3px;">
                                 <span style="color: #60a5fa; font-size: 1rem;">¥</span><span id="owner-asset-value">24,500,000</span>
                             </div>
@@ -1428,7 +1501,7 @@
                     </div>
                     <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(16, 185, 129, 0.3); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; justify-content: flex-start;">
                         <div>
-                            <div id="owner-lifetime-cf-title" style="font-size: 0.75rem; color: #34d399; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">💰 予測生涯CF</div>
+                            <div id="owner-lifetime-cf-title" style="font-size: 0.75rem; color: #34d399; font-weight: bold; margin-bottom: 3px; text-transform: uppercase; display: flex; align-items: center;">💰 予測生涯CF <span class="tooltip" data-tooltip="評価期間中（35〜40年間）に得られる売電収入から、毎年のO&M運営経費、将来のパワコン交換費、撤去費用等をすべて差し引いた『手残り額』の単純合計（額面）です。">?</span></div>
                             <div style="font-size: 1.35rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 3px;">
                                 <span style="color: #34d399; font-size: 1rem;">¥</span><span id="owner-lifetime-cf">39,800,000</span>
                             </div>
@@ -1444,7 +1517,7 @@
                         <div style="display: flex; flex-direction: column; gap: 10px; height: 100%;">
                             <!-- ① リパワリング投資効果 -->
                             <div>
-                                <div style="font-size: 0.75rem; color: #34d399; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">📊 リパワリング投資効果</div>
+                                <div style="font-size: 0.75rem; color: #34d399; font-weight: bold; margin-bottom: 3px; text-transform: uppercase; display: flex; align-items: center;">📊 リパワリング投資効果 <span class="tooltip" data-tooltip="現状維持を続けた場合と比較して、リパワリング（プランB）を実行したときに、生涯でどれだけ手残りキャッシュ（利益）が純増するかを表す投資効率です。マイナスの場合は現状維持の方が得であることを意味します。">?</span></div>
                                 <div style="font-size: 1.35rem; font-weight: bold; color: #34d399; display: flex; align-items: baseline; gap: 3px;">
                                     <span id="repower-benefit-diff">0</span>
                                 </div>
@@ -2870,8 +2943,29 @@
         }
     }
 
+    // プロ向け詳細設定の表示トグル
+    function toggleAdvancedMode() {
+        const isChecked = document.getElementById('toggle-advanced-mode')?.checked || false;
+        const advancedParams = document.querySelectorAll('.advanced-param');
+        advancedParams.forEach(el => {
+            const isFpOnly = el.classList.contains('fp-only');
+            const isFpActive = currentMode === 'fp-enhanced';
+            
+            if (isChecked) {
+                if (isFpOnly && !isFpActive) {
+                    el.style.display = 'none';
+                } else {
+                    el.style.display = 'block';
+                }
+            } else {
+                el.style.display = 'none';
+            }
+        });
+    }
+
     // シミュレーション計算と描画のアップデート
     function updateSimulation() {
+        toggleAdvancedMode(); // 表示モードの動的同期
         // パラメータ取得
         const repowerCost = parseFloat(document.getElementById('repower-cost').value);
         const generationBoost = parseFloat(document.getElementById('generation-boost').value) / 100;
@@ -3619,6 +3713,60 @@
             updateAlertAccordionHeader();
         }
         
+        // AI診断結論カードの動的更新
+        const conclusionContainer = document.getElementById('ai-conclusion-card-container');
+        const conclusionCard = document.getElementById('ai-conclusion-card');
+        const conclusionTitle = document.getElementById('ai-conclusion-title');
+        const conclusionBody = document.getElementById('ai-conclusion-body');
+        const conclusionBadge = document.getElementById('ai-conclusion-badge');
+
+        if (conclusionContainer && conclusionCard && conclusionTitle && conclusionBody && conclusionBadge) {
+            conclusionContainer.style.display = 'block';
+            
+            // 損得判定
+            if (netGainRepower > 0 && netGainRepower > netGainPcsOpt) {
+                // プランB（リパワリング）推奨
+                conclusionCard.style.borderLeft = '5px solid #10b981'; // 緑色
+                conclusionBadge.innerText = 'AI推奨：最高収益';
+                conclusionBadge.style.background = '#10b981';
+                conclusionBadge.style.color = 'white';
+                conclusionTitle.innerText = 'プランB（フルリパワリング）の実施を強く推奨します';
+                conclusionBody.innerHTML = `本アセットはリパワリングの投資対効果が極めて高く、現状維持と比較して${simYears}年間で手残りCFが <strong>+${Math.round(netGainRepower).toLocaleString()}万円</strong> 向上します。` +
+                                            `初期投資 ${actualRepowerCost}万円 は、過積載増設と発電効率の向上により、<strong>${paybackRepower}</strong> でスピーディに回収が可能です。将来の資産価値を最大化する最適な選択肢です。`;
+            } else if (netGainPcsOpt > 0 && netGainPcsOpt >= netGainRepower) {
+                // プランA（PCS交換）推奨
+                conclusionCard.style.borderLeft = '5px solid #3b82f6'; // 青色
+                conclusionBadge.innerText = 'AI推奨：堅実回収';
+                conclusionBadge.style.background = '#3b82f6';
+                conclusionBadge.style.color = 'white';
+                conclusionTitle.innerText = 'プランA（PCS一括交換）が最も現実的なおすすめプランです';
+                conclusionBody.innerHTML = `初期コストを抑えつつ突発故障リスクを回避する「プランA：PCS一括交換」が最適解です。` +
+                                            `現状維持と比較して手残りCFが <strong>+${Math.round(netGainPcsOpt).toLocaleString()}万円</strong> 向上します。` +
+                                            `一方、プランB（フルリパワリング）は投資額（${actualRepowerCost}万円）の回収が困難（収支差額 <strong>${Math.round(netGainRepower).toLocaleString()}万円</strong> の赤字）となるため、今回の条件では非推奨です。`;
+            } else {
+                // 現状維持（成り行き・早期売却Exit）推奨
+                conclusionCard.style.borderLeft = '5px solid #fbbf24'; // 黄色（アンバー）
+                conclusionBadge.innerText = 'AI推奨：投資非推奨';
+                conclusionBadge.style.background = '#fbbf24';
+                conclusionBadge.style.color = '#0f172a';
+                conclusionTitle.innerText = '追加投資は行わず、現状維持（成り行き）または早期売却Exitが最適解です';
+                
+                let detailReason = "";
+                if (fitPrice < 15.0) {
+                    detailReason = `FIT単価が <strong>${fitPrice.toFixed(1)}円</strong> と低価格であるため、`;
+                } else if (repowerCost >= 2000) {
+                    detailReason = `リパワリング投資額（${actualRepowerCost}万円）が巨額であるため、`;
+                } else {
+                    detailReason = `現在の設備コンディションでは、`;
+                }
+                
+                conclusionBody.innerHTML = `${detailReason}追加の改修投資を行っても投資回収が極めて困難です。` +
+                                            `プランB（フルリパワリング）は <strong>-${Math.abs(Math.round(netGainRepower)).toLocaleString()}万円</strong>、` +
+                                            `プランA（PCS一括交換）も <strong>-${Math.abs(Math.round(netGainPcsOpt)).toLocaleString()}万円</strong> の赤字（現状維持比）となるため非推奨です。` +
+                                            `修繕を最小限に抑えて現在の売電収入を享受し続けるか、あるいは12年目のパワコン定期更新期（約${actualPcsOptCost}万円の支出）を迎える前に早期売却Exitをご検討ください。`;
+            }
+        }
+
         // 検証スクリプト用に計算配列を一時的にエクスポート
         window.baseCF = baseCF;
         window.pcsOptCF = pcsOptCF;
