@@ -1229,7 +1229,7 @@
                         <span>🏗️ リパワリング投資額（万円）</span>
                         <span id="repower-cost-val" style="font-weight: bold; color: var(--accent-color);">800</span>
                     </div>
-                    <span style="font-size: 0.68rem; color: var(--text-secondary); font-weight: normal; margin-top: 1px;">(相場: 1,200〜2,000万)</span>
+                    <span id="repower-cost-guideline" style="font-size: 0.68rem; color: var(--text-secondary); font-weight: normal; margin-top: 1px;">(相場: 1,200〜2,000万)</span>
                 </label>
                 <input type="range" id="repower-cost" class="slider" min="0" max="2500" step="50" value="800" oninput="updateSimulation()">
             </div>
@@ -2875,6 +2875,19 @@
                 pcsCostSlider.max = Math.max(800, calcPcsCost * 2.5);
             }
             
+            // 発電所規模（パネル容量）に基づいてリパワリング相場目安を計算し、表示を動的更新する（ハードコードの排除）
+            const costGuidelineEl = document.getElementById('repower-cost-guideline');
+            if (costGuidelineEl) {
+                // 相場下限：約8万円/kW、相場上限：約15万円/kW
+                const lowerRange = Math.round(data.panelCapacity * 8); 
+                const upperRange = Math.round(data.panelCapacity * 15);
+                // 表示をすっきりさせるため、50万円単位で丸める
+                const lowerRounded = Math.max(50, Math.round(lowerRange / 50) * 50);
+                const upperRounded = Math.max(100, Math.round(upperRange / 50) * 50);
+                
+                costGuidelineEl.innerText = `(相場: ${lowerRounded.toLocaleString()}〜${upperRounded.toLocaleString()}万)`;
+            }
+
             document.getElementById('repower-cost').value = calcRepowerCost;
             document.getElementById('pcs-cost').value = calcPcsCost;
 
@@ -3147,30 +3160,32 @@
         const pcsAnnualCF = [];
         const repowerAnnualCF = [];
 
-        // EPCマスタマージン適用（FPモード限定）
-        let actualRepowerCost = repowerCost;
-        let actualPcsOptCost = calculatedPcsCost;
-        if (currentMode === 'fp-enhanced') {
-            actualRepowerCost = Math.round(repowerCost * (1 + marginPercent / 100));
-            actualPcsOptCost = Math.round(calculatedPcsCost * (1 + marginPercent / 100));
-        }
+        // 開発施工管理費（マージン）をスライダー値の中に内包し、内訳を逆算（バックキャスト）する仕様へ変更
+        let pcsMarginVal = 0;
+        let purePcsCost = calculatedPcsCost;
+        let repowerMarginVal = 0;
+        let pureRepowerCost = repowerCost;
 
-        // 純粋なリパワリング投資額（EPCマージン適用後）を保持し、ループ内で差し引く
-        const pureRepowerCost = actualRepowerCost;
+        if (currentMode === 'fp-enhanced') {
+            // スライダー値を「管理費込み」とし、そこからマージン分を逆算
+            purePcsCost = Math.round(calculatedPcsCost / (1 + marginPercent / 100));
+            pcsMarginVal = calculatedPcsCost - purePcsCost;
+            
+            pureRepowerCost = Math.round(repowerCost / (1 + marginPercent / 100));
+            repowerMarginVal = repowerCost - pureRepowerCost;
+        }
 
         // 蓄電池の導入費用（15万円/kWh）を初期コストに加算
         const batteryCost = batteryCapacity * 15;
 
-        // 初期費用適用（ハザード初期対策費用も加算）
-        let currentBaseSum = batteryActive ? -batteryCost : 0;
-        let currentPcsOptSum = -actualPcsOptCost - (batteryActive ? batteryCost : 0) - hazardInitialMitigationCost;
-        
-        // プランBの初期累積CF：リパワリング投資およびハザード初期対策は、実行年にループ内で引く
-        let currentRepowerSum = batteryActive ? -batteryCost : 0;
+        // 総投資額（蓄電池やハザード対策費用も含めた最終額面）の算出
+        const actualPcsOptCost = calculatedPcsCost + (batteryActive ? batteryCost : 0) + hazardInitialMitigationCost;
+        const actualRepowerCost = repowerCost + (batteryActive ? batteryCost : 0) + hazardInitialMitigationCost;
 
-        // ROI用に初期表示される合計投資額の修正用変数（ハザード対策費用も含める）
-        actualRepowerCost = actualRepowerCost + (batteryActive ? batteryCost : 0) + hazardInitialMitigationCost;
-        actualPcsOptCost = actualPcsOptCost + (batteryActive ? batteryCost : 0) + hazardInitialMitigationCost;
+        // 初期累積CFのセット
+        let currentBaseSum = batteryActive ? -batteryCost : 0;
+        let currentPcsOptSum = -actualPcsOptCost; // 0年目で全額キャッシュアウト
+        let currentRepowerSum = batteryActive ? -batteryCost : 0; // リパワリングは実行年で引くため、0年目は蓄電池のみ
 
         // 累積売電額
         let totalBaseSales = 0;
@@ -3327,7 +3342,7 @@
                 repowerIncome = baseIncome;
                 repowerExpense = baseExpense;
                 if (i === repowerYear) {
-                    repowerExpense += pureRepowerCost;
+                    repowerExpense += repowerCost;
                     repowerExpense += hazardInitialMitigationCost;
                 }
                 repowerRunningExpense = omCost + hazardInsuranceSurcharge + (fipActive ? (baseIncome * 0.02) : 0);
@@ -3367,7 +3382,7 @@
             }
             currentRepowerSum += (repowerIncome - repowerExpense);
             if (i >= 0 && year <= 20) {
-                const yearFreeCF_repower = (i === 0) ? ((repowerYear === 0) ? -pureRepowerCost - (batteryActive ? batteryCost : 0) - hazardInitialMitigationCost : -(batteryActive ? batteryCost : 0) - hazardInitialMitigationCost) : (repowerIncome - repowerExpense);
+                const yearFreeCF_repower = (i === 0) ? ((repowerYear === 0) ? -repowerCost - (batteryActive ? batteryCost : 0) - hazardInitialMitigationCost : -(batteryActive ? batteryCost : 0) - hazardInitialMitigationCost) : (repowerIncome - repowerExpense);
                 dcfAssetValueRepower += yearFreeCF_repower / Math.pow(1 + discountRate, i);
             }
             repowerCF.push(Math.round(currentRepowerSum));
@@ -3381,7 +3396,7 @@
                 repowerAnnualVal = baseAnnualVal;
             } else if (i === 0) {
                 // 0年目の初期費用。今すぐ実行ならリパワ投資額、そうでないなら蓄電池費用のみ
-                repowerAnnualVal = (repowerYear === 0) ? -pureRepowerCost - (batteryActive ? batteryCost : 0) - hazardInitialMitigationCost : -(batteryActive ? batteryCost : 0) - hazardInitialMitigationCost;
+                repowerAnnualVal = (repowerYear === 0) ? -repowerCost - (batteryActive ? batteryCost : 0) - hazardInitialMitigationCost : -(batteryActive ? batteryCost : 0) - hazardInitialMitigationCost;
             } else {
                 repowerAnnualVal = (repowerIncome - repowerExpense);
             }
@@ -3732,22 +3747,19 @@
         let repowerCostBreakdown = "";
         
         if (currentMode === 'fp-enhanced') {
-            const marginVal = Math.round(calculatedPcsCost * marginPercent / 100);
-            pcsCostBreakdown += `・基本交換: ${calculatedPcsCost}万円<br>`;
-            if (marginVal > 0) pcsCostBreakdown += `・開発施工管理費(${marginPercent}%): +${marginVal}万円<br>`;
-            if (batteryActive) pcsCostBreakdown += `・蓄電池併設: +${batteryCost}万円<br>`;
+            pcsCostBreakdown += `・基本交換: ${purePcsCost}万円<br>`;
+            if (pcsMarginVal > 0) pcsCostBreakdown += `・開発施工管理費(${marginPercent}%): +${pcsMarginVal}万円<br>`;
+            if (batteryActive) pcsCostBreakdown += `·蓄電池併設: +${batteryCost}万円<br>`;
             if (document.getElementById('fp-hazard-checkbox').checked && hazardInitialMitigationCost > 0) {
                 pcsCostBreakdown += `・ハザード対策: +${hazardInitialMitigationCost}万円<br>`;
             }
         } else {
             // 標準モード時はシンプルに
-            pcsCostBreakdown += `・PCS一括交換: ${actualPcsOptCost}万円<br>`;
+            pcsCostBreakdown += `・基本交換: ${purePcsCost}万円<br>`;
+            if (pcsMarginVal > 0) pcsCostBreakdown += `・開発施工管理費(${marginPercent}%): +${pcsMarginVal}万円<br>`;
         }
 
-        const repowerBase = repowerCost;
-        const repowerMarginVal = (currentMode === 'fp-enhanced') ? Math.round(repowerCost * marginPercent / 100) : 0;
-        
-        repowerCostBreakdown += `・リパワリング: ${repowerBase}万円<br>`;
+        repowerCostBreakdown += `・リパワリング: ${pureRepowerCost}万円<br>`;
         if (repowerMarginVal > 0) repowerCostBreakdown += `・開発施工管理費(${marginPercent}%): +${repowerMarginVal}万円<br>`;
         if (batteryActive) repowerCostBreakdown += `・蓄電池併設: +${batteryCost}万円<br>`;
         
