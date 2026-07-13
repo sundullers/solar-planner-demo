@@ -2567,7 +2567,7 @@
             } else if (data.hazard.includes("洪水") || data.hazard.includes("浸水")) {
                 tempHazardSurcharge = 30;
             }
-            const calcDecomCost = Math.round(50 + (data.capacity * 1.0) + (isChecked ? tempHazardSurcharge : 0));
+            const calcDecomCost = Math.round(50 + (data.panelCapacity * 1.0) + (isChecked ? tempHazardSurcharge : 0));
             const decomInput = document.getElementById('master-decom-cost');
             if (decomInput) {
                 decomInput.value = calcDecomCost;
@@ -2824,7 +2824,7 @@
                 tempHazardSurcharge = 30;
             }
             const isHazardChecked = document.getElementById('fp-hazard-checkbox')?.checked || false;
-            const calcDecomCost = Math.round(50 + (data.capacity * 1.0) + (isHazardChecked ? tempHazardSurcharge : 0));
+            const calcDecomCost = Math.round(50 + (data.panelCapacity * 1.0) + (isHazardChecked ? tempHazardSurcharge : 0));
             document.getElementById('master-decom-cost').value = calcDecomCost;
             
             // 将来オプション側のスライダーも同期（上限も規模に応じて動的に拡張）
