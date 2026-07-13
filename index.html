@@ -1251,7 +1251,7 @@
                         <span>📅 リパワリング実行時期</span>
                         <span id="repower-year-val" style="font-weight: bold; color: var(--accent-color);">今すぐ（0年後）</span>
                     </div>
-                    <span style="font-size: 0.68rem; color: var(--text-secondary); font-weight: normal; margin-top: 1px;">(0=即時 / 最大10年後)</span>
+                    <span id="repower-year-guideline" style="font-size: 0.68rem; color: var(--text-secondary); font-weight: normal; margin-top: 1px;">(0=即時 / 最大10年後)</span>
                 </label>
                 <input type="range" id="repower-year" class="slider" min="0" max="10" step="1" value="0" oninput="updateSimulation()">
             </div>
@@ -2848,6 +2848,10 @@
                 repowerYearSlider.max = remainingFitYears;
                 repowerYearSlider.value = 0;
                 document.getElementById('repower-year-val').innerText = "今すぐ（0年後）";
+                const guidelineEl = document.getElementById('repower-year-guideline');
+                if (guidelineEl) {
+                    guidelineEl.innerText = `(0=即時 / 最大${remainingFitYears}年後)`;
+                }
             }
 
             // 発電所容量（kW）に基づき、リパワリング費用（約10万円/kW）とPCS一括交換費用の初期値をダイナミックに算出
