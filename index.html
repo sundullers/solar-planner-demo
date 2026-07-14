@@ -1714,6 +1714,14 @@
                                 </div>
                             </div>
                             
+                            <!-- 想定投資額 (利回り根拠) -->
+                            <div style="border-top: 1px dashed rgba(148, 163, 184, 0.2); padding-top: 8px; margin-top: 0;">
+                                <div style="font-size: 0.75rem; color: #34d399; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">💸 想定投資額</div>
+                                <div style="font-size: 1.35rem; font-weight: bold; color: #34d399; display: flex; align-items: baseline; gap: 3px;">
+                                    <span style="font-size: 1rem; color: #34d399;">¥</span><span id="repower-roi-cost">0</span>
+                                </div>
+                            </div>
+
                             <!-- ② 投資回収期間 (同じ書式で上下にスタック、区切り線付き) -->
                             <div style="border-top: 1px dashed rgba(148, 163, 184, 0.2); padding-top: 8px; margin-top: 0;">
                                 <div style="font-size: 0.75rem; color: #34d399; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">⏱️ 投資回収期間</div>
@@ -2652,14 +2660,17 @@
             </div>
         `;
         
-        // ポップアップの表示位置の算出（マウスクリック位置の真上へ正確に配置）
-        const nativeEvt = event.native || event;
+        // ポップアップの表示位置の算出（親要素 .visual-area から見た正確な相対座標で配置）
         const rect = event.chart.canvas.getBoundingClientRect();
-        const absoluteX = nativeEvt.pageX || (rect.left + window.scrollX + event.x);
-        const absoluteY = (nativeEvt.pageY || (rect.top + window.scrollY + event.y)) - 170; // 吹き出しの高さ分、クリック位置より上に浮くように調整
+        const parentEl = document.querySelector('.visual-area');
+        const parentRect = parentEl ? parentEl.getBoundingClientRect() : { left: 0, top: 0, width: window.innerWidth };
         
-        popup.style.left = `${Math.max(10, Math.min(window.innerWidth - 310, absoluteX - 145))}px`;
-        popup.style.top = `${absoluteY}px`;
+        // 親要素の左上からのクリック位置の相対X, Y座標
+        const relativeX = (rect.left - parentRect.left) + event.x;
+        const relativeY = (rect.top - parentRect.top) + event.y - 170; // 吹き出しの高さ分浮かせる
+        
+        popup.style.left = `${Math.max(10, Math.min(parentRect.width - 310, relativeX - 145))}px`;
+        popup.style.top = `${relativeY}px`;
         popup.classList.add('active');
         
         // グラフキャンバスクリックイベントが親のopenChartZoom等へ伝播するのを防止
@@ -2692,7 +2703,7 @@
         
         // 円弧のダッシュオフセット（全長157）
         const offset = 157 * (1 - percent);
-        valuePath.style.strokeDashoffset = offset;
+        valuePath.setAttribute('stroke-dashoffset', offset);
         
         // 針の回転角度（-90度から90度、回転中心70,80）
         const angle = -90 + (percent * 180);
@@ -2701,7 +2712,7 @@
         needle.setAttribute('stroke-width', '3.5');
         
         // テキスト更新
-        text.innerText = `${Math.round(roiVal)}%`;
+        text.textContent = `${Math.round(roiVal)}%`;
         
         // 利回りに応じた色のネオングロー切り替え
         if (roiVal >= 35) {
