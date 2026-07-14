@@ -1157,8 +1157,8 @@
         }
         .roi-gauge-needle {
             fill: #f8fafc;
-            stroke: #0f172a;
-            stroke-width: 1;
+            stroke: #fff;
+            stroke-width: 3.5;
             transform-origin: 70px 80px;
             transform: rotate(-90deg);
             transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
@@ -2571,7 +2571,7 @@
         const endVal = targetVal;
         if (startVal === endVal) {
             // 値が変わらない場合はフォーマットだけして即ゴールドグローを一瞬当てて終わる
-            obj.innerText = isCurrency ? Math.round(endVal).toLocaleString() : endVal;
+            obj.innerText = isCurrency ? Math.round(endVal).toLocaleString() : endVal.toFixed(1);
             return;
         }
 
@@ -2593,7 +2593,7 @@
             if (progress < 1) {
                 requestAnimationFrame(updateNumber);
             } else {
-                obj.innerText = isCurrency ? Math.round(endVal).toLocaleString() : endVal;
+                obj.innerText = isCurrency ? Math.round(endVal).toLocaleString() : endVal.toFixed(1);
                 // アニメーション完了後、1.5秒後にグローを自然にフェードアウト
                 setTimeout(() => {
                     obj.classList.remove('gold-glow-active');
@@ -2693,9 +2693,11 @@
         const offset = 157 * (1 - percent);
         valuePath.style.strokeDashoffset = offset;
         
-        // 針の回転角度（-90度から90度）
+        // 針の回転角度（-90度から90度、回転中心70,80）
         const angle = -90 + (percent * 180);
-        needle.style.transform = `rotate(${angle}deg)`;
+        needle.setAttribute('transform', `rotate(${angle} 70 80)`);
+        needle.setAttribute('stroke', '#fff');
+        needle.setAttribute('stroke-width', '3.5');
         
         // テキスト更新
         text.innerText = `${Math.round(roiVal)}%`;
@@ -2703,21 +2705,21 @@
         // 利回りに応じた色のネオングロー切り替え
         if (roiVal >= 35) {
             // 超有望（グリーン）
-            valuePath.style.stroke = '#10b981';
+            valuePath.setAttribute('stroke', '#10b981');
             if (glow) {
                 glow.style.background = 'radial-gradient(circle, rgba(16,185,129,0.3) 0%, rgba(16,185,129,0) 70%)';
                 glow.style.opacity = '0.3';
             }
         } else if (roiVal >= 10) {
             // 普通（イエロー）
-            valuePath.style.stroke = '#eab308';
+            valuePath.setAttribute('stroke', '#eab308');
             if (glow) {
                 glow.style.background = 'radial-gradient(circle, rgba(234,179,8,0.2) 0%, rgba(234,179,8,0) 70%)';
                 glow.style.opacity = '0.2';
             }
         } else {
             // 不利（レッド）
-            valuePath.style.stroke = '#ef4444';
+            valuePath.setAttribute('stroke', '#ef4444');
             if (glow) {
                 glow.style.background = 'radial-gradient(circle, rgba(239,68,68,0.2) 0%, rgba(239,68,68,0) 70%)';
                 glow.style.opacity = '0.2';
@@ -3555,6 +3557,13 @@
     // シミュレーション計算と描画のアップデート
     function updateSimulation() {
         toggleAdvancedMode(); // 表示モードの動的同期
+        
+        // カード間のスコープ共有用変数（ReferenceError防止）
+        let formattedCF = 0;
+        let formattedVal = 0;
+        let baseCFVal = 0;
+        let baseAssetVal = 0;
+
         // パラメータ取得
         // 現在表示されているアセットのスペックデータを先頭で取得
         const id = document.getElementById('solar-id').value;
@@ -4072,13 +4081,13 @@
             const selectedCF = repowerCost === 0 ? finalBase : finalRepower;
             const selectedVal = repowerCost === 0 ? dcfAssetValue : dcfAssetValueRepower;
             
-            const formattedCF = Math.round(selectedCF * 10000);
-            const formattedVal = Math.round(selectedVal * 10000);
+            formattedCF = Math.round(selectedCF * 10000);
+            formattedVal = Math.round(selectedVal * 10000);
             animateNumberValue('owner-lifetime-cf', formattedCF);
             animateNumberValue('owner-asset-value', formattedVal);
 
-            const baseCFVal = Math.round(finalBase * 10000);
-            const baseAssetVal = Math.round(dcfAssetValue * 10000);
+            baseCFVal = Math.round(finalBase * 10000);
+            baseAssetVal = Math.round(dcfAssetValue * 10000);
             
             const ownerAssetValueBaseEl = document.getElementById('owner-asset-value-base');
             const ownerAssetValueDiffEl = document.getElementById('owner-asset-value-diff');
