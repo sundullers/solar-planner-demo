@@ -2915,7 +2915,12 @@
                 pcsUnitCostSlider.value = calcPcsUnitCost;
                 document.getElementById('pcs-unit-cost-val').innerText = calcPcsUnitCost;
             }
-
+            // パワコンメーカー設計寿命の初期値を15年にリセット
+            const pcsLifeSlider = document.getElementById('pcs-design-life');
+            if (pcsLifeSlider) {
+                pcsLifeSlider.value = 15;
+                document.getElementById('pcs-design-life-val').innerText = "15";
+            }
             // 想定年間維持管理費（O&M費用）も容量に応じて自動設定（目安：約3,000円/kW、最低10万円）
             const calcOmCost = Math.max(10, Math.round(data.capacity * 0.3));
             document.getElementById('master-om-cost-year').value = calcOmCost;
@@ -3260,7 +3265,7 @@
             const finalEffLoss = year > 20 ? (effLoss + (year - 20) * 0.005) : effLoss;
 
             // PCSの定期的な交換タイミング判定（初回のpcsYear以降、設計寿命pcsLifeごとに再交換が発生）
-            const isPcsReplacementYear = (year === pcsYear) || (year > pcsYear && (year - pcsYear) % pcsLife === 0);
+            const isPcsReplacementYear = (i === pcsYear) || (i > pcsYear && (i - pcsYear) % pcsLife === 0);
             
             // 蓄電池の定期的な交換タイミング判定（シミュレーション開始から15年周期、最終年は除外）
             const isBatteryReplacementYear = (batteryActive && i > 0 && i % 15 === 0 && i < simYears);
