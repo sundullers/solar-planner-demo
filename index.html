@@ -2987,10 +2987,13 @@
         const advancedParams = document.querySelectorAll('.advanced-param');
         advancedParams.forEach(el => {
             const isFpOnly = el.classList.contains('fp-only');
+            const isStandardOnly = el.classList.contains('standard-only');
             const isFpActive = currentMode === 'fp-enhanced';
             
             if (isChecked) {
                 if (isFpOnly && !isFpActive) {
+                    el.style.display = 'none';
+                } else if (isStandardOnly && isFpActive) {
                     el.style.display = 'none';
                 } else {
                     el.style.display = 'block';
