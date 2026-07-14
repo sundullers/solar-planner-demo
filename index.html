@@ -1124,57 +1124,6 @@
             border-left: 2px solid var(--danger-color);
         }
 
-        /* AI診断結論カード内の「ネオン調 ROI ゲージメーター」 */
-        .roi-gauge-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 140px;
-            height: 95px;
-            position: relative;
-            flex-shrink: 0;
-            margin-left: 15px;
-        }
-        .roi-gauge-svg {
-            width: 100%;
-            height: 100%;
-            z-index: 2;
-        }
-        .roi-gauge-track {
-            fill: none;
-            stroke: rgba(255,255,255,0.1);
-            stroke-width: 9;
-            stroke-linecap: round;
-        }
-        .roi-gauge-value {
-            fill: none;
-            stroke-width: 9;
-            stroke-linecap: round;
-            stroke-dasharray: 157; /* PI * r = PI * 50 */
-            stroke-dashoffset: 157;
-            transition: stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.5s;
-        }
-        .roi-gauge-needle {
-            fill: #f8fafc;
-            stroke: #fff;
-            stroke-width: 3.5;
-            transform-origin: 70px 80px;
-            transform: rotate(-90deg);
-            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .roi-gauge-glow {
-            position: absolute;
-            width: 110px;
-            height: 55px;
-            top: 15px;
-            border-radius: 55px 55px 0 0;
-            filter: blur(10px);
-            z-index: 1;
-            opacity: 0.15;
-            transition: opacity 0.5s, background 0.5s;
-        }
-
         /* ハザード警告アコーディオン内の「動的レーダーチャート」 */
         .hazard-radar-container {
             width: 250px;
@@ -1648,25 +1597,6 @@
                             シミュレーションを実行中...
                         </div>
                     </div>
-                    <!-- ROI ゲージメーター (ギミック3) -->
-                    <div class="roi-gauge-container">
-                        <div class="roi-gauge-glow" id="roi-gauge-glow-el"></div>
-                        <svg class="roi-gauge-svg" viewBox="0 0 140 90">
-                            <defs>
-                                <linearGradient id="gauge-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                    <stop offset="0%" stop-color="#ef4444" />
-                                    <stop offset="50%" stop-color="#eab308" />
-                                    <stop offset="100%" stop-color="#10b981" />
-                                </linearGradient>
-                            </defs>
-                            <path class="roi-gauge-track" d="M 20 80 A 50 50 0 0 1 120 80" />
-                            <path class="roi-gauge-value" id="roi-gauge-value-path" d="M 20 80 A 50 50 0 0 1 120 80" />
-                            <line class="roi-gauge-needle" id="roi-gauge-needle-el" x1="70" y1="80" x2="70" y2="30" stroke="#fff" stroke-width="3.5" stroke-linecap="round" />
-                            <circle cx="70" cy="80" r="5.5" fill="#f8fafc" />
-                            <text x="70" y="90" text-anchor="middle" fill="#94a3b8" font-size="8.5" font-weight="bold">ROI</text>
-                            <text x="70" y="70" id="roi-gauge-percentage-text" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">0%</text>
-                        </svg>
-                    </div>
                 </div>
             </div>
 
@@ -1714,13 +1644,6 @@
                                 </div>
                             </div>
                             
-                            <!-- 想定投資額 (利回り根拠) -->
-                            <div style="border-top: 1px dashed rgba(148, 163, 184, 0.2); padding-top: 8px; margin-top: 0;">
-                                <div style="font-size: 0.75rem; color: #34d399; font-weight: bold; margin-bottom: 3px; text-transform: uppercase;">💸 想定投資額</div>
-                                <div style="font-size: 1.35rem; font-weight: bold; color: #34d399; display: flex; align-items: baseline; gap: 3px;">
-                                    <span style="font-size: 1rem; color: #34d399;">¥</span><span id="repower-roi-cost">0</span>
-                                </div>
-                            </div>
 
                             <!-- ② 投資回収期間 (同じ書式で上下にスタック、区切り線付き) -->
                             <div style="border-top: 1px dashed rgba(148, 163, 184, 0.2); padding-top: 8px; margin-top: 0;">
@@ -2680,63 +2603,6 @@
     function closeDrilldownPopup() {
         const popup = document.getElementById('drilldown-popup');
         if (popup) popup.classList.remove('active');
-    }
-
-    // ギミック3: ネオン調 ROI ゲージメーターの制御
-    function updateGaugeMeter(repowerBenefitDiff, repowerCost) {
-        const valuePath = document.getElementById('roi-gauge-value-path');
-        const needle = document.getElementById('roi-gauge-needle-el');
-        const text = document.getElementById('roi-gauge-percentage-text');
-        const glow = document.getElementById('roi-gauge-glow-el');
-        
-        if (!valuePath || !needle || !text) return;
-        
-        // 単純投資対効果 (利益増 ÷ 投資額) * 100
-        const costVal = repowerCost || 1;
-        let roiVal = (repowerBenefitDiff / costVal) * 100;
-        if (roiVal < 0) roiVal = 0;
-        
-        // UI上見栄えよく表現するため、最大120%スケールとする
-        const maxScale = 120;
-        const boundedRoi = Math.min(maxScale, roiVal);
-        const percent = boundedRoi / maxScale;
-        
-        // 円弧のダッシュオフセット（全長157）
-        const offset = 157 * (1 - percent);
-        valuePath.setAttribute('stroke-dashoffset', offset);
-        
-        // 針の回転角度（-90度から90度、回転中心70,80）
-        const angle = -90 + (percent * 180);
-        needle.setAttribute('transform', `rotate(${angle} 70 80)`);
-        needle.setAttribute('stroke', '#fff');
-        needle.setAttribute('stroke-width', '3.5');
-        
-        // テキスト更新
-        text.textContent = `${Math.round(roiVal)}%`;
-        
-        // 利回りに応じた色のネオングロー切り替え
-        if (roiVal >= 35) {
-            // 超有望（グリーン）
-            valuePath.setAttribute('stroke', '#10b981');
-            if (glow) {
-                glow.style.background = 'radial-gradient(circle, rgba(16,185,129,0.3) 0%, rgba(16,185,129,0) 70%)';
-                glow.style.opacity = '0.3';
-            }
-        } else if (roiVal >= 10) {
-            // 普通（イエロー）
-            valuePath.setAttribute('stroke', '#eab308');
-            if (glow) {
-                glow.style.background = 'radial-gradient(circle, rgba(234,179,8,0.2) 0%, rgba(234,179,8,0) 70%)';
-                glow.style.opacity = '0.2';
-            }
-        } else {
-            // 不利（レッド）
-            valuePath.setAttribute('stroke', '#ef4444');
-            if (glow) {
-                glow.style.background = 'radial-gradient(circle, rgba(239,68,68,0.2) 0%, rgba(239,68,68,0) 70%)';
-                glow.style.opacity = '0.2';
-            }
-        }
     }
 
     // ギミック4: ハザードリスク警告内の「動的レーダーチャート」
@@ -4146,7 +4012,6 @@
             // リパワリング投資効果カードの更新
             const repowerBenefitDiffEl = document.getElementById('repower-benefit-diff');
             const repowerBenefitCardEl = document.getElementById('repower-benefit-card');
-            const repowerRoiCostEl = document.getElementById('repower-roi-cost');
             const repowerRoiPeriodMainEl = document.getElementById('repower-roi-period-main');
             const repowerRoiPeriodUnitEl = document.getElementById('repower-roi-period-unit');
             
@@ -4159,7 +4024,6 @@
                     if (prefixEl) prefixEl.innerText = "";
                     if (currencyEl) currencyEl.innerText = "¥";
                     repowerBenefitDiffEl.innerText = "0";
-                    if (repowerRoiCostEl) repowerRoiCostEl.innerText = "0";
                     if (repowerRoiPeriodMainEl) {
                         repowerRoiPeriodMainEl.innerText = "--";
                         repowerRoiPeriodMainEl.style.fontSize = "1.35rem";
@@ -4167,18 +4031,12 @@
                     }
                     if (repowerRoiPeriodUnitEl) repowerRoiPeriodUnitEl.style.display = 'inline';
                     repowerBenefitCardEl.style.borderColor = "rgba(148, 163, 184, 0.4)"; // グレー
-                    updateGaugeMeter(0, 1000 * 10000); // 投資0時はROI=0
                 } else {
                     if (prefixEl) prefixEl.innerText = diffCF >= 0 ? '+' : '-';
                     if (prefixEl) prefixEl.style.color = diffCF >= 0 ? "#34d399" : "#ef4444";
                     if (currencyEl) currencyEl.style.color = diffCF >= 0 ? "#34d399" : "#ef4444";
                     repowerBenefitDiffEl.style.color = diffCF >= 0 ? "#34d399" : "#ef4444";
                     animateNumberValue('repower-benefit-diff', Math.abs(diffCF));
-                    
-                    if (repowerRoiCostEl) {
-                        const formattedCost = Math.round(repowerCost * 10000);
-                        animateNumberValue('repower-roi-cost', formattedCost);
-                    }
                     
                     if (pbRepower === null) {
                         if (repowerRoiPeriodMainEl) {
@@ -4198,9 +4056,6 @@
                             repowerRoiPeriodUnitEl.style.color = "var(--text-secondary)";
                         }
                     }
-                    
-                    // ROIゲージメーターの更新
-                    updateGaugeMeter(diffCF, repowerCost * 10000);
                 }
             }
 
