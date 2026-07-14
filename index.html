@@ -2652,10 +2652,11 @@
             </div>
         `;
         
-        // ポップアップの表示位置の算出
+        // ポップアップの表示位置の算出（マウスクリック位置の真上へ正確に配置）
+        const nativeEvt = event.native || event;
         const rect = event.chart.canvas.getBoundingClientRect();
-        const absoluteX = rect.left + window.scrollX + event.x;
-        const absoluteY = rect.top + window.scrollY + event.y - 140; // グラフの点より少し上へ
+        const absoluteX = nativeEvt.pageX || (rect.left + window.scrollX + event.x);
+        const absoluteY = (nativeEvt.pageY || (rect.top + window.scrollY + event.y)) - 170; // 吹き出しの高さ分、クリック位置より上に浮くように調整
         
         popup.style.left = `${Math.max(10, Math.min(window.innerWidth - 310, absoluteX - 145))}px`;
         popup.style.top = `${absoluteY}px`;
@@ -3259,6 +3260,7 @@
 
     // デモデータのロード
     function loadDemoData() {
+        closeDrilldownPopup(); // アセット変更時に古いポップアップを閉じる
         // オプションのリセット
         document.getElementById('fip-checkbox').checked = false;
         document.getElementById('battery-checkbox').checked = false;
@@ -3557,6 +3559,7 @@
     // シミュレーション計算と描画のアップデート
     function updateSimulation() {
         toggleAdvancedMode(); // 表示モードの動的同期
+        closeDrilldownPopup(); // スライダー等操作時に古いポップアップを閉じる
         
         // カード間のスコープ共有用変数（ReferenceError防止）
         let formattedCF = 0;
