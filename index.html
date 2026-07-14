@@ -1291,15 +1291,8 @@
                         <span><span id="pcs-design-life-val">15</span>年</span>
                     </label>
                     <input type="range" id="pcs-design-life" class="slider" min="10" max="20" step="1" value="15" oninput="updateSimulation()" style="height: 4px;">
+                    <span id="pcs-auto-replace-guideline" style="font-size: 0.65rem; color: #fbbf24; font-weight: normal; margin-top: 4px; display: block; line-height: 1.2;">（現行設備の交換予測: あと7年後）</span>
                 </div>
-            </div>
-
-            <div class="form-group advanced-param" style="display: none;">
-                <label for="pcs-year" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                    <span>📅 想定パワコン更新年（年目）</span>
-                    <span id="pcs-year-val" style="font-weight: bold; color: var(--accent-color);">12</span>
-                </label>
-                <input type="range" id="pcs-year" class="slider" min="10" max="20" step="1" value="12" oninput="updateSimulation()">
             </div>
 
             <div class="form-group advanced-param" style="display: none;">
@@ -3074,6 +3067,11 @@
     function updateSimulation() {
         toggleAdvancedMode(); // 表示モードの動的同期
         // パラメータ取得
+        // 現在表示されているアセットのスペックデータを先頭で取得
+        const id = document.getElementById('solar-id').value;
+        const data = getSolarData(id);
+        const startYear = data.elapsedYears;
+
         const repowerCost = parseFloat(document.getElementById('repower-cost').value);
         const generationBoost = parseFloat(document.getElementById('generation-boost').value) / 100;
         const repowerYear = parseInt(document.getElementById('repower-year').value);
@@ -3085,7 +3083,10 @@
         const pcsUnit = parseFloat(document.getElementById('pcs-unit-cost').value);
         const pcsCount = parseInt(document.getElementById('pcs-count').value);
         const pcsLife = parseFloat(document.getElementById('pcs-design-life').value);
-        const pcsYear = parseInt(document.getElementById('pcs-year').value);
+        
+        // 想定更新年（初回交換が発生する年目）は、メーカー設計寿命と経過年数から自動計算
+        const pcsYear = Math.max(1, Math.round(pcsLife - data.elapsedYears));
+        
         const fitPrice = parseFloat(document.getElementById('fit-price').value);
         // 右側の基本スペックカード内のFIT単価の表示を、左側のスライダー値と同期（双方向バインディング）
         const specFitPriceEl = document.getElementById('spec-fit-price');
@@ -3109,9 +3110,8 @@
         if (repowerYear === 0) {
             repowerYearVal.innerText = "今すぐ（0年後）";
         } else {
-            const id = document.getElementById('solar-id').value;
-            const data = getSolarData(id);
-            const limitDiffYear = pcsYear - data.elapsedYears; // 吉野川なら 12 - 8 = 4
+            // パワコン寿命期と一致するかどうかの比較（すでに経過年数を差し引いたpcsYearとそのまま比較）
+            const limitDiffYear = pcsYear; 
             if (repowerYear === limitDiffYear) {
                 repowerYearVal.innerText = `${repowerYear}年後 (PCS寿命期)`;
             } else {
@@ -3126,16 +3126,17 @@
         document.getElementById('pcs-unit-cost-val').innerText = pcsUnit;
         document.getElementById('pcs-count-val').innerText = pcsCount;
         document.getElementById('pcs-design-life-val').innerText = pcsLife;
-        document.getElementById('pcs-year-val').innerText = pcsYear;
+        
+        // 初回交換目安テキストの動的更新（寿命スライダー直下に反映）
+        const pcsGuidelineEl = document.getElementById('pcs-auto-replace-guideline');
+        if (pcsGuidelineEl) {
+            pcsGuidelineEl.innerText = `（現行設備の交換予測: あと ${pcsYear} 年後）`;
+        }
+        
         document.getElementById('fit-price-val').innerText = fitPrice.toFixed(1);
         document.getElementById('post-fit-price-val').innerText = postFitPrice.toFixed(1);
 
-        // 現在表示されているスペック取得
-        const id = document.getElementById('solar-id').value;
-        const data = getSolarData(id);
-
         const capacity = data.capacity;
-        const startYear = data.elapsedYears;
 
         // 計算用PCS費用（モードによって切り替え）
         const calculatedPcsCost = currentMode === 'fp-enhanced' ? (pcsUnit * pcsCount) : pcsCost;
