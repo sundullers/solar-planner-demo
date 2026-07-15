@@ -2633,6 +2633,12 @@
         
         // ハザード警告テキストからリスクを動的にパース
         const txt = hazardText || "";
+        
+        // 安全・リスク極小のキーワードが含まれる場合はハザード表示を即座に非表示にしてスキップ
+        if (txt.includes("区域外") || txt.includes("リスクは極めて低い") || txt.includes("リスク極低") || txt.includes("想定外")) {
+            container.style.display = 'none';
+            return;
+        }
         if (txt.includes("洪水") || txt.includes("浸水")) {
             floodVal = txt.includes("3.0m") ? 5.0 : (txt.includes("1.0m") ? 4.0 : 3.0);
             hasRealRisk = true;
