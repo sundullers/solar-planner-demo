@@ -3024,14 +3024,7 @@
     // ハザードスイッチのトグル
     function toggleHazardSwitch() {
         if (currentMode !== 'fp-enhanced') return;
-        const alertBox = document.getElementById('hazard-alert');
         const isChecked = document.getElementById('fp-hazard-checkbox').checked;
-        
-        if (isChecked) {
-            alertBox.style.display = 'flex';
-        } else {
-            alertBox.style.display = 'none';
-        }
 
         // ハザードトグルのON/OFFに応じて想定撤去費用を再計算して連動更新
         const id = document.getElementById('solar-id').value;
@@ -3055,6 +3048,7 @@
             }
         }
 
+        updateAlertAccordionHeader();
         updateSimulation();
     }
 
@@ -3224,7 +3218,9 @@
                 }
             }
             
-            if (data.hazard.includes("警戒")) {
+            const isSafe = data.hazard.includes("区域外") || data.hazard.includes("リスクは極めて低い") || data.hazard.includes("リスク極低");
+            if (!isSafe) {
+                alertBox.style.display = 'flex';
                 alertBox.style.background = "rgba(239, 68, 68, 0.08)";
                 alertBox.style.borderLeft = "4px solid #ef4444";
                 alertBox.style.borderTop = "1px solid rgba(239, 68, 68, 0.15)";
@@ -3237,14 +3233,7 @@
                     document.getElementById('fp-hazard-checkbox').checked = true;
                 }
             } else {
-                alertBox.style.background = "rgba(16, 185, 129, 0.08)";
-                alertBox.style.borderLeft = "4px solid #10b981";
-                alertBox.style.borderTop = "1px solid rgba(16, 185, 129, 0.15)";
-                alertBox.style.borderRight = "1px solid rgba(16, 185, 129, 0.15)";
-                alertBox.style.borderBottom = "1px solid rgba(16, 185, 129, 0.15)";
-                alertBox.style.color = "#d1fae5";
-                const iconEl = alertBox.querySelector('.asset-alert-icon');
-                if (iconEl) iconEl.style.background = "#059669";
+                alertBox.style.display = 'none';
                 if (currentMode === 'fp-enhanced') {
                     document.getElementById('fp-hazard-checkbox').checked = false; // 警戒区域外なら連動OFF
                 }
