@@ -721,6 +721,16 @@
             color: #dbeafe; /* コントラストを高めた読みやすい薄ブルー */
         }
 
+        /* ハザード情報（グリーン） */
+        .asset-alert-success {
+            background: rgba(16, 185, 129, 0.08);
+            border-left: 4px solid #10b981;
+            border-top: 1px solid rgba(16, 185, 129, 0.15);
+            border-right: 1px solid rgba(16, 185, 129, 0.15);
+            border-bottom: 1px solid rgba(16, 185, 129, 0.15);
+            color: #d1fae5; /* コントラストを高めた読みやすい薄グリーン */
+        }
+
         .asset-alert-icon {
             display: flex;
             align-items: center;
@@ -737,6 +747,7 @@
         }
         .asset-alert-icon.warning { background: #d97706; }
         .asset-alert-icon.info { background: #2563eb; }
+        .asset-alert-icon.success { background: #059669; }
 
         /* モーダルウィンドウ (印刷プレビュー) */
         .modal {
@@ -1539,10 +1550,10 @@
                     </div>
 
                     <!-- ハザードアラート ＆ レーダーチャートの横並び -->
-                    <div style="display: flex; gap: 15px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
-                        <div class="alert-box" id="hazard-alert" style="margin-bottom: 0; flex: 1 1 450px; display: flex; align-items: center;">
-                            <span class="alert-icon">!</span>
-                            <span id="hazard-alert-text" style="font-size: 0.82rem; line-height: 1.5;"><strong>ハザードリスク情報:</strong> 吉野川洪水浸水想定区域（浸水深0.5m〜1.0m）に近接。浸水時の架台かさ上げ等の対策を推奨。</span>
+                    <div style="display: flex; gap: 15px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap;">
+                        <div class="owner-only asset-alert-box asset-alert-success" id="hazard-alert" style="margin-bottom: 0; flex: 1 1 450px;">
+                            <span class="asset-alert-icon success">!</span>
+                            <span id="hazard-alert-text" style="font-size: 0.85rem; line-height: 1.5;"><strong>ハザードリスク情報:</strong> 吉野川洪水浸水想定区域（浸水深0.5m〜1.0m）に近接。浸水時の架台かさ上げ等の対策を推奨。</span>
                         </div>
                         <div class="hazard-radar-container" id="hazard-radar-container-el" style="display: none; flex-shrink: 0;">
                             <canvas id="hazardRadarChart"></canvas>
@@ -3194,18 +3205,26 @@
             const alertBox = document.getElementById('hazard-alert');
             
             if (data.hazard.includes("警戒")) {
-                alertBox.style.background = "rgba(239, 68, 68, 0.1)";
-                alertBox.style.borderColor = "rgba(239, 68, 68, 0.2)";
-                alertBox.style.color = "#fca5a5";
-                alertBox.querySelector('.alert-icon').style.background = "var(--danger-color)";
+                alertBox.style.background = "rgba(239, 68, 68, 0.08)";
+                alertBox.style.borderLeft = "4px solid #ef4444";
+                alertBox.style.borderTop = "1px solid rgba(239, 68, 68, 0.15)";
+                alertBox.style.borderRight = "1px solid rgba(239, 68, 68, 0.15)";
+                alertBox.style.borderBottom = "1px solid rgba(239, 68, 68, 0.15)";
+                alertBox.style.color = "#ffecd5";
+                const iconEl = alertBox.querySelector('.asset-alert-icon');
+                if (iconEl) iconEl.style.background = "#ef4444";
                 if (currentMode === 'fp-enhanced') {
                     document.getElementById('fp-hazard-checkbox').checked = true;
                 }
             } else {
-                alertBox.style.background = "rgba(16, 185, 129, 0.1)";
-                alertBox.style.borderColor = "rgba(16, 185, 129, 0.2)";
-                alertBox.style.color = "#a7f3d0";
-                alertBox.querySelector('.alert-icon').style.background = "var(--accent-color)";
+                alertBox.style.background = "rgba(16, 185, 129, 0.08)";
+                alertBox.style.borderLeft = "4px solid #10b981";
+                alertBox.style.borderTop = "1px solid rgba(16, 185, 129, 0.15)";
+                alertBox.style.borderRight = "1px solid rgba(16, 185, 129, 0.15)";
+                alertBox.style.borderBottom = "1px solid rgba(16, 185, 129, 0.15)";
+                alertBox.style.color = "#d1fae5";
+                const iconEl = alertBox.querySelector('.asset-alert-icon');
+                if (iconEl) iconEl.style.background = "#059669";
                 if (currentMode === 'fp-enhanced') {
                     document.getElementById('fp-hazard-checkbox').checked = false; // 警戒区域外なら連動OFF
                 }
