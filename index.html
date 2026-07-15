@@ -3588,8 +3588,8 @@
         let hazardInitialMitigationCost = 0; // 初期対策費用（架台かさ上げ等）
         
         if (currentMode === 'fp-enhanced' && document.getElementById('fp-hazard-checkbox').checked) {
-            const hasLandslide = data.hazard.includes("警戒") || data.hazard.includes("土砂");
-            const hasFlood = data.hazard.includes("浸水") || data.hazard.includes("洪水");
+            const hasLandslide = data.hazard.includes("土砂") || data.hazard.includes("イエロー") || data.hazard.includes("レッド");
+            const hasFlood = data.hazard.includes("洪水") || data.hazard.includes("浸水");
             
             if (hasLandslide) {
                 // 撤予備費50万円はUI側イベントでdecomCostに自動加算・同期されます
