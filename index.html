@@ -2155,11 +2155,17 @@
                 <h3 style="color: #60a5fa; font-size: 1rem; margin-top: 0; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
                     <span>⚠️ 4. ハザードリスク連動トグルによる経費増減</span>
                 </h3>
-                <p style="margin-top: 0;">ハザード警戒マップの「土砂災害」「洪水浸水」区域内、または隣接地域に立地している場合、トグルONで実態に即した安全コストを自動計上します。</p>
+                <p style="margin-top: 0;">ハザード警戒マップの各判定（土砂災害、洪水・水害、塩害）に該当する立地の場合、トグルONで実態に即した安全コストをシミュレーションへ動的に反映します。</p>
                 <ul style="padding-left: 20px; margin-bottom: 0;">
-                    <li style="margin-bottom: 6px;"><strong>年間の追加保険料:</strong> リスク増に伴う保険料の引き上げとして、<strong>年間売電額の 0.2%</strong> を毎年経費に上乗せします。</li>
-                    <li style="margin-bottom: 6px;"><strong>解体・撤去積立金:</strong> 発電所廃止・撤去時を想定し、最終年に <strong>50万円</strong> を追加支出として差し引きます。</li>
-                    <li style="margin-bottom: 0;"><strong>浸水対策初期コスト（プランBのみ）:</strong> 水害による設備全損リスクを避けるための「架台かさ上げ土木工事」費用として、実行年の初期投資コストに <strong>100万円</strong> を自動算入します。</li>
+                    <li style="margin-bottom: 6px;"><strong>⛰️ 土砂災害警戒区域（イエローゾーン等）:</strong>
+                        撤去・解体予備費として <strong>＋50万円</strong> を最終年経費へ加算、地滑り保険割増として <strong>年間 5万円</strong> を毎年運営費へ上乗せします。
+                    </li>
+                    <li style="margin-bottom: 6px;"><strong>🌊 洪水・浸水想定区域（吉野川流域等）:</strong>
+                        浸水時撤去予備費として <strong>＋30万円</strong> を最終年経費へ加算、水災特約保険として <strong>年間 8万円</strong> を毎年運営費へ上乗せ、さらに水害防止の初期対策（架台かさ上げ等）として実行年の初期投資コストに <strong>100万円</strong> を自動算入します。
+                    </li>
+                    <li style="margin-bottom: 0;"><strong>🧂 沿岸塩害警戒エリア（海岸2km圏内）:</strong>
+                        機器寿命などの物理的影響を考慮します（追加の撤去費用や年間保険料の増額などのシミュレーションコスト加算は0円です）。
+                    </li>
                 </ul>
             </div>
 
