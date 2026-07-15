@@ -4070,23 +4070,24 @@
             }
 
             // アラートの動的更新
-            const remainingFitYears = 20 - startYear;
-            const remainingFitMonths = remainingFitYears * 12;
+            const remainingFitYears = Math.max(0, 20 - startYear);
+            const remainingFitMonths = Math.round(remainingFitYears * 12);
             
-            // 最初のPCS交換推奨年までの残り年数（pcsYear：スライダー設定値を使用）
-            const yearsToPcs = pcsYear - startYear;
+            // 最初のPCS交換推奨までの残り年数（設計寿命 - 現在の経過年数）
+            const yearsToPcs = pcsLife - startYear;
+            const pcsLimitYear = pcsLife;
             
             const pcsAlertTextEl = document.getElementById('owner-pcs-alert-text');
             if (pcsAlertTextEl) {
                 if (yearsToPcs > 0) {
-                    pcsAlertTextEl.innerHTML = `<strong>🔧 パワコン更新アラート:</strong> 経過年数（稼働${startYear}年）に基づき、<strong>あと${yearsToPcs}年でパワーコンディショナ（PCS）の推奨交換時期（稼働後${pcsYear}年）</strong>に達します。交換費用（推定${Math.round(calculatedPcsCost).toLocaleString()}万円〜）の準備をご検討ください。`;
+                    pcsAlertTextEl.innerHTML = `<strong>🔧 パワコン更新アラート:</strong> 経過年数（稼働${startYear.toFixed(1)}年）に基づき、<strong>あと${yearsToPcs.toFixed(1)}年でパワーコンディショナ（PCS）の推奨交換時期（稼働後${pcsLimitYear.toFixed(0)}年）</strong>に達します。交換費用（推定${Math.round(calculatedPcsCost).toLocaleString()}万円〜）の準備をご検討ください。`;
                     document.getElementById('owner-pcs-alert').style.display = 'flex';
-                } else if (yearsToPcs === 0) {
-                    pcsAlertTextEl.innerHTML = `<strong>🔧 パワコン更新アラート:</strong> 本年はパワーコンディショナ（PCS）の<strong>推奨交換目安年（稼働後${pcsYear}年）</strong>です。突発的な故障リスク（現在${pcsRiskPercent}%）を回避するため、早急な一括交換をご検討ください。`;
+                } else if (Math.abs(yearsToPcs) < 0.05) {
+                    pcsAlertTextEl.innerHTML = `<strong>🔧 パワコン更新アラート:</strong> 本年はパワーコンディショナ（PCS）の<strong>推奨交換目安年（稼働後${pcsLimitYear.toFixed(0)}年）</strong>です。突発的な故障リスク（現在${pcsRiskPercent}%）を回避するため、早急な一括交換をご検討ください。`;
                     document.getElementById('owner-pcs-alert').style.display = 'flex';
                 } else {
                     const overYears = Math.abs(yearsToPcs);
-                    pcsAlertTextEl.innerHTML = `<strong>🔧 パワコン更新アラート:</strong> パワーコンディショナ（PCS）の<strong>推奨交換目安年（稼働後${pcsYear}年）をすでに${overYears}年超過</strong>しています。突発故障確率が<strong>${pcsRiskPercent}%</strong>と極めて高いため、早急な一括交換またはリパワリングをご検討ください。`;
+                    pcsAlertTextEl.innerHTML = `<strong>🔧 パワコン更新アラート:</strong> パワーコンディショナ（PCS）の<strong>推奨交換目安年（稼働後${pcsLimitYear.toFixed(0)}年）をすでに${overYears.toFixed(1)}年超過</strong>しています。突発故障確率が<strong>${pcsRiskPercent}%</strong>と極めて高いため、早急な一括交換またはリパワリングをご検討ください。`;
                     document.getElementById('owner-pcs-alert').style.display = 'flex';
                 }
             }
@@ -4094,10 +4095,10 @@
             const fitAlertTextEl = document.getElementById('owner-fit-alert-text');
             if (fitAlertTextEl) {
                 if (remainingFitYears > 0) {
-                    fitAlertTextEl.innerHTML = `<strong>ℹ️ FIT終了アラート:</strong> 本発電所は稼働${startYear}年目であり、<strong>あと${remainingFitYears}年（${remainingFitMonths}ヶ月）でFIT買取期間が終了（卒FIT）</strong>します。買取単価の下落に備え、リパワリングによるFIP移行等の収益対策検討をお勧めします。`;
+                    fitAlertTextEl.innerHTML = `<strong>ℹ️ FIT終了アラート:</strong> 本発電所は稼働${startYear.toFixed(1)}年目であり、<strong>あと${remainingFitYears.toFixed(1)}年（${remainingFitMonths}ヶ月）でFIT買取期間が終了（卒FIT）</strong>します。買取単価の下落に備え、リパワリングによるFIP移行等の収益対策検討をお勧めします。`;
                     document.getElementById('owner-fit-alert').style.display = 'flex';
                 } else {
-                    fitAlertTextEl.innerHTML = `<strong>ℹ️ FIT終了アラート:</strong> 本発電所は稼働${startYear}年が経過し、<strong>すでにFIT買取期間を満了（卒FIT）</strong>しています。速やかなFIP制度への移行、または自家消費・相対取引へのシフトをご検討ください。`;
+                    fitAlertTextEl.innerHTML = `<strong>ℹ️ FIT終了アラート:</strong> 本発電所は稼働${startYear.toFixed(1)}年が経過し、<strong>すでにFIT買取期間を満了（卒FIT）</strong>しています。速やかなFIP制度への移行、または自家消費・相対取引へのシフトをご検討ください。`;
                     document.getElementById('owner-fit-alert').style.display = 'flex';
                 }
             }
