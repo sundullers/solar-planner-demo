@@ -1539,12 +1539,12 @@
                     </div>
 
                     <!-- ハザードアラート ＆ レーダーチャートの横並び -->
-                    <div style="display: flex; gap: 15px; align-items: stretch; justify-content: space-between; flex-wrap: wrap;">
-                        <div class="alert-box" id="hazard-alert" style="margin-bottom: 0; flex-grow: 1; min-width: 250px; display: flex; align-items: center;">
+                    <div style="display: flex; gap: 15px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+                        <div class="alert-box" id="hazard-alert" style="margin-bottom: 0; flex: 1 1 450px; display: flex; align-items: center;">
                             <span class="alert-icon">!</span>
                             <span id="hazard-alert-text" style="font-size: 0.82rem; line-height: 1.5;"><strong>ハザードリスク情報:</strong> 吉野川洪水浸水想定区域（浸水深0.5m〜1.0m）に近接。浸水時の架台かさ上げ等の対策を推奨。</span>
                         </div>
-                        <div class="hazard-radar-container" id="hazard-radar-container-el" style="display: none;">
+                        <div class="hazard-radar-container" id="hazard-radar-container-el" style="display: none; flex-shrink: 0;">
                             <canvas id="hazardRadarChart"></canvas>
                         </div>
                     </div>
