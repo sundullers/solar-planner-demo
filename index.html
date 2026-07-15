@@ -1673,7 +1673,7 @@
                 <label class="switch-wrap">
                     <input type="checkbox" id="fp-hazard-checkbox" checked onchange="toggleHazardSwitch()">
                     <span class="switch-slider"></span>
-                    <span style="margin-left: 10px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary);">⚠️ ハザードリスク連動（撤去費+50万円加算、保険料上乗せ）を適用する</span>
+                    <span id="fp-hazard-toggle-label" style="margin-left: 10px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary);">⚠️ ハザードリスク連動（撤去費+50万円加算、保険料上乗せ）を適用する</span>
                 </label>
             </div>
 
@@ -3209,6 +3209,20 @@
             // ハザード警告テキストの更新
             document.getElementById('hazard-alert-text').innerHTML = `<strong>ハザードリスク情報:</strong> ${data.hazard}`;
             const alertBox = document.getElementById('hazard-alert');
+            
+            // トグル説明ラベルの動的更新
+            const toggleLabel = document.getElementById('fp-hazard-toggle-label');
+            if (toggleLabel) {
+                if (data.hazard.includes("土砂") || data.hazard.includes("イエロー")) {
+                    toggleLabel.innerText = "⚠️ ハザードリスク連動（撤去費+50万円加算、保険料上乗せ）を適用する";
+                } else if (data.hazard.includes("洪水") || data.hazard.includes("浸水")) {
+                    toggleLabel.innerText = "⚠️ ハザードリスク連動（撤去費+30万円加算、保険料上乗せ、初期対策費+100万円）を適用する";
+                } else if (data.hazard.includes("塩害") || data.hazard.includes("海岸")) {
+                    toggleLabel.innerText = "⚠️ ハザードリスク連動（沿岸塩害エリア・機器寿命影響考慮）を適用する";
+                } else {
+                    toggleLabel.innerText = "⚠️ ハザードリスク連動（該当する重大なハザードリスクなし）";
+                }
+            }
             
             if (data.hazard.includes("警戒")) {
                 alertBox.style.background = "rgba(239, 68, 68, 0.08)";
