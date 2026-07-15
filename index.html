@@ -1126,15 +1126,15 @@
 
         /* ハザード警告アコーディオン内の「動的レーダーチャート」 */
         .hazard-radar-container {
-            width: 250px;
-            height: 250px;
+            width: 270px;
+            height: 220px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(15, 23, 42, 0.2);
+            background: rgba(15, 23, 42, 0.45);
             border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.05);
-            padding: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 10px;
             position: relative;
             flex-shrink: 0;
         }
@@ -2666,31 +2666,48 @@
                 datasets: [{
                     label: 'リスク評価',
                     data: [floodVal, landslideVal, windVal, saltVal, earthquakeVal],
-                    backgroundColor: 'rgba(239, 68, 68, 0.15)',
-                    borderColor: '#ef4444',
-                    borderWidth: 2,
-                    pointBackgroundColor: '#ef4444',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
+                    backgroundColor: 'rgba(248, 113, 113, 0.3)', // 光彩感のある塗りつぶし
+                    borderColor: '#f87171', // 明るく見やすいネオンレッドの輪郭線
+                    borderWidth: 3, // 線の太さをアップ
+                    pointBackgroundColor: '#ffffff', // プロット点をくっきりした白丸にする
+                    pointBorderColor: '#ef4444',
+                    pointBorderWidth: 2,
+                    pointRadius: 4.5,
+                    pointHoverBackgroundColor: '#ffffff',
                     pointHoverBorderColor: '#ef4444'
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                layout: {
+                    padding: 15 // ラベルの見切れを完全に防ぐパディング
+                },
                 plugins: {
                     legend: { display: false }
                 },
                 scales: {
                     r: {
-                        grid: { color: 'rgba(255,255,255,0.06)' },
-                        angleLines: { color: 'rgba(255,255,255,0.08)' },
-                        ticks: { display: false, stepSize: 1 },
+                        grid: { 
+                            color: 'rgba(255,255,255,0.22)', // 目立ちやすい明るい同心円
+                            lineWidth: 1
+                        },
+                        angleLines: { 
+                            color: 'rgba(255,255,255,0.25)', // 放射状の基準線
+                            lineWidth: 1
+                        },
+                        ticks: { 
+                            display: false, 
+                            stepSize: 1 
+                        },
                         min: 0,
                         max: 5,
                         pointLabels: {
-                            color: '#94a3b8',
-                            font: { size: 9, weight: 'bold' }
+                            color: '#ffffff', // はっきりと見える純白の文字
+                            font: { 
+                                size: 10.5, 
+                                weight: 'bold' 
+                            }
                         }
                     }
                 }
