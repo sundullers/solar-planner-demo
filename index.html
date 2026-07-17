@@ -2263,10 +2263,11 @@
             console.error("Failed to preload Tokushima solar data:", error);
         }
     }
-    preloadTokushimaData();
+    const tokushimaPreloadPromise = preloadTokushimaData();
 
     // 状態管理
     let currentMode = 'standard';
+    let currentLoadingAssetId = ''; // レースコンディション（競合）対策用
     let isCalibrated = false;
     let calDegradation = 0.005; // 劣化率
     let calLoss = 0.0; // 影等のその他の損失
@@ -2598,10 +2599,19 @@
     }
 
     // ギミック4: ハザードリスク警告内の「動的レーダーチャート」
-    function drawHazardRadarChart(hazardText) {
+    function drawHazardRadarChart(hazardInput) {
         const ctxRadar = document.getElementById('hazardRadarChart');
         const container = document.getElementById('hazard-radar-container-el');
         if (!ctxRadar || !container) return;
+        
+        let hazardText = "";
+        let radarScores = null;
+        if (hazardInput && typeof hazardInput === 'object') {
+            hazardText = hazardInput.hazard || "";
+            radarScores = hazardInput.radar_scores || null;
+        } else {
+            hazardText = hazardInput || "";
+        }
         
         // ハザード危険度プロットデータの初期化
         let floodVal = 1;  // 洪水・浸水
@@ -2612,36 +2622,48 @@
         
         let hasRealRisk = false;
         
-        // ハザード警告テキストからリスクを動的にパース
-        const txt = hazardText || "";
-        
         // 安全・リスク極小のキーワードが含まれる場合はハザード表示を即座に非表示にしてスキップ
-        if (txt.includes("区域外") || txt.includes("リスクは極めて低い") || txt.includes("リスク極低") || txt.includes("想定外")) {
+        if (hazardText.includes("区域外") || hazardText.includes("リスクは極めて低い") || hazardText.includes("リスク極低") || hazardText.includes("想定外")) {
             container.style.display = 'none';
             return;
         }
-        if (txt.includes("洪水") || txt.includes("浸水")) {
-            floodVal = txt.includes("3.0m") ? 5.0 : (txt.includes("1.0m") ? 4.0 : 3.0);
-            hasRealRisk = true;
-        }
-        if (txt.includes("土砂") || txt.includes("レッド")) {
-            landslideVal = 5.0;
-            hasRealRisk = true;
-        } else if (txt.includes("イエロー")) {
-            landslideVal = 3.5;
-            hasRealRisk = true;
-        }
-        if (txt.includes("塩害") || txt.includes("海岸")) {
-            saltVal = txt.includes("重塩害") ? 5.0 : 3.5;
-            hasRealRisk = true;
-        }
-        if (txt.includes("地震") || txt.includes("南海")) {
-            earthquakeVal = 4.0;
-            hasRealRisk = true;
-        }
-        if (txt.includes("強風") || txt.includes("台風")) {
-            windVal = 3.5;
-            hasRealRisk = true;
+        
+        if (radarScores) {
+            floodVal = radarScores.flood || 1;
+            landslideVal = radarScores.landslide || 1;
+            saltVal = radarScores.salt || 1;
+            windVal = radarScores.wind || 1.5;
+            earthquakeVal = radarScores.earthquake || 2;
+            
+            if (floodVal > 1.1 || landslideVal > 1.1 || saltVal > 1.1 || windVal > 1.6 || earthquakeVal > 2.1) {
+                hasRealRisk = true;
+            }
+        } else {
+            // ハザード警告テキストからリスクを動的にパース
+            const txt = hazardText;
+            if (txt.includes("洪水") || txt.includes("浸水")) {
+                floodVal = txt.includes("3.0m") ? 5.0 : (txt.includes("1.0m") ? 4.0 : 3.0);
+                hasRealRisk = true;
+            }
+            if (txt.includes("土砂") || txt.includes("レッド")) {
+                landslideVal = 5.0;
+                hasRealRisk = true;
+            } else if (txt.includes("イエロー")) {
+                landslideVal = 3.5;
+                hasRealRisk = true;
+            }
+            if (txt.includes("塩害") || txt.includes("海岸")) {
+                saltVal = txt.includes("重塩害") ? 5.0 : 3.5;
+                hasRealRisk = true;
+            }
+            if (txt.includes("地震") || txt.includes("南海")) {
+                earthquakeVal = 4.0;
+                hasRealRisk = true;
+            }
+            if (txt.includes("強風") || txt.includes("台風")) {
+                windVal = 3.5;
+                hasRealRisk = true;
+            }
         }
         
         // 危険度が標準を上回る場合はレーダーチャートコンテナを表示
@@ -3144,8 +3166,62 @@
         updateSimulation();
     }
 
+    // 静的データに基づくハザード情報の適用（APIフェッチ失敗時のフォールバック用）
+    function applyStaticHazardFallback(data) {
+        const alertBox = document.getElementById('hazard-alert');
+        const iconElStatic = alertBox?.querySelector('.asset-alert-icon');
+        const togglePanelStatic = document.getElementById('fp-hazard-toggle-panel');
+        const toggleLabel = document.getElementById('fp-hazard-toggle-label');
+        
+        if (!alertBox) return;
+        
+        document.getElementById('hazard-alert-text').innerHTML = `<strong>ハザードリスク情報:</strong> ${data.hazard}`;
+        
+        if (toggleLabel) {
+            if (data.hazard.includes("土砂") || data.hazard.includes("イエロー")) {
+                toggleLabel.innerText = "⚠️ ハザードリスク連動（撤去費+50万円加算、保険料上乗せ）を適用する";
+            } else if (data.hazard.includes("洪水") || data.hazard.includes("浸水")) {
+                toggleLabel.innerText = "⚠️ ハザードリスク連動（撤去費+30万円加算、保険料上乗せ、初期対策費+100万円）を適用する";
+            } else if (data.hazard.includes("塩害") || data.hazard.includes("海岸")) {
+                toggleLabel.innerText = "⚠️ ハザードリスク連動（沿岸塩害エリア・機器寿命影響考慮）を適用する";
+            } else {
+                toggleLabel.innerText = "⚠️ ハザードリスク連動（該当する重大なハザードリスクなし）";
+            }
+        }
+        
+        const isSafeStatic = data.hazard.includes("区域外") || data.hazard.includes("リスクは極めて低いです") || data.hazard.includes("リスクは極めて低い") || data.hazard.includes("リスク極低") || data.hazard.includes("想定外");
+        
+        if (!isSafeStatic) {
+            alertBox.style.display = 'flex';
+            alertBox.className = "owner-only asset-alert-box asset-alert-warning";
+            if (iconElStatic) {
+                iconElStatic.className = "asset-alert-icon warning";
+                iconElStatic.innerText = "!";
+            }
+            if (togglePanelStatic) togglePanelStatic.style.display = 'block';
+            if (currentMode === 'fp-enhanced') {
+                document.getElementById('fp-hazard-checkbox').checked = true;
+                toggleHazardSwitch();
+            }
+        } else {
+            alertBox.style.display = 'flex';
+            alertBox.className = "owner-only asset-alert-box asset-alert-success";
+            if (iconElStatic) {
+                iconElStatic.className = "asset-alert-icon success";
+                iconElStatic.innerText = "!";
+            }
+            if (togglePanelStatic) togglePanelStatic.style.display = 'none';
+            if (currentMode === 'fp-enhanced') {
+                document.getElementById('fp-hazard-checkbox').checked = false;
+                toggleHazardSwitch();
+            }
+        }
+        drawHazardRadarChart(data.hazard);
+        updateSimulation();
+    }
+
     // デモデータのロード
-    function loadDemoData() {
+    function loadDemoData(customCoords) {
         closeDrilldownPopup(); // アセット変更時に古いポップアップを閉じる
         // オプションのリセット
         document.getElementById('fip-checkbox').checked = false;
@@ -3154,11 +3230,27 @@
         document.getElementById('repower-year').value = "0";
         document.getElementById('repower-year-val').innerText = "今すぐ（0年後）";
 
+        // ハザード関連UIを即座にリセット・非表示にする
+        const alertBox = document.getElementById('hazard-alert');
+        if (alertBox) alertBox.style.display = 'none';
+        const togglePanel = document.getElementById('fp-hazard-toggle-panel');
+        if (togglePanel) togglePanel.style.display = 'none';
+        const hazardCheck = document.getElementById('fp-hazard-checkbox');
+        if (hazardCheck) hazardCheck.checked = false;
+        const radarContainer = document.getElementById('hazard-radar-container-el');
+        if (radarContainer) radarContainer.style.display = 'none';
+
         const id = document.getElementById('solar-id').value;
+        currentLoadingAssetId = id; // 最新のロード中アセットIDを記録
         
         let data = getSolarData(id);
 
         if (data) {
+            // URLから引き継がれた座標があれば適用
+            if (customCoords) {
+                data.lat = customCoords.lat;
+                data.lng = customCoords.lng;
+            }
             const remainingYears = Math.max(1, Math.round(20 - data.elapsedYears));
             const simYearsSelect = document.getElementById('sim-years');
             if (simYearsSelect) {
@@ -3181,44 +3273,92 @@
             document.getElementById('spec-years').innerHTML = `${data.elapsedYears}年<span class="spec-unit">/ 残り${20 - data.elapsedYears}年</span>`;
             document.getElementById('spec-years-sub').innerHTML = `終了年月:<br>${data.fitEndDate}`;
             
-            // ハザード警告テキストの更新
-            document.getElementById('hazard-alert-text').innerHTML = `<strong>ハザードリスク情報:</strong> ${data.hazard}`;
+            // API結果待ち中の中立ローディング初期表示
             const alertBox = document.getElementById('hazard-alert');
+            const iconElStatic = alertBox?.querySelector('.asset-alert-icon');
+            const togglePanelStatic = document.getElementById('fp-hazard-toggle-panel');
             
-            // トグル説明ラベルの動的更新
+            if (alertBox) {
+                document.getElementById('hazard-alert-text').innerHTML = `<strong>ハザードリスク情報:</strong> 🔍 リアルタイム国土交通省GISハザード情報を照会中...`;
+                alertBox.style.display = 'flex';
+                alertBox.className = "owner-only asset-alert-box asset-alert-info"; // 中立な青色
+                if (iconElStatic) {
+                    iconElStatic.className = "asset-alert-icon info";
+                    iconElStatic.innerText = "i";
+                }
+            }
+            
             const toggleLabel = document.getElementById('fp-hazard-toggle-label');
             if (toggleLabel) {
-                if (data.hazard.includes("土砂") || data.hazard.includes("イエロー")) {
-                    toggleLabel.innerText = "⚠️ ハザードリスク連動（撤去費+50万円加算、保険料上乗せ）を適用する";
-                } else if (data.hazard.includes("洪水") || data.hazard.includes("浸水")) {
-                    toggleLabel.innerText = "⚠️ ハザードリスク連動（撤去費+30万円加算、保険料上乗せ、初期対策費+100万円）を適用する";
-                } else if (data.hazard.includes("塩害") || data.hazard.includes("海岸")) {
-                    toggleLabel.innerText = "⚠️ ハザードリスク連動（沿岸塩害エリア・機器寿命影響考慮）を適用する";
-                } else {
-                    toggleLabel.innerText = "⚠️ ハザードリスク連動（該当する重大なハザードリスクなし）";
-                }
+                toggleLabel.innerText = "⚠️ ハザードリスク連動情報を照会中...";
+            }
+            if (togglePanelStatic) togglePanelStatic.style.display = 'none';
+            if (currentMode === 'fp-enhanced') {
+                const hzCheck = document.getElementById('fp-hazard-checkbox');
+                if (hzCheck) hzCheck.checked = false; // 一旦チェックをOFFにして中立化
+                toggleHazardSwitch(); // 撤去費連動を一旦リセット
+            }
+
+            // 非同期でリアルタイム GIS ハザード判定 API をフェッチ
+            const address = data.location || "";
+            let url = `/api/hazard?address=${encodeURIComponent(address)}`;
+            if (data.lat !== undefined && data.lng !== undefined) {
+                url += `&lat=${data.lat}&lng=${data.lng}`;
             }
             
-            const isSafe = data.hazard.includes("区域外") || data.hazard.includes("リスクは極めて低い") || data.hazard.includes("リスク極低");
-            if (!isSafe) {
-                alertBox.style.display = 'flex';
-                alertBox.style.background = "rgba(239, 68, 68, 0.08)";
-                alertBox.style.borderLeft = "4px solid #ef4444";
-                alertBox.style.borderTop = "1px solid rgba(239, 68, 68, 0.15)";
-                alertBox.style.borderRight = "1px solid rgba(239, 68, 68, 0.15)";
-                alertBox.style.borderBottom = "1px solid rgba(239, 68, 68, 0.15)";
-                alertBox.style.color = "#ffecd5";
-                const iconEl = alertBox.querySelector('.asset-alert-icon');
-                if (iconEl) iconEl.style.background = "#ef4444";
-                if (currentMode === 'fp-enhanced') {
-                    document.getElementById('fp-hazard-checkbox').checked = true;
-                }
-            } else {
-                alertBox.style.display = 'none';
-                if (currentMode === 'fp-enhanced') {
-                    document.getElementById('fp-hazard-checkbox').checked = false; // 警戒区域外なら連動OFF
-                }
-            }
+            fetch(url)
+                .then(res => {
+                    if (!res.ok) throw new Error("API response error");
+                    return res.json();
+                })
+                .then(resData => {
+                    // レースコンディション対策: 応答が返ってきた時点で別のアセットに切り替わっていれば処理を破棄
+                    if (id !== currentLoadingAssetId) {
+                        console.log(`[API Response Bypass] Ignored stale response for ${id} (current: ${currentLoadingAssetId})`);
+                        return;
+                    }
+                    if (resData) {
+                        // ハザード警告テキストの更新
+                        document.getElementById('hazard-alert-text').innerHTML = `<strong>ハザードリスク情報:</strong> ${resData.hazard}`;
+                        const iconEl = alertBox.querySelector('.asset-alert-icon');
+                        const togglePanel = document.getElementById('fp-hazard-toggle-panel');
+                        
+                        if (!resData.is_safe) {
+                            alertBox.style.display = 'flex';
+                            alertBox.className = "owner-only asset-alert-box asset-alert-warning";
+                            if (iconEl) {
+                                iconEl.className = "asset-alert-icon warning";
+                                iconEl.innerText = "!";
+                            }
+                            if (togglePanel) togglePanel.style.display = 'block';
+                            if (currentMode === 'fp-enhanced') {
+                                document.getElementById('fp-hazard-checkbox').checked = true;
+                                toggleHazardSwitch(); // 撤去費連動を同期
+                            }
+                        } else {
+                            alertBox.style.display = 'flex';
+                            alertBox.className = "owner-only asset-alert-box asset-alert-success";
+                            if (iconEl) {
+                                iconEl.className = "asset-alert-icon success";
+                                iconEl.innerText = "!";
+                            }
+                            if (togglePanel) togglePanel.style.display = 'none';
+                            if (currentMode === 'fp-enhanced') {
+                                document.getElementById('fp-hazard-checkbox').checked = false;
+                                toggleHazardSwitch(); // 撤去費連動を同期
+                            }
+                        }
+                        
+                        // レーダーチャートの描画
+                        drawHazardRadarChart(resData);
+                        updateSimulation();
+                    }
+                })
+                .catch(err => {
+                    console.warn("Fallback to static hazard logic:", err);
+                    // エラー時はフォールバックで静的描画
+                    applyStaticHazardFallback(data);
+                });
 
             // FIT売電単価スライダーの初期値をデモデータから自動セット
             document.getElementById('fit-price').value = data.fitPrice;
@@ -3356,9 +3496,6 @@
             calDegradation = 0.005;
             calLoss = 0.0;
             calRatio = 1.0;
-
-            // ハザード危険度レーダーチャートの描画呼び出し
-            drawHazardRadarChart(data.hazard);
 
             if (currentMode === 'fp-enhanced') {
                 toggleHazardSwitch();
@@ -4473,20 +4610,31 @@
         
         // ハザードアラート状態チェック
         if (hazardAlert && hazardAlert.style.display !== 'none') {
-            // シンプルバージョン（standard）時はhazard-alertが表示されている
-            // 詳細バージョン（fp-enhanced）時もトグルONなら表示される
             const isHazardVisible = window.getComputedStyle(hazardAlert).display !== 'none';
-            if (isHazardVisible) {
+            const isWarning = hazardAlert.classList.contains('asset-alert-warning');
+            if (isHazardVisible && isWarning) {
                 count++;
                 hasWarning = true;
             }
         }
         
+        const content = document.getElementById('alert-details-content');
+        const arrow = document.getElementById('alert-summary-arrow');
+        
         if (count === 0) {
             summaryContainer.style.display = 'none';
+            if (content) content.style.display = 'none';
+            if (arrow) arrow.style.transform = 'rotate(0deg)';
+            if (summaryHeader) summaryHeader.style.background = 'rgba(245, 158, 11, 0.08)';
         } else {
             summaryContainer.style.display = 'block';
             summaryTitle.innerText = `発電所に関するステータス・警告（${count}件）があります（クリックで展開）`;
+            
+            // 自動展開：警告が存在する場合はアコーディオンを自動で開く
+            if (content) content.style.display = 'flex';
+            if (arrow) arrow.style.transform = 'rotate(180deg)';
+            if (summaryHeader) summaryHeader.style.background = 'rgba(245, 158, 11, 0.15)';
+            
             if (hasWarning) {
                 summaryIcon.innerText = '⚠️';
                 summaryTitle.style.color = '#fbbf24';
@@ -4713,14 +4861,39 @@
         }
     }
 
+    function applyUrlParameters() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const idParam = urlParams.get('id');
+        const latParam = urlParams.get('lat');
+        const lngParam = urlParams.get('lng');
+        
+        if (idParam) {
+            const solarIdInput = document.getElementById('solar-id');
+            if (solarIdInput) {
+                solarIdInput.value = idParam;
+            }
+        }
+        
+        let customCoords = null;
+        if (latParam && lngParam) {
+            const parsedLat = parseFloat(latParam);
+            const parsedLng = parseFloat(lngParam);
+            if (!isNaN(parsedLat) && !isNaN(parsedLng)) {
+                customCoords = { lat: parsedLat, lng: parsedLng };
+            }
+        }
+        loadDemoData(customCoords);
+    }
+
     // 起動処理
-    window.onload = function() {
+    window.onload = async function() {
         const today = new Date();
         document.getElementById('current-date').innerText = today.toISOString().split('T')[0];
         document.getElementById('pdf-current-date').innerText = today.toISOString().split('T')[0];
         
         initCharts();
-        loadDemoData();
+        await tokushimaPreloadPromise;
+        applyUrlParameters();
         switchMode('fp-enhanced'); // 初期状態はブラッシュアップ版（FP拡張）
     };
 
