@@ -3506,9 +3506,10 @@
 
             // 想定撤去・解体費用の初期値を発電所規模とハザードリスクに応じて自動計算
             let tempHazardSurcharge = 0;
-            if (data.hazard.includes("土砂") || data.hazard.includes("イエロー")) {
+            const currentHazardText = document.getElementById('hazard-alert-text')?.innerText || data.hazard;
+            if (currentHazardText.includes("土砂") || currentHazardText.includes("イエロー")) {
                 tempHazardSurcharge = 50;
-            } else if (data.hazard.includes("洪水") || data.hazard.includes("浸水")) {
+            } else if (currentHazardText.includes("洪水") || currentHazardText.includes("浸水")) {
                 tempHazardSurcharge = 30;
             }
             const isHazardChecked = document.getElementById('fp-hazard-checkbox')?.checked || false;
@@ -3746,16 +3747,17 @@
         let hazardInitialMitigationCost = 0; // 初期対策費用（架台かさ上げ等）
         
         if (currentMode === 'fp-enhanced' && document.getElementById('fp-hazard-checkbox').checked) {
-            const hasLandslide = data.hazard.includes("土砂") || data.hazard.includes("イエロー") || data.hazard.includes("レッド");
-            const hasFlood = data.hazard.includes("洪水") || data.hazard.includes("浸水");
+            const currentHazardText = document.getElementById('hazard-alert-text')?.innerText || data.hazard;
+            const hasLandslide = currentHazardText.includes("土砂") || currentHazardText.includes("イエロー") || currentHazardText.includes("レッド");
+            const hasFlood = currentHazardText.includes("洪水") || currentHazardText.includes("浸水");
             
-            if (hasLandslide) {
-                // 撤予備費50万円はUI側イベントでdecomCostに自動加算・同期されます
-                hazardInsuranceSurcharge = 5; // 想定保険料年5万円アップ
-            } else if (hasFlood) {
-                // 水害用撤去予備費30万円はUI側イベントでdecomCostに自動加算・同期されます
+            if (hasFlood) {
+                // 水害用撤去予備費30万円（土砂と重複時は50万円）はUI側イベントでdecomCostに自動加算・同期されます
                 hazardInsuranceSurcharge = 8; // 水災特約追加による想定保険料年8万円アップ
                 hazardInitialMitigationCost = 100; // 浸水対策（架台かさ上げ工事）費用100万円
+            } else if (hasLandslide) {
+                // 撤予備費50万円はUI側イベントでdecomCostに自動加算・同期されます
+                hazardInsuranceSurcharge = 5; // 想定保険料年5万円アップ
             }
         }
 
