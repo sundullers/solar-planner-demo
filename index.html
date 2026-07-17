@@ -3168,17 +3168,24 @@
     }
 
     // 国土地理院「重ねるハザードマップ」への直接リンクURLを動的生成
-    function getGsiHazardMapUrl(lat, lng, hazardType) {
+    function getGsiHazardMapUrl(lat, lng, hazardText) {
         let ls = "";
         let disp = "";
         let vs = "c1j0l0u0t0h0z0"; // 標準ベース
         
-        if (hazardType === 'landslide') {
-            // 土砂災害を自動ONにするパラメータ
+        const hasLandslide = hazardText.includes("土砂") || hazardText.includes("イエロー");
+        const hasFlood = hazardText.includes("洪水") || hazardText.includes("浸水");
+        
+        if (hasLandslide && hasFlood) {
+            // 土砂と洪水のダブルハザード（両方ON）
+            ls = "seamless|tameike_raster,0.8|naisui_raster,0.8|flood_l2_kaokutoukai_kagan,0.8|flood_l2_kaokutoukai_hanran,0.8|flood_l2_keizoku,0.8|flood_list,0.8|flood_l1,0.8|flood_list_l2,0.75|dosha_kiken_nadare,0.8|dosha_keikai_jisuberi,0.8|dosha_keikai_dosekiryu,0.8|dosha_keikai_kyukeisha,0.8|disaster1|disaster2";
+            disp = "011000001011100";
+        } else if (hasLandslide) {
+            // 土砂災害のみ自動ON
             ls = "seamless|dosha_kiken_nadare,0.8|dosha_keikai_jisuberi,0.8|dosha_keikai_dosekiryu,0.8|dosha_keikai_kyukeisha,0.8|disaster2";
             disp = "001110";
         } else {
-            // 洪水浸水想定を自動ONにするパラメータ (デフォルト)
+            // 洪水浸水想定のみ自動ON (デフォルト)
             ls = "seamless|tameike_raster,0.8|naisui_raster,0.8|flood_l2_kaokutoukai_kagan,0.8|flood_l2_kaokutoukai_hanran,0.8|flood_l2_keizoku,0.8|flood_list,0.8|flood_l1,0.8|flood_list_l2,0.75|disaster1";
             disp = "0110000010";
         }
@@ -3197,9 +3204,7 @@
         
         let alertHtml = `<strong>ハザードリスク情報:</strong> ${data.hazard}`;
         if (data.lat && data.lng) {
-            const hazardType = (data.hazard.includes("土砂") || data.hazard.includes("イエロー")) ? "landslide" : 
-                               (data.hazard.includes("洪水") || data.hazard.includes("浸水")) ? "flood" : "none";
-            const mapUrl = getGsiHazardMapUrl(data.lat, data.lng, hazardType);
+            const mapUrl = getGsiHazardMapUrl(data.lat, data.lng, data.hazard);
             alertHtml += `<br><a href="${mapUrl}" target="_blank" style="display: inline-flex; align-items: center; gap: 4px; color: #60a5fa; text-decoration: underline; font-weight: bold; font-size: 0.8rem; margin-top: 6px;" onmouseover="this.style.color='#93c5fd'" onmouseout="this.style.color='#60a5fa'">🗺️ 国土地理院「重ねるハザードマップ」で詳細位置を確認する ↗</a>`;
         }
         document.getElementById('hazard-alert-text').innerHTML = alertHtml;
@@ -3362,7 +3367,7 @@
                         // ハザード警告テキストの更新
                         let alertHtml = `<strong>ハザードリスク情報:</strong> ${resData.hazard}`;
                         if (resData.lat && resData.lng) {
-                            const mapUrl = getGsiHazardMapUrl(resData.lat, resData.lng, resData.hazard_type);
+                            const mapUrl = getGsiHazardMapUrl(resData.lat, resData.lng, resData.hazard);
                             alertHtml += `<br><a href="${mapUrl}" target="_blank" style="display: inline-flex; align-items: center; gap: 4px; color: #60a5fa; text-decoration: underline; font-weight: bold; font-size: 0.8rem; margin-top: 6px;" onmouseover="this.style.color='#93c5fd'" onmouseout="this.style.color='#60a5fa'">🗺️ 国土地理院「重ねるハザードマップ」で詳細位置を確認する ↗</a>`;
                         }
                         document.getElementById('hazard-alert-text').innerHTML = alertHtml;
