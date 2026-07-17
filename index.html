@@ -3034,9 +3034,10 @@
         const data = getSolarData(id);
         if (data) {
             let tempHazardSurcharge = 0;
-            if (data.hazard.includes("土砂") || data.hazard.includes("イエロー")) {
+            const currentHazardText = document.getElementById('hazard-alert-text')?.innerText || data.hazard;
+            if (currentHazardText.includes("土砂") || currentHazardText.includes("イエロー")) {
                 tempHazardSurcharge = 50;
-            } else if (data.hazard.includes("洪水") || data.hazard.includes("浸水")) {
+            } else if (currentHazardText.includes("洪水") || currentHazardText.includes("浸水")) {
                 tempHazardSurcharge = 30;
             }
             const calcDecomCost = Math.round(50 + (data.panelCapacity * 1.0) + (isChecked ? tempHazardSurcharge : 0));
