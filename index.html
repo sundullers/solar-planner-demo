@@ -4630,10 +4630,16 @@
             summaryContainer.style.display = 'block';
             summaryTitle.innerText = `発電所に関するステータス・警告（${count}件）があります（クリックで展開）`;
             
-            // 自動展開：警告が存在する場合はアコーディオンを自動で開く
-            if (content) content.style.display = 'flex';
-            if (arrow) arrow.style.transform = 'rotate(180deg)';
-            if (summaryHeader) summaryHeader.style.background = 'rgba(245, 158, 11, 0.15)';
+            // 強制的な自動展開は行わず、現在のアコーディオン開閉状態（display）に応じたスタイル同期のみを行う
+            if (content && arrow && summaryHeader) {
+                if (content.style.display === 'flex') {
+                    arrow.style.transform = 'rotate(180deg)';
+                    summaryHeader.style.background = 'rgba(245, 158, 11, 0.15)';
+                } else {
+                    arrow.style.transform = 'rotate(0deg)';
+                    summaryHeader.style.background = 'rgba(245, 158, 11, 0.08)';
+                }
+            }
             
             if (hasWarning) {
                 summaryIcon.innerText = '⚠️';
