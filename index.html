@@ -3169,17 +3169,21 @@
 
     // 国土地理院「重ねるハザードマップ」への直接リンクURLを動的生成
     function getGsiHazardMapUrl(lat, lng, hazardType) {
-        let vs = "c1j0l0u0t0h0z0"; // デフォルト: 洪水ON
+        let ls = "";
+        let disp = "";
+        let vs = "c1j0l0u0t0h0z0"; // 標準ベース
+        
         if (hazardType === 'landslide') {
-            vs = "c0j0l3u0t0h0z0"; // 土砂災害ON
-        } else if (hazardType === 'flood') {
-            vs = "c1j0l0u0t0h0z0"; // 洪水ON
-        } else if (hazardType === 'salt') {
-            vs = "c0j0l0u0t0h0z0"; // 塩害は重ね合わせがないのでレイヤーなし
+            // 土砂災害を自動ONにするパラメータ
+            ls = "seamless|dosha_kiken_nadare,0.8|dosha_keikai_jisuberi,0.8|dosha_keikai_dosekiryu,0.8|dosha_keikai_kyukeisha,0.8|disaster2";
+            disp = "001110";
         } else {
-            vs = "c1j0l3u0t0h0z0"; // 警告がない場合は洪水と土砂の両方をONに設定
+            // 洪水浸水想定を自動ONにするパラメータ (デフォルト)
+            ls = "seamless|tameike_raster,0.8|naisui_raster,0.8|flood_l2_kaokutoukai_kagan,0.8|flood_l2_kaokutoukai_hanran,0.8|flood_l2_keizoku,0.8|flood_list,0.8|flood_l1,0.8|flood_list_l2,0.75|disaster1";
+            disp = "0110000010";
         }
-        return `https://disaportal.gsi.go.jp/hazardmap/maps/index.html?ll=${lat},${lng}&z=15&base=pale&vs=${vs}`;
+        
+        return `https://disaportal.gsi.go.jp/hazardmap/maps/index.html?ll=${lat},${lng}&z=15&base=pale&ls=${encodeURIComponent(ls)}&disp=${disp}&vs=${vs}`;
     }
 
     // 静的データに基づくハザード情報の適用（APIフェッチ失敗時のフォールバック用）
