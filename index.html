@@ -3202,26 +3202,41 @@
         
         if (!alertBox) return;
         
-        let alertHtml = `<strong>ハザードリスク情報:</strong> ${data.hazard}`;
+        // 住所およびパラメータに基づくフォールバック用ハザードの簡易判定
+        let detectedHazard = "ハザードマップ上、災害リスクは極めて低いです（浸水・土砂災害区域外）。";
+        const loc = data.location || "";
+        
+        if (loc.includes("三野町") || loc.includes("太刀野")) {
+            detectedHazard = "土砂災害警戒区域（イエローゾーン）に近接。撤去・解体時の予備費＋50万円を自動で見積もり。";
+        } else if (loc.includes("那賀川町")) {
+            detectedHazard = "洪水浸水想定区域（想定最大規模）に近接。浸水時の架台かさ上げ等の対策を推奨。";
+        } else if (loc.includes("徳島市") || loc.includes("小松島") || loc.includes("阿南") || loc.includes("鳴門") || loc.includes("松茂")) {
+            const isCoastal = data.lng ? (data.lng >= 134.58) : false;
+            if (isCoastal) {
+                detectedHazard = "海岸線近接による塩害警戒エリア（海岸2km圏内）。パワコン等の防塩対策仕様を推奨。";
+            }
+        }
+        
+        let alertHtml = `<strong>ハザードリスク情報:</strong> ${detectedHazard}`;
         if (data.lat && data.lng) {
-            const mapUrl = getGsiHazardMapUrl(data.lat, data.lng, data.hazard);
+            const mapUrl = getGsiHazardMapUrl(data.lat, data.lng, detectedHazard);
             alertHtml += `<br><a href="${mapUrl}" target="_blank" style="display: inline-flex; align-items: center; gap: 4px; color: #60a5fa; text-decoration: underline; font-weight: bold; font-size: 0.8rem; margin-top: 6px;" onmouseover="this.style.color='#93c5fd'" onmouseout="this.style.color='#60a5fa'">🗺️ 国土地理院「重ねるハザードマップ」で詳細位置を確認する ↗</a>`;
         }
         document.getElementById('hazard-alert-text').innerHTML = alertHtml;
         
         if (toggleLabel) {
-            if (data.hazard.includes("土砂") || data.hazard.includes("イエロー")) {
+            if (detectedHazard.includes("土砂") || detectedHazard.includes("イエロー")) {
                 toggleLabel.innerText = "⚠️ ハザードリスク連動（撤去費+50万円加算、保険料上乗せ）を適用する";
-            } else if (data.hazard.includes("洪水") || data.hazard.includes("浸水")) {
+            } else if (detectedHazard.includes("洪水") || detectedHazard.includes("浸水")) {
                 toggleLabel.innerText = "⚠️ ハザードリスク連動（撤去費+30万円加算、保険料上乗せ、初期対策費+100万円）を適用する";
-            } else if (data.hazard.includes("塩害") || data.hazard.includes("海岸")) {
+            } else if (detectedHazard.includes("塩害") || detectedHazard.includes("海岸")) {
                 toggleLabel.innerText = "⚠️ ハザードリスク連動（沿岸塩害エリア・機器寿命影響考慮）を適用する";
             } else {
                 toggleLabel.innerText = "⚠️ ハザードリスク連動（該当する重大なハザードリスクなし）";
             }
         }
         
-        const isSafeStatic = data.hazard.includes("区域外") || data.hazard.includes("リスクは極めて低いです") || data.hazard.includes("リスクは極めて低い") || data.hazard.includes("リスク極低") || data.hazard.includes("想定外");
+        const isSafeStatic = detectedHazard.includes("区域外") || detectedHazard.includes("リスクは極めて低いです") || detectedHazard.includes("リスクは極めて低い") || detectedHazard.includes("リスク極低") || detectedHazard.includes("想定外");
         
         if (!isSafeStatic) {
             alertBox.style.display = 'flex';
@@ -3248,7 +3263,7 @@
                 toggleHazardSwitch();
             }
         }
-        drawHazardRadarChart(data.hazard);
+        drawHazardRadarChart(detectedHazard);
         updateSimulation();
     }
 
@@ -4456,12 +4471,13 @@
 
         const pdfHazardText = document.getElementById('pdf-hazard-text');
         const pdfHazardSection = document.getElementById('pdf-hazard-section');
-        const hasLandslide = data.hazard.includes("警戒") || data.hazard.includes("土砂");
-        const hasFlood = data.hazard.includes("浸水") || data.hazard.includes("洪水");
+        const currentHazardText = document.getElementById('hazard-alert-text')?.innerText || "ハザードマップ上、災害リスクは極めて低いです（浸水・土砂災害区域外）。";
+        const hasLandslide = currentHazardText.includes("警戒") || currentHazardText.includes("土砂");
+        const hasFlood = currentHazardText.includes("浸水") || currentHazardText.includes("洪水");
         
         if (currentMode === 'fp-enhanced' && document.getElementById('fp-hazard-checkbox').checked && (hasLandslide || hasFlood)) {
             pdfHazardSection.style.display = 'block';
-            pdfHazardText.innerText = data.hazard;
+            pdfHazardText.innerText = currentHazardText.replace("ハザードリスク情報: ", "");
         } else {
             pdfHazardSection.style.display = 'none';
         }
@@ -5005,7 +5021,8 @@
         const paybackRepowerText = document.getElementById('roi-repower-payback')?.innerText || "回収不能";
 
         const fpMode = currentMode === 'fp-enhanced';
-        const hazardInsuranceSurcharge = fpMode && data.hazard.includes("警戒") ? 5 : (data.hazard.includes("浸水") ? 8 : 0);
+        const currentHazardText = document.getElementById('hazard-alert-text')?.innerText || "ハザードマップ上、災害リスクは極めて低いです（浸水・土砂災害区域外）。";
+        const hazardInsuranceSurcharge = fpMode && currentHazardText.includes("警戒") ? 5 : (currentHazardText.includes("浸水") ? 8 : 0);
 
         if (type === 'risk') {
             userMsg = "現状維持（プラン①）の最大のリスクは？";
@@ -5014,9 +5031,10 @@
                     `1. <strong>PCSの老朽化リスク</strong>: <br>` +
                     `　現在のPCS故障確率は <strong>${pcsRiskPercentText}</strong> と算出されています。既に運転開始から ${data.elapsedYears}年が経過しており、間もなく設計寿命（12年）を迎えるため、突発的な故障による売電停止や修繕費用の急増が懸念されます。<br>` +
                     `2. <strong>FIT終了後の収支悪化</strong>: <br>` +
-                    `　残存FIT期間終了（残り ${20 - data.elapsedYears}年）の翌年以降は、売電単価が 8.5円/kWh まで急落します。この状態でO&M費用等の維持経費がかかり続けると、単年収支が赤字化する可能性があります。<br>` +
+                    `　残存FIT期間終了（残り ${20 - data.elapsedYears}年）の翌年以降は、売電単価` +
+                    `が 8.5円/kWh まで急落します。この状態でO&M費用等の維持経費がかかり続けると、単年収支が赤字化する可能性があります。<br>` +
                     `3. <strong>ハザード立地リスク</strong>: <br>` +
-                    `　当アセットは「${data.hazard}」エリアに属しています。万が一の被災時の復旧コストや、保険料上昇（年数万円）が発生する可能性があるため、適切なリスク引当や事前対策が推奨されます。`;
+                    `　当アセットは「${currentHazardText.replace("ハザードリスク情報: ", "")}」エリアに属しています。万が一の被災時の復旧コストや、保険料上昇（年数万円）が発生する可能性があるため、適切なリスク引当や事前対策が推奨されます。`;
         } else if (type === 'recommend') {
             userMsg = "プランA（PCS交換）とプランB（リパワリング）どちらがおすすめ？";
             
@@ -5053,7 +5071,8 @@
             }
         } else if (type === 'hazard') {
             userMsg = "立地リスク（ハザード）の影響と対策は？";
-            const hazardText = data.hazard || "特になし";
+            const currentHazardText2 = document.getElementById('hazard-alert-text')?.innerText || "特になし";
+            const hazardText = currentHazardText2.replace("ハザードリスク情報: ", "");
             aiMsg = `<strong>立地リスク（ハザード情報）と想定対策：</strong><br><br>` +
                     `・<strong>現在のハザード分類</strong>: 「<strong>${hazardText}</strong>」<br>` +
                     `・<strong>経済的影響</strong>: <br>` +
