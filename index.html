@@ -1061,6 +1061,48 @@
             color: var(--text-primary) !important;
         }
 
+        /* アクションボタン・AI相談ボタンの文字色を白で強制維持（背景に適合させる） */
+        body.light-mode .btn-action,
+        body.light-mode #ai-widget-toggle-btn,
+        body.light-mode .btn-action span,
+        body.light-mode #ai-widget-toggle-btn span {
+            color: #ffffff !important;
+        }
+
+        /* ツールチップ ? アイコンのライトモード対応 */
+        body.light-mode .tooltip {
+            background: #cbd5e1 !important;
+            color: #334155 !important;
+        }
+        body.light-mode .tooltip:hover {
+            background: var(--accent-color) !important;
+            color: #ffffff !important;
+        }
+        body.light-mode .tooltip::after {
+            background: var(--bg-secondary) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+        }
+
+        /* ハザード警告アコーディオン内の「動的レーダーチャート」コンテナのライトモード対応 */
+        body.light-mode .hazard-radar-container {
+            background: var(--accordion-bg) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        /* アコーディオンヘッダーの警告テキストをライトモードで見やすい濃いオレンジに上書き */
+        body.light-mode #alert-summary-header div,
+        body.light-mode #alert-summary-header span,
+        body.light-mode #alert-summary-header #alert-summary-title {
+            color: #d97706 !important;
+        }
+
+        /* アラート詳細エリア（アコーディオンの中身）の背景もライトモード対応 */
+        body.light-mode #alert-details-content {
+            background: var(--bg-primary) !important;
+        }
+
         /* 印刷レイアウト用CSS */
         .pdf-page {
             background: #fff;
@@ -5411,8 +5453,10 @@
         if (typeof hazardRadarChart !== 'undefined' && hazardRadarChart) {
             const chart = hazardRadarChart;
             if (chart.options.scales && chart.options.scales.r) {
-                chart.options.scales.r.grid.color = isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.22)';
-                chart.options.scales.r.angleLines = { color: isLight ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.25)' };
+                if (!chart.options.scales.r.grid) chart.options.scales.r.grid = {};
+                if (!chart.options.scales.r.angleLines) chart.options.scales.r.angleLines = {};
+                chart.options.scales.r.grid.color = isLight ? 'rgba(15, 23, 42, 0.15)' : 'rgba(255,255,255,0.22)';
+                chart.options.scales.r.angleLines.color = isLight ? 'rgba(15, 23, 42, 0.18)' : 'rgba(255,255,255,0.25)';
                 chart.options.scales.r.pointLabels = { 
                     color: isLight ? '#0f172a' : '#ffffff',
                     font: { size: 10.5, weight: 'bold' }
