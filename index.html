@@ -498,7 +498,7 @@
         .input-text-sub {
             width: 100%;
             padding: 6px 10px;
-            background: rgba(15, 23, 42, 0.8);
+            background: var(--input-bg);
             border: 1px solid var(--border-color);
             border-radius: 6px;
             color: var(--text-primary);
@@ -1061,9 +1061,10 @@
             color: var(--text-primary) !important;
         }
 
-        /* アクションボタン・AI相談ボタンの文字色を白で強制維持（背景に適合させる） */
+        /* アクションボタン・AI相談ボタン・AI結論バッジの文字色を白で強制維持（背景に適合させる） */
         body.light-mode .btn-action,
         body.light-mode #ai-widget-toggle-btn,
+        body.light-mode #ai-conclusion-badge,
         body.light-mode .btn-action span,
         body.light-mode #ai-widget-toggle-btn span {
             color: #ffffff !important;
