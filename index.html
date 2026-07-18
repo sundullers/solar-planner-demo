@@ -4014,7 +4014,7 @@
             }
             currentRepowerSum += (repowerIncome - repowerExpense);
             if (i >= 0 && year <= 20) {
-                const yearFreeCF_repower = (i === 0) ? ((repowerYear === 0) ? -repowerCost - (batteryActive ? batteryCost : 0) - hazardInitialMitigationCost : -(batteryActive ? batteryCost : 0) - hazardInitialMitigationCost) : (repowerIncome - repowerExpense);
+                const yearFreeCF_repower = (i === 0) ? ((repowerYear === 0) ? -repowerCost - (batteryActive ? batteryCost : 0) - hazardInitialMitigationCost : -(batteryActive ? batteryCost : 0)) : (repowerIncome - repowerExpense);
                 dcfAssetValueRepower += yearFreeCF_repower / Math.pow(1 + discountRate, i);
             }
             repowerCF.push(Math.round(currentRepowerSum));
@@ -4027,8 +4027,8 @@
             if (repowerCost === 0) {
                 repowerAnnualVal = baseAnnualVal;
             } else if (i === 0) {
-                // 0年目の初期費用。今すぐ実行ならリパワ投資額、そうでないなら蓄電池費用のみ
-                repowerAnnualVal = (repowerYear === 0) ? -repowerCost - (batteryActive ? batteryCost : 0) - hazardInitialMitigationCost : -(batteryActive ? batteryCost : 0) - hazardInitialMitigationCost;
+                // 0年目の初期費用。今すぐ実行（repowerYear === 0）ならリパワ投資額とハザード対策費、そうでないなら蓄電池費用のみ（ハザード対策は実行年に計上）
+                repowerAnnualVal = (repowerYear === 0) ? -repowerCost - (batteryActive ? batteryCost : 0) - hazardInitialMitigationCost : -(batteryActive ? batteryCost : 0);
             } else {
                 repowerAnnualVal = (repowerIncome - repowerExpense);
             }
