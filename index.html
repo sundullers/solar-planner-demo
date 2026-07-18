@@ -2026,7 +2026,7 @@
                     </div>
                     <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border-left: 4px solid var(--accent-color);">
                         <strong style="color: var(--accent-color); display: block; margin-bottom: 4px;">③ プランB：フル・リパワリング（推奨）</strong>
-                        パネルを高効率品に全面交換し、同時に過積載を1.4倍に増設、高効率新型PCSへの更新をセットで行うプラン。初期投資は大きい（800万〜1500万程度）ですが、発電量が大幅にブーストされ（スライダー連動 ＆ 過積載ピークカット補正を加味）、最も高い生涯利益（ROI）をもたらします。
+                        パネルを高効率品に全面交換し、同時に過積載を1.385倍に増設、高効率新型PCSへの更新をセットで行うプラン。初期投資は大きい（800万〜1500万程度）ですが、発電量が大幅にブーストされ（スライダー連動 ＆ 過積載ピークカット補正を加味）、最も高い生涯利益（ROI）をもたらします。
                     </div>
                 </div>
             </div>
@@ -2036,7 +2036,7 @@
                 <h3 style="color: #60a5fa; font-size: 1rem; margin-top: 0; margin-bottom: 10px;">🔬 内部計算モデルの前提</h3>
                 <ul style="padding-left: 20px; margin-bottom: 10px; margin-top: 0;">
                     <li style="margin-bottom: 8px;"><strong>経年劣化モデル:</strong> 発電モジュールは年間一律0.5%で劣化する標準モデルを適用しています。</li>
-                    <li style="margin-bottom: 8px;"><strong>過積載ピークカット補正:</strong> プランBにおける過積載容量が1.3倍を超える超過分に対しては、パワコンでの出力制御を考慮し、<code>0.85</code> の減衰補正を適用した実効増設率で売電収入を厳密に計算しています。</li>
+                    <li style="margin-bottom: 8px;"><strong>過積載ピークカット補正:</strong> プランBにおける過積載容量1.385倍の増設に対しては、パワコンでの出力制御を考慮し、1.3倍を超える超過分に対して <code>0.85</code> の減衰補正を適用した実効増設率で売電収入を厳密に計算しています。</li>
                     <li style="margin-bottom: 8px;"><strong>ハザード連動仕様:</strong> ハザード区域（洪水・土砂等）に指定されている場合、トグルONで将来の撤去費用積立（30〜50万円）や年間保険料の自動加算、およびプランBにおける浸水対策（架台かさ上げ工事費100万円）が初期コストとして自動算入されます。</li>
                     <li style="margin-bottom: 8px;"><strong>蓄電池交換サイクル:</strong> 蓄電池トグルONの場合、導入コスト（15万円/kWh）を初期費用に計上し、さらに15年サイクルで蓄電池モジュールが全交換される前提で再取得コストを経費に引当計上しています。</li>
                 </ul>
@@ -2086,7 +2086,7 @@
                 <h3 style="color: #60a5fa; font-size: 1rem; margin-top: 0; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
                     <span>🚀 2. プランBの「発電量ブースト」と制限</span>
                 </h3>
-                <p style="margin-top: 0;">プランBでは最新高効率パネルに交換し、パワコン容量に対して <strong>1.4倍</strong> の過積載（パネル増設）を行います。ただし、昼間のピーク発電カット（過積載ロス）が発生するため、以下の計算式を用いて実効増設率を厳密に計算しています。</p>
+                <p style="margin-top: 0;">プランBでは最新高効率パネルに交換し、パワコン容量に対して <strong>1.385倍</strong> の過積載（パネル増設）を行います。ただし、昼間のピーク発電カット（過積載ロス）が発生するため、以下の計算式を用いて実効増設率を厳密に計算しています。</p>
                 <div style="background: rgba(30, 41, 59, 0.8); border: 1px dashed rgba(96, 165, 250, 0.3); padding: 12px; text-align: center; border-radius: 8px; font-weight: bold; color: #60a5fa; margin: 12px 0; font-family: monospace; font-size: 0.9rem;">
                     実効増設倍率 ＝ 1.3 ＋ (1.4 － 1.3) × 0.85 ＝ 1.385倍
                 </div>
@@ -2182,7 +2182,7 @@
                 <div style="background: rgba(30, 41, 59, 0.8); border: 1px dashed rgba(96, 165, 250, 0.3); padding: 12px; text-align: center; border-radius: 8px; font-weight: bold; color: #60a5fa; margin: 12px 0; font-family: monospace; font-size: 0.9rem;">
                     アセット評価額 ＝ Σ [ 各年の手取りフリーCF ／ (1 ＋ 割引率)^t ]
                 </div>
-                <p style="margin-bottom: 5px;">※評価対象期間は、買取価格が公的保障されている **「残存FIT期間（最大20年目まで）」** を対象とします。割引率（将来価値を目減りさせる金利・リスクプレミアム）は、デフォルトで <strong>3.0%</strong> を採用しています。</p>
+                <p style="margin-bottom: 5px;">※評価対象期間は、買取価格が公的保障されている **「残存FIT期間（最大20年目まで）」** を対象とします。割引率（将来価値を目減りさせる金利・リスクプレミアム）は、デフォルトで <strong>5.0%</strong> を採用しています。</p>
                 <p style="margin-top: 5px; margin-bottom: 0;">スライダー操作によってリパワリングの実行時期を遅らせると、高効率による売電期間が短くなり、また得られる将来キャッシュフローの現在価値への割引影響が大きくなるため、アセット評価額が自動的に滑らかに減少する仕様を動的に再現しています。</p>
             </div>
         </div>
