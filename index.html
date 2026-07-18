@@ -3728,6 +3728,22 @@
         const repowerCost = parseFloat(document.getElementById('repower-cost').value);
         const generationBoost = parseFloat(document.getElementById('generation-boost').value) / 100;
         const repowerYear = parseInt(document.getElementById('repower-year').value);
+
+        // 設備出力（パネル容量）と積載率のリパワリング後動的スペック切り替え表示
+        const specCapacityEl = document.getElementById('spec-capacity');
+        const specCapacitySubEl = document.getElementById('spec-capacity-sub');
+        if (specCapacityEl && specCapacitySubEl) {
+            const overcapacityRate = Math.round((data.panelCapacity / data.capacity) * 100);
+            if (repowerCost > 0) {
+                const repowerPanelCapacity = data.panelCapacity * 1.385;
+                const repowerOvercapacityRate = Math.round((repowerPanelCapacity / data.capacity) * 100);
+                specCapacityEl.innerHTML = `${data.panelCapacity.toFixed(1)}<span class="spec-unit">kW</span><span style="font-size: 0.72rem; color: #34d399; font-weight: bold; margin-left: 5px;">➡ ${repowerPanelCapacity.toFixed(1)} kW</span>`;
+                specCapacitySubEl.innerHTML = `パワコン容量: ${data.capacity.toFixed(1)} kW<br>積載率: ${overcapacityRate}% ➡ <span style="color: #34d399; font-weight: bold;">${repowerOvercapacityRate}%</span>`;
+            } else {
+                specCapacityEl.innerHTML = `${data.panelCapacity.toFixed(1)}<span class="spec-unit">kW</span>`;
+                specCapacitySubEl.innerHTML = `パワコン容量: ${data.capacity.toFixed(1)} kW<br>積載率: ${overcapacityRate}%`;
+            }
+        }
         
         // 元のPCSコストも取得（standardモード用）
         const pcsCost = parseFloat(document.getElementById('pcs-cost').value);
