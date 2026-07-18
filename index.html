@@ -34,6 +34,106 @@
             --danger-color: #ef4444;
             --info-color: #3b82f6;
             --warning-color: #fbbf24;
+
+            /* 固定色の定義 */
+            --white-const: #ffffff;
+            --black-const: #000000;
+
+            /* ダークモード用拡張変数 */
+            --header-bg: rgba(30, 41, 59, 0.7);
+            --input-bg: rgba(15, 23, 42, 0.6);
+            --accordion-bg: rgba(15, 23, 42, 0.4);
+            --accordion-title-bg: rgba(15, 23, 42, 0.8);
+            --accordion-title-hover: rgba(15, 23, 42, 1);
+            --table-th-bg: rgba(15, 23, 42, 0.4);
+            --table-hover-bg: rgba(255, 255, 255, 0.02);
+            --gradient-start: #1e293b;
+            --gradient-end: #0f172a;
+            --modal-overlay-bg: rgba(15, 23, 42, 0.85);
+            --modal-footer-bg: rgba(15, 23, 42, 0.4);
+
+            --alert-warning-bg: rgba(245, 158, 11, 0.08);
+            --alert-warning-text: #ffedd5;
+            --alert-warning-border: rgba(245, 158, 11, 0.15);
+            --alert-info-bg: rgba(59, 130, 246, 0.08);
+            --alert-info-text: #dbeafe;
+            --alert-info-border: rgba(59, 130, 246, 0.15);
+            --alert-success-bg: rgba(16, 185, 129, 0.08);
+            --alert-success-text: #d1fae5;
+            --alert-success-border: rgba(16, 185, 129, 0.15);
+            --alert-danger-bg: rgba(239, 68, 68, 0.1);
+            --alert-danger-border: rgba(239, 68, 68, 0.2);
+            --alert-danger-text: #fca5a5;
+            
+            --chat-user-bg: rgba(96, 165, 250, 0.1);
+            --chat-user-border: rgba(96, 165, 250, 0.25);
+            --chat-user-text: #93c5fd;
+            --chat-ai-bg: rgba(255, 255, 255, 0.03);
+            --chat-ai-border: rgba(255, 255, 255, 0.05);
+            --chat-ai-text: #e2e8f0;
+            --chat-input-bg: #0f172a;
+            --chat-container-bg: linear-gradient(135deg, #1e293b, #0f172a);
+            
+            --slider-bg: #334155;
+            --card-gradient-bg: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.8) 100%);
+        }
+
+        body.light-mode {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --border-color: #cbd5e1;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --card-border: rgba(0, 0, 0, 0.06);
+
+            --header-bg: rgba(255, 255, 255, 0.85);
+            --input-bg: #ffffff;
+            --accordion-bg: #f1f5f9;
+            --accordion-title-bg: #e2e8f0;
+            --accordion-title-hover: #cbd5e1;
+            --table-th-bg: #e2e8f0;
+            --table-hover-bg: rgba(0, 0, 0, 0.02);
+            --gradient-start: #f1f5f9;
+            --gradient-end: #e2e8f0;
+            --modal-overlay-bg: rgba(15, 23, 42, 0.4);
+            --modal-footer-bg: #f1f5f9;
+
+            --alert-warning-bg: rgba(217, 119, 6, 0.1);
+            --alert-warning-text: #78350f;
+            --alert-warning-border: rgba(217, 119, 6, 0.2);
+            --alert-info-bg: rgba(37, 99, 235, 0.1);
+            --alert-info-text: #1e3a8a;
+            --alert-info-border: rgba(37, 99, 235, 0.2);
+            --alert-success-bg: rgba(5, 150, 105, 0.1);
+            --alert-success-text: #064e3b;
+            --alert-success-border: rgba(5, 150, 105, 0.2);
+            --alert-danger-bg: rgba(220, 38, 38, 0.1);
+            --alert-danger-border: rgba(220, 38, 38, 0.2);
+            --alert-danger-text: #7f1d1d;
+            
+            --chat-user-bg: #3b82f6;
+            --chat-user-border: #2563eb;
+            --chat-user-text: #ffffff;
+            --chat-ai-bg: #f1f5f9;
+            --chat-ai-border: #cbd5e1;
+            --chat-ai-text: #0f172a;
+            --chat-input-bg: #ffffff;
+            --chat-container-bg: #ffffff;
+            
+            --slider-bg: #cbd5e1;
+            --card-gradient-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(241, 245, 249, 0.9) 100%);
+        }
+
+        body.light-mode .btn-reset {
+            background: rgba(15, 23, 42, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        body.light-mode .btn-reset:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            background: rgba(16, 185, 129, 0.08);
         }
 
         /* ツールチップ用のCSS */
@@ -105,7 +205,7 @@
 
         /* バージョンセレクター（最上部） */
         .version-selector {
-            background: linear-gradient(90deg, #1e293b 0%, #0f172a 100%);
+            background: linear-gradient(90deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 10px 20px;
@@ -150,7 +250,7 @@
 
         .mode-btn.active {
             background: var(--accent-color);
-            color: #fff;
+            color: var(--white-const);
             border-color: var(--accent-color);
             box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
         }
@@ -184,7 +284,7 @@
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            color: #fff;
+            color: var(--white-const);
             font-size: 1.2rem;
         }
 
@@ -286,7 +386,7 @@
         .input-text {
             width: 100%;
             padding: 10px 15px;
-            background: rgba(15, 23, 42, 0.6);
+            background: var(--input-bg);
             border: 1px solid var(--border-color);
             border-radius: 8px;
             color: var(--text-primary);
@@ -304,7 +404,7 @@
             width: 100%;
             padding: 12px;
             background: var(--accent-color);
-            color: #fff;
+            color: var(--white-const);
             border: none;
             border-radius: 8px;
             font-weight: 600;
@@ -353,7 +453,7 @@
             border-radius: 8px;
             margin-bottom: 15px;
             overflow: hidden;
-            background: rgba(15, 23, 42, 0.4);
+            background: var(--accordion-bg);
         }
 
         .accordion-title {
@@ -364,12 +464,12 @@
             cursor: pointer;
             display: flex;
             justify-content: space-between;
-            background: rgba(15, 23, 42, 0.8);
+            background: var(--accordion-title-bg);
             transition: background 0.2s;
         }
 
         .accordion-title:hover {
-            background: rgba(15, 23, 42, 1);
+            background: var(--accordion-title-hover);
         }
 
         .accordion-body {
@@ -553,7 +653,7 @@
 
         /* ROI比較テーブル */
         .roi-compare-container {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.8) 100%);
+            background: var(--card-gradient-bg);
             border: 1px solid var(--border-color);
             border-radius: 16px;
             padding: 25px;
@@ -576,7 +676,7 @@
         .roi-compare-table th {
             font-weight: 600;
             color: var(--text-secondary);
-            background: rgba(15, 23, 42, 0.4);
+            background: var(--table-th-bg);
         }
 
         .roi-compare-table th:first-child, .roi-compare-table td:first-child {
@@ -585,12 +685,12 @@
         }
 
         .roi-compare-table tr:hover {
-            background: rgba(255, 255, 255, 0.02);
+            background: var(--table-hover-bg);
         }
 
         /* 右サイド：提案結果・ROIサマリー */
         .roi-summary {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.8) 100%);
+            background: var(--card-gradient-bg);
             border: 1px solid var(--border-color);
             border-radius: 16px;
             padding: 25px;
@@ -638,9 +738,9 @@
         /* 通知・ハザードアラート */
         /* 通知・ハザードアラート */
         .alert-box {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            color: #fca5a5;
+            background: var(--alert-danger-bg);
+            border: 1px solid var(--alert-danger-border);
+            color: var(--alert-danger-text);
             padding: 12px 20px;
             border-radius: 8px;
             font-size: 0.85rem;
@@ -678,32 +778,32 @@
 
         /* メンテナンス警告（オレンジ） */
         .asset-alert-warning {
-            background: rgba(245, 158, 11, 0.08);
-            border-left: 4px solid #f59e0b;
-            border-top: 1px solid rgba(245, 158, 11, 0.15);
-            border-right: 1px solid rgba(245, 158, 11, 0.15);
-            border-bottom: 1px solid rgba(245, 158, 11, 0.15);
-            color: #ffedd5; /* コントラストを高めた読みやすい薄オレンジ */
+            background: var(--alert-warning-bg);
+            border-left: 4px solid var(--warning-color);
+            border-top: 1px solid var(--alert-warning-border);
+            border-right: 1px solid var(--alert-warning-border);
+            border-bottom: 1px solid var(--alert-warning-border);
+            color: var(--alert-warning-text);
         }
 
         /* FIT情報（ブルー） */
         .asset-alert-info {
-            background: rgba(59, 130, 246, 0.08);
-            border-left: 4px solid #3b82f6;
-            border-top: 1px solid rgba(59, 130, 246, 0.15);
-            border-right: 1px solid rgba(59, 130, 246, 0.15);
-            border-bottom: 1px solid rgba(59, 130, 246, 0.15);
-            color: #dbeafe; /* コントラストを高めた読みやすい薄ブルー */
+            background: var(--alert-info-bg);
+            border-left: 4px solid var(--info-color);
+            border-top: 1px solid var(--alert-info-border);
+            border-right: 1px solid var(--alert-info-border);
+            border-bottom: 1px solid var(--alert-info-border);
+            color: var(--alert-info-text);
         }
 
         /* ハザード情報（グリーン） */
         .asset-alert-success {
-            background: rgba(16, 185, 129, 0.08);
-            border-left: 4px solid #10b981;
-            border-top: 1px solid rgba(16, 185, 129, 0.15);
-            border-right: 1px solid rgba(16, 185, 129, 0.15);
-            border-bottom: 1px solid rgba(16, 185, 129, 0.15);
-            color: #d1fae5; /* コントラストを高めた読みやすい薄グリーン */
+            background: var(--alert-success-bg);
+            border-left: 4px solid var(--accent-color);
+            border-top: 1px solid var(--alert-success-border);
+            border-right: 1px solid var(--alert-success-border);
+            border-bottom: 1px solid var(--alert-success-border);
+            color: var(--alert-success-text);
         }
 
         .asset-alert-icon {
@@ -733,7 +833,7 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(15, 23, 42, 0.85);
+            background-color: var(--modal-overlay-bg);
             backdrop-filter: blur(8px);
             display: flex;
             justify-content: center;
@@ -787,7 +887,89 @@
             border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: flex-end;
-            background: rgba(15, 23, 42, 0.4);
+            background: var(--modal-footer-bg);
+        }
+
+        /* テーマトグルボタンのホバーエフェクト */
+        #theme-toggle-btn:hover {
+            background: rgba(148, 163, 184, 0.25) !important;
+            border-color: var(--accent-color) !important;
+        }
+
+        /* ライトモード時のモーダル（ご利用ガイド、ロジック解説書）表示上書き */
+        body.light-mode .modal-content {
+            background-color: var(--bg-secondary) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
+        }
+        body.light-mode .modal-header {
+            border-bottom: 1px solid var(--border-color) !important;
+        }
+        body.light-mode .modal-header h2 {
+            color: var(--text-primary) !important;
+        }
+        body.light-mode .modal-body {
+            color: var(--text-primary) !important;
+        }
+        body.light-mode .modal-body div,
+        body.light-mode .modal-body p,
+        body.light-mode .modal-body td,
+        body.light-mode .modal-body th,
+        body.light-mode .modal-body li,
+        body.light-mode .modal-body strong,
+        body.light-mode .modal-body span {
+            color: var(--text-primary) !important;
+        }
+        /* ご利用ガイド内タブ切り替えボタン */
+        body.light-mode .guide-tab-btn {
+            color: var(--text-secondary) !important;
+        }
+        body.light-mode .guide-tab-btn.active {
+            color: #3b82f6 !important;
+            border-bottom-color: #3b82f6 !important;
+        }
+        /* インライン背景の上書き */
+        body.light-mode .modal-body div[style*="background: rgba(255,255,255,0.03)"],
+        body.light-mode .modal-body div[style*="background: rgba(255, 255, 255, 0.03)"],
+        body.light-mode .modal-body div[style*="background:rgba(255,255,255,0.03)"] {
+            background-color: var(--accordion-bg) !important;
+            border: 1px solid var(--border-color) !important;
+        }
+        body.light-mode .modal-body div[style*="background: rgba(30, 41, 59"],
+        body.light-mode .modal-body div[style*="background: rgba(15, 23, 42"] {
+            background-color: var(--accordion-bg) !important;
+            border: 1px solid var(--border-color) !important;
+        }
+        body.light-mode .modal-body code {
+            background-color: var(--accordion-bg) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+        /* テーブル要素の上書き */
+        body.light-mode .modal-body table {
+            border-color: var(--border-color) !important;
+        }
+        body.light-mode .modal-body th {
+            background-color: var(--table-th-bg) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+        body.light-mode .modal-body td {
+            border-color: var(--border-color) !important;
+            background: transparent !important;
+        }
+        body.light-mode .modal-body tr[style*="background: rgba(30, 41, 59"],
+        body.light-mode .modal-body tr[style*="background: rgba(15, 23, 42"] {
+            background-color: var(--table-th-bg) !important;
+        }
+        body.light-mode .modal-footer {
+            border-top: 1px solid var(--border-color) !important;
+            background-color: var(--modal-footer-bg) !important;
+        }
+        body.light-mode .modal-footer button {
+            background-color: var(--border-color) !important;
+            color: var(--text-primary) !important;
         }
 
         /* 印刷レイアウト用CSS */
@@ -1228,6 +1410,10 @@
             </button>
             <button type="button" class="btn-guide" onclick="openLogicGuideWithPassword()" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--accent-color); padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
                 <span>🔬 ロジック解説書</span>
+            </button>
+            <!-- テーマトグルボタン -->
+            <button type="button" id="theme-toggle-btn" onclick="toggleTheme()" style="background: rgba(148, 163, 184, 0.15); border: 1px solid var(--border-color); color: var(--text-primary); width: 34px; height: 34px; border-radius: 6px; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="テーマ切り替え">
+                <span id="theme-toggle-icon">☀️</span>
             </button>
         </div>
     </header>
@@ -1775,13 +1961,13 @@
                     </button>
 
                     <!-- チャットウィンドウ（開いた状態、初期は非表示） -->
-                    <div id="soravalu-ai-container" style="display: none; width: 420px; height: 550px; background: linear-gradient(135deg, #1e293b, #0f172a); border: 1px solid rgba(96, 165, 250, 0.3); border-radius: 16px; padding: 0; box-shadow: 0 20px 50px -10px rgba(0,0,0,0.7); flex-direction: column; overflow: hidden; border: 1px solid rgba(96, 165, 250, 0.3);">
+                    <div id="soravalu-ai-container" style="display: none; width: 420px; height: 550px; background: var(--chat-container-bg); border: 1px solid var(--chat-ai-border); border-radius: 16px; padding: 0; box-shadow: 0 20px 50px -10px rgba(0,0,0,0.7); flex-direction: column; overflow: hidden;">
                         <!-- ヘッダー -->
-                        <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(30, 41, 59, 0.8); border-bottom: 1px solid rgba(255,255,255,0.1); padding: 15px 20px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; background: var(--header-bg); border-bottom: 1px solid var(--border-color); padding: 15px 20px;">
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <span style="font-size: 1.3rem;">🤖</span>
                                 <div>
-                                    <h4 style="margin: 0; font-size: 0.95rem; font-weight: bold; color: white; display: flex; align-items: center; gap: 5px;">
+                                    <h4 style="margin: 0; font-size: 0.95rem; font-weight: bold; color: var(--text-primary); display: flex; align-items: center; gap: 5px;">
                                         そらバリュAI <span style="background: rgba(96, 165, 250, 0.2); color: #60a5fa; font-size: 0.6rem; padding: 1px 5px; border-radius: 8px; font-weight: 500;">Beta</span>
                                     </h4>
                                     <span style="font-size: 0.75rem; color: var(--text-secondary);">シミュレーション分析アシスタント</span>
@@ -1798,7 +1984,7 @@
                             <!-- チャット履歴表示エリア -->
                             <div id="ai-chat-history" style="flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; padding-right: 5px; font-size: 0.85rem; line-height: 1.45; max-height: 330px;">
                                 <!-- AIの初期メッセージ -->
-                                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 10px 12px; border-radius: 8px 8px 8px 0; color: #e2e8f0; align-self: flex-start; max-width: 90%;">
+                                <div style="background: var(--chat-ai-bg); border: 1px solid var(--chat-ai-border); padding: 10px 12px; border-radius: 8px 8px 8px 0; color: var(--chat-ai-text); align-self: flex-start; max-width: 90%;">
                                     こんにちは！「そらバリュAI」です。現在のシミュレーション結果に基づき、発電所の価値最大化に向けたアドバイスをリアルタイムに提供します。気になる質問を選択するか、メッセージを入力してください。
                                 </div>
                             </div>
@@ -1813,7 +1999,7 @@
 
                                 <!-- 入力フィールド -->
                                 <div style="display: flex; gap: 6px;">
-                                    <input type="text" id="ai-chat-input" placeholder="例: 蓄電池のメリットは？" style="flex-grow: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 8px 10px; font-size: 0.85rem; color: white; outline: none;">
+                                    <input type="text" id="ai-chat-input" placeholder="例: 蓄電池のメリットは？" style="flex-grow: 1; background: var(--chat-input-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 10px; font-size: 0.85rem; color: var(--text-primary); outline: none;">
                                     <button type="button" class="btn-action" onclick="sendUserMessage()" style="margin: 0; padding: 0 12px; font-size: 0.8rem; border-radius: 6px; white-space: nowrap;">送信</button>
                                 </div>
                             </div>
@@ -5061,7 +5247,79 @@
         await tokushimaPreloadPromise;
         applyUrlParameters();
         switchMode('fp-enhanced'); // 初期状態はブラッシュアップ版（FP拡張）
+        initTheme(); // カラーテーマの初期適用
     };
+
+    // テーマトグルロジック
+    function initTheme() {
+        const savedTheme = localStorage.getItem('color-theme') || 'dark';
+        const icon = document.getElementById('theme-toggle-icon');
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-mode');
+            if (icon) icon.innerText = '🌙';
+        } else {
+            document.body.classList.remove('light-mode');
+            if (icon) icon.innerText = '☀️';
+        }
+        updateChartThemeColors();
+    }
+
+    function toggleTheme() {
+        const isLight = document.body.classList.toggle('light-mode');
+        localStorage.setItem('color-theme', isLight ? 'light' : 'dark');
+        
+        const icon = document.getElementById('theme-toggle-icon');
+        if (icon) {
+            icon.innerText = isLight ? '🌙' : '☀️';
+        }
+        
+        updateChartThemeColors();
+        
+        if (typeof updateSimulation === 'function') {
+            updateSimulation();
+        }
+    }
+
+    function updateChartThemeColors() {
+        const isLight = document.body.classList.contains('light-mode');
+        const textColor = isLight ? '#0f172a' : '#94a3b8';
+        const gridColor = isLight ? '#cbd5e1' : '#334155';
+        
+        const chartsToUpdate = [];
+        if (typeof cfChart !== 'undefined') chartsToUpdate.push(cfChart);
+        if (typeof annualChart !== 'undefined') chartsToUpdate.push(annualChart);
+        if (typeof zoomChart !== 'undefined') chartsToUpdate.push(zoomChart);
+        if (typeof zoomChart2 !== 'undefined') chartsToUpdate.push(zoomChart2);
+
+        chartsToUpdate.forEach(chart => {
+            if (!chart) return;
+            if (chart.options.scales && chart.options.scales.x) {
+                chart.options.scales.x.grid.color = gridColor;
+                chart.options.scales.x.ticks.color = textColor;
+            }
+            if (chart.options.scales && chart.options.scales.y) {
+                chart.options.scales.y.grid.color = gridColor;
+                chart.options.scales.y.ticks.color = textColor;
+            }
+            if (chart.options.plugins && chart.options.plugins.legend) {
+                chart.options.plugins.legend.labels.color = textColor;
+            }
+            chart.update('none');
+        });
+
+        if (typeof hazardRadarChart !== 'undefined' && hazardRadarChart) {
+            const chart = hazardRadarChart;
+            if (chart.options.scales && chart.options.scales.r) {
+                chart.options.scales.r.grid.color = isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.22)';
+                chart.options.scales.r.angleLines = { color: isLight ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.25)' };
+                chart.options.scales.r.pointLabels = { 
+                    color: isLight ? '#0f172a' : '#ffffff',
+                    font: { size: 10.5, weight: 'bold' }
+                };
+            }
+            chart.update('none');
+        }
+    }
 
     // 印刷前後のチャート色動的最適化
     window.onbeforeprint = function() {
@@ -5293,12 +5551,12 @@
 
         const msgDiv = document.createElement('div');
         if (sender === "user") {
-            msgDiv.style.cssText = "background: rgba(96, 165, 250, 0.1); border: 1px solid rgba(96, 165, 250, 0.25); padding: 8px 12px; border-radius: 8px 8px 0 8px; color: #93c5fd; align-self: flex-end; max-width: 90%; word-break: break-all; font-size: 0.85rem; animation: chatFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;";
+            msgDiv.style.cssText = "background: var(--chat-user-bg); border: 1px solid var(--chat-user-border); padding: 8px 12px; border-radius: 8px 8px 0 8px; color: var(--chat-user-text); align-self: flex-end; max-width: 90%; word-break: break-all; font-size: 0.85rem; animation: chatFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;";
             msgDiv.innerHTML = text;
             chatHistory.appendChild(msgDiv);
             chatHistory.scrollTop = chatHistory.scrollHeight;
         } else {
-            msgDiv.style.cssText = "background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 10px 12px; border-radius: 8px 8px 8px 0; color: #e2e8f0; align-self: flex-start; max-width: 90%; font-size: 0.85rem; animation: chatFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;";
+            msgDiv.style.cssText = "background: var(--chat-ai-bg); border: 1px solid var(--chat-ai-border); padding: 10px 12px; border-radius: 8px 8px 8px 0; color: var(--chat-ai-text); align-self: flex-start; max-width: 90%; font-size: 0.85rem; animation: chatFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;";
             chatHistory.appendChild(msgDiv);
             
             // AI回答メッセージはHTMLタグを保護しつつタイピング風に1文字ずつ出力
