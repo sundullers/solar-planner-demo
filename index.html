@@ -3313,6 +3313,17 @@
         const id = document.getElementById('solar-id').value;
         currentLoadingAssetId = id; // 最新のロード中アセットIDを記録
         
+        // 金額カウント表示を一旦リセット（API結果待ちのローディング状態）
+        const elementsToReset = [
+            'owner-lifetime-cf', 'owner-asset-value', 'owner-asset-value-base', 
+            'owner-lifetime-cf-base', 'owner-asset-value-diff', 'owner-lifetime-cf-diff',
+            'repower-benefit-diff', 'repower-roi-period-main'
+        ];
+        elementsToReset.forEach(resetId => {
+            const el = document.getElementById(resetId);
+            if (el) el.innerText = "---";
+        });
+        
         let data = getSolarData(id);
 
         if (data) {
@@ -3589,12 +3600,6 @@
             calDegradation = 0.005;
             calLoss = 0.0;
             calRatio = 1.0;
-
-            if (currentMode === 'fp-enhanced') {
-                toggleHazardSwitch();
-            } else {
-                updateSimulation();
-            }
         } else {
             alert('そらスコIDが見つかりません。（デモ用ID: A614245G36, SR-78901 または SR-12345 をご利用ください）');
         }
