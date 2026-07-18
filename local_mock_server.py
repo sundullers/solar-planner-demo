@@ -126,6 +126,30 @@ def assess_hazard_gis(address, lat=None, lng=None):
         res["hazard"] = "海岸線近接による塩害警戒エリア（海岸2km圏内）。パワコン等の防塩対策仕様を推奨。"
         res["radar_scores"]["salt"] = 3.5
 
+    # NEDO日射量予測・発電係数の動的補正 (POC)
+    nedo_factor = 1150
+    nedo_radiation = 3.80
+    if lat and lng:
+        # 1. 那賀川町（沿岸平地・日射多）：lat≒33.94, lng≒134.63
+        if abs(lat - 33.945023) < 0.05 and abs(lng - 134.639023) < 0.05:
+            nedo_factor = 1240
+            nedo_radiation = 4.10
+        # 2. 三好市三野町（吉野川中流・山間寄）：lat≒34.08, lng≒133.93
+        elif abs(lat - 34.081779) < 0.05 and abs(lng - 133.934921) < 0.05:
+            nedo_factor = 1120
+            nedo_radiation = 3.70
+        # 3. 名西郡神山町（中山間地・日射少）：lat≒33.96, lng≒134.35
+        elif abs(lat - 33.960896) < 0.05 and abs(lng - 134.357147) < 0.05:
+            nedo_factor = 1075
+            nedo_radiation = 3.55
+        # 4. 阿波市阿波町（内陸平野・標準）：lat≒34.07, lng≒134.26
+        elif abs(lat - 34.076172) < 0.05 and abs(lng - 134.268555) < 0.05:
+            nedo_factor = 1165
+            nedo_radiation = 3.85
+
+    res["nedo_factor"] = nedo_factor
+    res["nedo_radiation"] = nedo_radiation
+
     return res
 
 
