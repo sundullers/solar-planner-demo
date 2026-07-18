@@ -972,6 +972,63 @@
             color: var(--text-primary) !important;
         }
 
+        /* ライトモード時のインラインダークスタイル強制上書き */
+        /* 1. カード背景およびグラデーション背景をライトモード用に上書き */
+        body.light-mode .card,
+        body.light-mode [style*="background: linear-gradient(135deg, rgba(30, 41, 59"],
+        body.light-mode [style*="background:linear-gradient(135deg, rgba(30, 41, 59"],
+        body.light-mode [style*="background: linear-gradient(135deg,rgba(30, 41, 59"],
+        body.light-mode [style*="background: linear-gradient(135deg, rgba(15, 23, 42"],
+        body.light-mode [style*="background:linear-gradient(135deg, rgba(15, 23, 42"] {
+            background: var(--card-gradient-bg) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        body.light-mode [style*="background: rgba(30, 41, 59"],
+        body.light-mode [style*="background:rgba(30, 41, 59"],
+        body.light-mode [style*="background: rgba(15, 23, 42"],
+        body.light-mode [style*="background:rgba(15, 23, 42"] {
+            background-color: var(--accordion-bg) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        /* 2. インラインで定義されているダークテーマ用白/薄グレー文字色の強制上書き */
+        body.light-mode [style*="color: white"],
+        body.light-mode [style*="color:white"],
+        body.light-mode [style*="color: #fff"],
+        body.light-mode [style*="color:#fff"],
+        body.light-mode [style*="color: #cbd5e1"],
+        body.light-mode [style*="color:#cbd5e1"],
+        body.light-mode [style*="color: #94a3b8"],
+        body.light-mode [style*="color:#94a3b8"],
+        body.light-mode [style*="color: var(--text-secondary)"],
+        body.light-mode [style*="color:var(--text-secondary)"] {
+            color: var(--text-primary) !important;
+        }
+
+        /* ただし、薄グレー色（text-secondary）に対応する部分は secondary 色にしたい */
+        body.light-mode [style*="color: #94a3b8"],
+        body.light-mode [style*="color:#94a3b8"],
+        body.light-mode [style*="color: var(--text-secondary)"] {
+            color: var(--text-secondary) !important;
+        }
+
+        /* 3. AI診断結論カードなどの border 上書き */
+        body.light-mode #ai-conclusion-card {
+            background-color: var(--alert-warning-bg) !important;
+            border-color: var(--warning-color) !important;
+        }
+        body.light-mode #ai-conclusion-body {
+            color: var(--text-primary) !important;
+        }
+
+        /* チャートズームモーダルの上書き */
+        body.light-mode #chart-zoom-modal {
+            background: var(--bg-secondary) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+
         /* 印刷レイアウト用CSS */
         .pdf-page {
             background: #fff;
