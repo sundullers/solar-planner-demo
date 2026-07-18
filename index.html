@@ -1998,7 +1998,7 @@
             <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 10px;">
                 <button type="button" class="guide-tab-btn active" id="tab-btn-usage" onclick="switchGuideTab('usage')" style="background: none; border: none; color: #60a5fa; border-bottom: 2px solid #60a5fa; padding: 6px 12px; font-weight: bold; cursor: pointer; transition: all 0.2s;">使い方</button>
                 <button type="button" class="guide-tab-btn" id="tab-btn-plans" onclick="switchGuideTab('plans')" style="background: none; border: none; color: var(--text-secondary); padding: 6px 12px; cursor: pointer; transition: all 0.2s;">プラン解説</button>
-                <button type="button" class="guide-tab-btn" id="tab-btn-tech" onclick="switchGuideTab('tech')" style="background: none; border: none; color: var(--text-secondary); padding: 6px 12px; cursor: pointer; transition: all 0.2s;">技術的仕様</button>
+                <button type="button" class="guide-tab-btn" id="tab-btn-tech" onclick="switchGuideTab('tech')" style="background: none; border: none; color: var(--text-secondary); padding: 6px 12px; cursor: pointer; transition: all 0.2s;">前提条件</button>
             </div>
 
             <!-- タブコンテンツ1: 使い方 -->
@@ -2006,8 +2006,8 @@
                 <h3 style="color: #60a5fa; font-size: 1rem; margin-top: 0; margin-bottom: 10px;">⚙️ 簡単な操作手順</h3>
                 <ol style="padding-left: 20px; margin-bottom: 20px;">
                     <li style="margin-bottom: 8px;"><strong>設備ID:</strong> 左側のID入力欄に発電所ID（デモ用: <code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">A614245G36</code> など）を入力して「読込」を押すと、発電所の実スペックや立地・ハザード情報が自動ロードされます。</li>
-                    <li style="margin-bottom: 8px;"><strong>スライダーパラメータ調整:</strong> リパワリングの投資額や、パワコンの更新コスト、想定する発電量改善率などのスライダーを動かすと、即座に右側のグラフとROI表が再計算されます。</li>
-                    <li style="margin-bottom: 8px;"><strong>詳細オプション:</strong> 将来のFIP移行トグルや、蓄電池（バッテリー）併設時のシミュレーションも、トグルONにすることでリアルタイムに反映されます。</li>
+                    <li style="margin-bottom: 8px;"><strong>スライダーでの調整:</strong> リパワリングの投資額や、想定する発電量改善率などのスライダーを動かすと、即座に右側のグラフや<strong>「アセット資産評価（手残り予測や回収期間）」</strong>の各数値が瞬時に再計算されます。</li>
+                    <li style="margin-bottom: 8px;"><strong>詳細オプション:</strong> 将来のFIP移行（市場価格連動の売電制度への切り替え）や、蓄電池（バッテリー）を併設した場合の予測も、トグルONにすることでリアルタイムに反映されます。</li>
                     <li style="margin-bottom: 8px;"><strong>提案書PDF出力:</strong> 左下の「提案書PDFプレビューを表示」（詳細バージョン時）をクリックすると、A4印刷に最適化された営業提案書が生成され、印刷・PDF保存が可能です。</li>
                 </ol>
             </div>
@@ -2018,27 +2018,27 @@
                 <div style="display: flex; flex-direction: column; gap: 15px;">
                     <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border-left: 4px solid #94a3b8;">
                         <strong style="color: white; display: block; margin-bottom: 4px;">① 現状維持（成り行き）</strong>
-                        追加投資をせず運用を続けるプラン。経年劣化（年0.5%）やパワコン交換を考慮しないため、長期的な突発故障による売電損失リスクをそのまま抱えることになります。
+                        追加投資をせず運用を続けるプラン。経年劣化やパワコンの突発故障リスクをそのまま抱え、将来的な売電損失につながる可能性があります。
                     </div>
                     <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border-left: 4px solid #3b82f6;">
                         <strong style="color: #60a5fa; display: block; margin-bottom: 4px;">② プランA：PCS一括交換</strong>
-                        寿命を迎えるパワーコンディショナ（PCS）を新型の高効率機に一括交換するプラン。初期投資額は比較的少額（目安：パワコンの台数や容量に応じて数十万〜数百万円程度）ですが、新型PCSによる発電量改善効果（標準+3%〜スライダー連動）が得られます。
+                        寿命を迎えるパワーコンディショナ（PCS）を新型に一括交換するプラン。初期投資は比較的少額（目安：パワコン台数に応じて数十万〜数百万円程度）で済み、新型PCSによる効率化で発電量が標準+3%改善されます。
                     </div>
                     <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border-left: 4px solid var(--accent-color);">
                         <strong style="color: var(--accent-color); display: block; margin-bottom: 4px;">③ プランB：フル・リパワリング（推奨）</strong>
-                        パネルを高効率品に全面交換し、同時に過積載を1.385倍に増設、高効率新型PCSへの更新をセットで行うプラン。初期投資は大きくなります（目安：パネル容量や施工条件に応じて数百万円〜数千万円規模）が、発電量が大幅にブーストされ（スライダー連動 ＆ 過積載ピークカット補正を加味）、最も高い生涯利益（ROI）をもたらします。
+                        パネルを最新型に全面交換し、同時に過積載を1.385倍に増設、高効率PCSへの更新を行うプラン。初期投資は大きくなります（目安：パネル容量に応じて数百万円〜数千万円規模）が、発電量が劇的にブーストされ、生涯で最も多くの手残り利益をもたらします。
                     </div>
                 </div>
             </div>
 
             <!-- タブコンテンツ3: 技術的仕様 -->
             <div id="guide-tab-tech" class="guide-tab-content" style="display: none; line-height: 1.6; font-size: 0.85rem;">
-                <h3 style="color: #60a5fa; font-size: 1rem; margin-top: 0; margin-bottom: 10px;">🔬 内部計算モデルの前提</h3>
+                <h3 style="color: #60a5fa; font-size: 1rem; margin-top: 0; margin-bottom: 10px;">🔬 収支計算の前提条件</h3>
                 <ul style="padding-left: 20px; margin-bottom: 10px; margin-top: 0;">
-                    <li style="margin-bottom: 8px;"><strong>経年劣化モデル:</strong> 発電モジュールは年間一律0.5%で劣化する標準モデルを適用しています。</li>
-                    <li style="margin-bottom: 8px;"><strong>過積載ピークカット補正:</strong> プランBにおける過積載容量1.385倍の増設に対しては、パワコンでの出力制御を考慮し、1.3倍を超える超過分に対して <code>0.85</code> の減衰補正を適用した実効増設率で売電収入を厳密に計算しています。</li>
-                    <li style="margin-bottom: 8px;"><strong>ハザード連動仕様:</strong> ハザード区域（洪水・土砂等）に指定されている場合、トグルONで将来の撤去費用積立（30〜50万円）や年間保険料の自動加算、およびプランBにおける浸水対策（架台かさ上げ工事費100万円）が初期コストとして自動算入されます。</li>
-                    <li style="margin-bottom: 8px;"><strong>蓄電池交換サイクル:</strong> 蓄電池トグルONの場合、導入コスト（15万円/kWh）を初期費用に計上し、さらに15年サイクルで蓄電池モジュールが全交換される前提で再取得コストを経費に引当計上しています。</li>
+                    <li style="margin-bottom: 8px;"><strong>パネルの経年劣化:</strong> パネルは年数とともに発電効率が年0.5%低下します。プランBで新品交換すると、その劣化スピードを年0.3%（約4割減）に抑えられます。</li>
+                    <li style="margin-bottom: 8px;"><strong>過積載による制限（ピークカット）:</strong> パネルを多めに増設（1.385倍）した際、晴天の昼間等にパワコンの限界を超える電力はカットされます。計算上、その無駄になるロス分を自動で差し引いて手残り収支を算出しています。</li>
+                    <li style="margin-bottom: 8px;"><strong>災害リスク費用（ハザード連動）:</strong> 洪水や土砂災害などのリスクエリアに該当する場合、架台かさ上げなどの初期工事費や毎年の割増保険料、将来の追加撤去処分費用を収支予測に自動で組み込みます。</li>
+                    <li style="margin-bottom: 8px;"><strong>蓄電池の買い直し費用:</strong> 蓄電池を併設する場合、15年後にバッテリーの寿命が来るため、15年目に同等のバッテリーモジュールの買い直し費用（経費）が自動的に計上されます。</li>
                 </ul>
             </div>
         </div>
