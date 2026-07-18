@@ -2006,7 +2006,7 @@
                 <h3 style="color: #60a5fa; font-size: 1rem; margin-top: 0; margin-bottom: 10px;">⚙️ 簡単な操作手順</h3>
                 <ol style="padding-left: 20px; margin-bottom: 20px;">
                     <li style="margin-bottom: 8px;"><strong>設備ID:</strong> 左側のID入力欄に発電所ID（デモ用: <code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">A614245G36</code> など）を入力して「読込」を押すと、発電所の実スペックや立地・ハザード情報が自動ロードされます。</li>
-                    <li style="margin-bottom: 8px;"><strong>スライダーでの調整:</strong> リパワリングの投資額や、想定する発電量改善率などのスライダーを動かすと、即座に右側のグラフや<strong>「アセット資産評価（手残り予測や回収期間）」</strong>の各数値が瞬時に再計算されます。</li>
+                    <li style="margin-bottom: 8px;"><strong>スライダーでの調整:</strong> リパワリングの投資額や、想定する発電量改善率などのスライダーを動かすと、即座に右側のグラフや<strong>「発電所（資産）評価（手残り予測や回収期間）」</strong>の各数値が瞬時に再計算されます。</li>
                     <li style="margin-bottom: 8px;"><strong>詳細オプション:</strong> 将来のFIP移行（市場価格連動の売電制度への切り替え）や、蓄電池（バッテリー）を併設した場合の予測も、トグルONにすることでリアルタイムに反映されます。</li>
                     <li style="margin-bottom: 8px;"><strong>提案書PDF出力:</strong> 左下の「提案書PDFプレビューを表示」（詳細バージョン時）をクリックすると、A4印刷に最適化された営業提案書が生成され、印刷・PDF保存が可能です。</li>
                 </ol>
@@ -2173,17 +2173,17 @@
                 <p style="margin-bottom: 0; color: #94a3b8; font-size: 0.8rem;">※グラフ上で2本の累積キャッシュフロー曲線が交差する位置に、損益分岐点を示す <strong>白い星印（`*`）のマーカー</strong> を自動で描画します。</p>
             </div>
 
-            <!-- 7. アセット評価額 -->
+            <!-- 7. 発電所評価額 -->
             <div style="background: rgba(30, 41, 59, 0.45); border: 1px solid rgba(255,255,255,0.06); padding: 18px 20px; border-radius: 12px; margin-bottom: 0;">
                 <h3 style="color: #60a5fa; font-size: 1rem; margin-top: 0; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                    <span>💎 7. アセット評価額（資産価値）の算出モデル</span>
+                    <span>💎 7. 発電所評価額（資産価値）の算出モデル</span>
                 </h3>
                 <p style="margin-top: 0;">発電所が金融資産として現在いくらの価値を持つかを示す指標として、金融界や不動産評価で標準的な **DCF法（ディスカウント・キャッシュフロー法）** を採用しています。</p>
                 <div style="background: rgba(30, 41, 59, 0.8); border: 1px dashed rgba(96, 165, 250, 0.3); padding: 12px; text-align: center; border-radius: 8px; font-weight: bold; color: #60a5fa; margin: 12px 0; font-family: monospace; font-size: 0.9rem;">
-                    アセット評価額 ＝ Σ [ 各年の手取りフリーCF ／ (1 ＋ 割引率)^t ]
+                    発電所評価額 ＝ Σ [ 各年の手取りフリーCF ／ (1 ＋ 割引率)^t ]
                 </div>
                 <p style="margin-bottom: 5px;">※評価対象期間は、買取価格が公的保障されている **「残存FIT期間（最大20年目まで）」** を対象とします。割引率（将来価値を目減りさせる金利・リスクプレミアム）は、デフォルトで <strong>5.0%</strong> を採用しています。</p>
-                <p style="margin-top: 5px; margin-bottom: 0;">スライダー操作によってリパワリングの実行時期を遅らせると、高効率による売電期間が短くなり、また得られる将来キャッシュフローの現在価値への割引影響が大きくなるため、アセット評価額が自動的に滑らかに減少する仕様を動的に再現しています。</p>
+                <p style="margin-top: 5px; margin-bottom: 0;">スライダー操作によってリパワリングの実行時期を遅らせると、高効率による売電期間が短くなり、また得られる将来キャッシュフローの現在価値への割引影響が大きくなるため、発電所評価額が自動的に滑らかに減少する仕様を動的に再現しています。</p>
             </div>
         </div>
         <div class="modal-footer" style="border-top: 1px solid var(--border-color); padding: 15px 20px; display: flex; justify-content: flex-end;">
@@ -5125,7 +5125,7 @@
                     `　残存FIT期間終了（残り ${20 - data.elapsedYears}年）の翌年以降は、売電単価` +
                     `が 8.5円/kWh まで急落します。この状態でO&M費用等の維持経費がかかり続けると、単年収支が赤字化する可能性があります。<br>` +
                     `3. <strong>ハザード立地リスク</strong>: <br>` +
-                    `　当アセットは「${currentHazardText.replace("ハザードリスク情報: ", "")}」エリアに属しています。万が一の被災時の復旧コストや、保険料上昇（年数万円）が発生する可能性があるため、適切なリスク引当や事前対策が推奨されます。`;
+                    `　当発電所は「${currentHazardText.replace("ハザードリスク情報: ", "")}」エリアに属しています。万が一の被災時の復旧コストや、保険料上昇（年数万円）が発生する可能性があるため、適切なリスク引当や事前対策が推奨されます。`;
         } else if (type === 'recommend') {
             userMsg = "プランA（PCS交換）とプランB（リパワリング）どちらがおすすめ？";
             
@@ -5158,10 +5158,10 @@
                         paybackAdvice = `・<strong>投資回収</strong>: 初期投資の回収がシミュレーション期間内で困難です。<br>`;
                     }
                     
-                    adviceText = `結論から申し上げますと、アセット全体の価値と累積収益を最大化できる<strong>プランB（フルリパワリング）が最もおすすめ</strong>です。<br><br>` +
+                    adviceText = `結論から申し上げますと、発電所全体の価値と累積収益を最大化できる<strong>プランB（フルリパワリング）が最もおすすめ</strong>です。<br><br>` +
                                  `・<strong>収支の最大化</strong>: プランBの${simYears}年間の累積CFは <strong>${repowerCFText}</strong> となり、現状維持（${baseCFText}）と比較して <strong>+${diffCF.toLocaleString()}万円</strong> の上乗せが見込めます。<br>` +
                                  paybackAdvice +
-                                 `・<strong>アセット延命</strong>: モジュールを最新の高効率品に全交換するため、将来30〜40年の超長期運用（FIT期間外も含む）にも高い耐性を誇ります。中期的な機器延命のみを目指す場合はプランA（PCS交換のみ：累積CF ${pcsCFText}）も選択肢になりますが、事業性・資産価値を最大化する観点ではプランBが最適です。`;
+                                 `・<strong>発電所延命</strong>: モジュールを最新の高効率品に全交換するため、将来30〜40年の超長期運用（FIT期間外も含む）にも高い耐性を誇ります。中期的な機器延命のみを目指す場合はプランA（PCS交換のみ：累積CF ${pcsCFText}）も選択肢になりますが、事業性・資産価値を最大化する観点ではプランBが最適です。`;
                 } else if (diffPcsCF > 0 && diffPcsCF >= diffCF) {
                     adviceText = `結論から申し上げますと、コストを抑えつつ機器の故障リスクを回避できる<strong>プランA（PCS一括交換）が最もおすすめ</strong>です。<br><br>` +
                                  `・<strong>収支の改善</strong>: プランAの${simYears}年間の累積CFは <strong>${pcsCFText}</strong> となり、現状維持（${baseCFText}）と比較して <strong>+${diffPcsCF.toLocaleString()}万円</strong> の上乗せが見込めます。<br>` +
@@ -5171,7 +5171,7 @@
                                  `・<strong>投資対効果の分析</strong>: <br>` +
                                  `　プランB（フルリパワリング）は累積CFが現状維持を下回る赤字（<strong>-${Math.abs(diffCF).toLocaleString()}万円</strong>）となり、プランA（PCS一括交換）も赤字（<strong>-${Math.abs(diffPcsCF).toLocaleString()}万円</strong>）となるため、どちらのプランも投資回収が困難です。<br>` +
                                  `・<strong>推奨アクション</strong>: <br>` +
-                                 `　余計な修繕や改修への追加投資を最小限に抑えつつ、現在の高いFIT単価（${data.fitPrice}円）での売電利益を現状維持のまま享受し続けるか、あるいは12年目のPCS一括交換の前に、セカンダリー市場でアセット（現在の評価額：<strong>¥${assetValueText}</strong>）を早期売却するExit戦略が最も合理的です。`;
+                                 `　余計な修繕や改修への追加投資を最小限に抑えつつ、現在の高いFIT単価（${data.fitPrice}円）での売電利益を現状維持のまま享受し続けるか、あるいは12年目のPCS一括交換の前に、セカンダリー市場で発電所（現在の評価額：<strong>¥${assetValueText}</strong>）を早期売却するExit戦略が最も合理的です。`;
                 }
                 aiMsg = `<strong>推奨プランの選定アドバイス：</strong><br><br>` + adviceText;
             }
@@ -5185,7 +5185,7 @@
                     `　ハザードエリア内の発電所は、災害による物理的損壊リスクのほか、火災・水害保険料の特約追加等で年間運営経費（年 ${hazardInsuranceSurcharge}万円）が加算され、収支を圧迫します。<br>` +
                     `・<strong>推奨される対策</strong>: <br>` +
                     `　1. <strong>ハザード連動スイッチの適用</strong>: 左メニューの「ハザードリスク連動」を有効にすることで、初期の浸水防止工事費用（100万円等）や毎年加算される保険料を織り込んだ「真の事業計画」を把握できます。<br>` +
-                    `　2. <strong>物理的対策</strong>: プランBの工事の際、同時に架台のかさ上げ（浸水対策）や土留め整備を施すことで、アセットの健全性を維持し、金融機関からの融資評価やアセットの担保価値（現在の評価額：<strong>¥${assetValueText}</strong>）を安定させることができます。`;
+                    `　2. <strong>物理的対策</strong>: プランBの工事の際、同時に架台のかさ上げ（浸水対策）や土留め整備を施すことで、発電所の健全性を維持し、金融機関からの融資評価や発電所の担保価値（現在の評価額：<strong>¥${assetValueText}</strong>）を安定させることができます。`;
         } else if (type === 'custom') {
             userMsg = customText;
             const text = customText.toLowerCase();
@@ -5203,21 +5203,21 @@
                         `・<strong>最大化の鍵</strong>: <br>` +
                         `　「蓄電池」を併設することで、日中の発電を蓄電し、市場価格の高騰する夕方〜夜間に放電・売電することで、収支効率を劇的に高めることができます。ぜひ「FIP制度への転換」と「蓄電池併設」の双方をONにしてシミュレーションの推移をご確認ください。`;
             } else if (text.includes("売却") || text.includes("出口") || text.includes("exit") || text.includes("処分") || text.includes("うる") || text.includes("売る")) {
-                aiMsg = `<strong>アセットの適切な売却時期（Exit戦略）の分析：</strong><br><br>` +
-                        `現在のシミュレーション（アセット評価額：<strong>¥${assetValueText}</strong>）に基づき、以下の3つの売却シナリオが考えられます。<br><br>` +
+                aiMsg = `<strong>発電所の適切な売却時期（Exit戦略）の分析：</strong><br><br>` +
+                        `現在のシミュレーション（発電所評価額：<strong>¥${assetValueText}</strong>）に基づき、以下の3つの売却シナリオが考えられます。<br><br>` +
                         `1. <strong>現状維持（プラン①）で早期売却する場合【推奨：1〜2年以内】</strong><br>` +
                         `　現状維持のまま売却を検討される場合、<strong>「今すぐ（1〜2年以内）」</strong>が最良のタイミングです。本発電所は経過年数 ${data.elapsedYears}年であり、12年目に予定されているPCS一括交換（200万円）や、終了年月（${data.fitEndDate}）に伴う売電単価下落の前に売却することで、最も手元に残るキャッシュを最大化できます。<br>` +
                         `2. <strong>プランB（リパワリング）実施後に売却する場合【推奨：5〜7年後】</strong><br>` +
-                        `　プランBを実行すると、アセットの発電能力が劇的に向上し、アセット評価額を大幅に高めることができます。プランBの投資回収期間は <strong>${paybackRepowerText}</strong> ですので、投資回収が完了する <strong>5〜7年目</strong> に、セカンダリー市場で「リパワリング済みの高利回り優良アセット」として高値売却を目指す出口戦略が極めて合理的です。<br>` +
+                        `　プランBを実行すると、発電所の発電能力が劇的に向上し、発電所評価額を大幅に高めることができます。プランBの投資回収期間は <strong>${paybackRepowerText}</strong> ですので、投資回収が完了する <strong>5〜7年目</strong> に、セカンダリー市場で「リパワリング済みの高利回り優良発電所」として高値売却を目指す出口戦略が極めて合理的です。<br>` +
                         `3. <strong>卒FIT直前に売却する場合【推奨：運転開始から18〜20年目】</strong><br>` +
-                        `　20年間のFIT売電収入を最大限手元に回収した上で、卒FITアセットとして新電力等に売却、または自家消費用アセットとして隣接企業にPPA売却する出口です。`;
+                        `　20年間のFIT売電収入を最大限手元に回収した上で、卒FIT発電所として新電力等に売却、または自家消費用発電所として隣接企業にPPA売却する出口です。`;
             } else if (text.includes("回収") || text.includes("投資") || text.includes("payback") || text.includes("元が取れる")) {
                 const remainingYears = Math.max(1, Math.round(20 - data.elapsedYears));
                 const pbYears = parseFloat(paybackRepowerText.replace(/[^0-9.]/g, ''));
                 let repowerPaybackAdvice = "";
                 if (!isNaN(pbYears)) {
                     if (pbYears <= 10) {
-                        repowerPaybackAdvice = `投資回収は <strong>${paybackRepowerText}</strong> と極めて優秀（早期回収型）です。早期に純利益化フェーズへ移行するため、アセット価値を最大化できます。`;
+                        repowerPaybackAdvice = `投資回収は <strong>${paybackRepowerText}</strong> と極めて優秀（早期回収型）です。早期に純利益化フェーズへ移行するため、発電所価値を最大化できます。`;
                     } else if (pbYears <= remainingYears) {
                         repowerPaybackAdvice = `投資回収は <strong>${paybackRepowerText}</strong> と残存FIT期間（残り${remainingYears}年）内に収まっており、非常に合理的です。高単価FIT期間中に初期投資を完全に回収しきることができます。`;
                     } else {
@@ -5235,7 +5235,7 @@
                         `　${repowerPaybackAdvice}`;
             } else if (text.includes("ppa") || text.includes("自家消費") || text.includes("自己消費") || text.includes("オフサイト")) {
                 aiMsg = `<strong>PPA（電力販売契約）および自家消費への切り替え分析：</strong><br><br>` +
-                        `卒FIT後、またはFIT期間中からのオンサイト/オフサイトPPAモデルへの切り替えは、アセット価値を維持する重要な選択肢です。<br><br>` +
+                        `卒FIT後、またはFIT期間中からのオンサイト/オフサイトPPAモデルへの切り替えは、発電所価値を維持する重要な選択肢です。<br><br>` +
                         `・<strong>FIT終了後（卒FIT）の対策として</strong>:<br>` +
                         `　本発電所は ${data.fitEndDate} にFIT売電が終了し、売電単価が 8.5円/kWh に下がりますが、隣接する工場や施設とPPAを締結し、電気を直接 15円〜20円/kWh 程度で供給（自家消費化）できれば、アセットの収益性をFIT終了後も高く維持できます。<br>` +
                         `・<strong>そらバリュのサポート</strong>:<br>` +
@@ -5265,11 +5265,11 @@
                         `1. <strong>高単価での回収または超長期PPAへの布石となるため</strong><br>` +
                         `　${reasonAdvice}<br>` +
                         `2. <strong>パネルの『技術世代ギャップ』を活用できるため</strong><br>` +
-                        `　初期（稼働${data.elapsedYears}年）の太陽光パネルに比べ、現在の最新パネルはモジュール変換効率や実効出力が著しく向上しています。これらを最新型へ全交換し、積載率を <strong>1.4倍（過積載）</strong> に高めることで、同じ土地面積であっても年間発電量を劇的に底上げでき、アセット価値（評価額：<strong>${assetValueText}</strong>）を効率よく引き上げられます。<br>` +
+                        `　初期（稼働${data.elapsedYears}年）の太陽光パネルに比べ、現在の最新パネルはモジュール変換効率や実効出力が著しく向上しています。これらを最新型へ全交換し、積載率を <strong>1.4倍（過積載）</strong> に高めることで、同じ土地面積であっても年間発電量を劇的に底上げでき、発電所価値（評価額：<strong>${assetValueText}</strong>）を効率よく引き上げられます。<br>` +
                         `3. <strong>いずれ発生する「PCS交換費用」を包括してプラスにできるため</strong><br>` +
                         `　現状維持でも、設計寿命に伴うPCS一括交換（推定${pcsCFText}）が将来発生します。どうせ発生する「守りのコスト」を、発電量を激増させる「攻めのリパワリング投資」に統合・前倒し実行する方が、ライフサイクル全体の利回りは圧倒的に高くなります。`;
             } else {
-                aiMsg = `ご質問ありがとうございます！現在のシミュレーション（アセット評価額：<strong>¥${assetValueText}</strong>、${simYears}年間累積CF：<strong>${repowerCFText}</strong>）に基づき解説いたします。<br><br>` +
+                aiMsg = `ご質問ありがとうございます！現在のシミュレーション（発電所評価額：<strong>¥${assetValueText}</strong>、${simYears}年間累積CF：<strong>${repowerCFText}</strong>）に基づき解説いたします。<br><br>` +
                         `・<strong>最も収益性が高いアプローチ</strong>: リパワリング投資（現在 ${repowerCost}万円）を実行し、想定発電量を +${generationBoost}% 向上させるプランBです。<br>` +
                         `・<strong>将来の安定化に向けて</strong>: すでに経過年数 ${data.elapsedYears}年 となっているため、早期に対策を実施することで、将来にわたり安定的なキャッシュを確保できます。<br><br>` +
                         `他にご質問（「蓄電池のメリットは？」「FIPに転換すべき？」など）がございましたらお気軽に入力してください。`;
