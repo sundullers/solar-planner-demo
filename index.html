@@ -3737,9 +3737,13 @@
             if (repowerCost > 0) {
                 const repowerPanelCapacity = data.panelCapacity * 1.385;
                 const repowerOvercapacityRate = Math.round((repowerPanelCapacity / data.capacity) * 100);
-                specCapacityEl.innerHTML = `${data.panelCapacity.toFixed(1)}<span class="spec-unit">kW</span><span style="font-size: 0.72rem; color: #34d399; font-weight: bold; margin-left: 5px;">➡ ${repowerPanelCapacity.toFixed(1)} kW</span>`;
+                specCapacityEl.style.fontSize = "1.05rem"; // 1行に収まるようにフォントサイズを調整
+                specCapacityEl.style.whiteSpace = "nowrap"; // 途中で改行させない
+                specCapacityEl.innerHTML = `${data.panelCapacity.toFixed(1)}<span class="spec-unit">kW</span> <span style="font-size: 0.72rem; color: #34d399; font-weight: bold; margin-left: 2px;">➡ ${repowerPanelCapacity.toFixed(1)} kW</span>`;
                 specCapacitySubEl.innerHTML = `パワコン容量: ${data.capacity.toFixed(1)} kW<br>積載率: ${overcapacityRate}% ➡ <span style="color: #34d399; font-weight: bold;">${repowerOvercapacityRate}%</span>`;
             } else {
+                specCapacityEl.style.fontSize = "1.2rem"; // デフォルトのスタイルに戻す
+                specCapacityEl.style.whiteSpace = "normal";
                 specCapacityEl.innerHTML = `${data.panelCapacity.toFixed(1)}<span class="spec-unit">kW</span>`;
                 specCapacitySubEl.innerHTML = `パワコン容量: ${data.capacity.toFixed(1)} kW<br>積載率: ${overcapacityRate}%`;
             }
