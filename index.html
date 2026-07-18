@@ -2483,11 +2483,20 @@
     // ----------------------------------------------------
     let lastSimDetailData = null; // ドリルダウン用のシミュレーション詳細計算キャッシュ
     let hazardRadarChart = null;   // ハザードリスクレーダーチャートのインスタンス
+    
+    // 各DOM要素のアクティブなアニメーションフレームIDを管理するオブジェクト
+    const activeAnimations = {};
 
     // ギミック1: 数値の高速カウントアップ ＆ ゴールドグロー効果
     function animateNumberValue(id, targetVal, isCurrency = true) {
         const obj = document.getElementById(id);
         if (!obj) return;
+        
+        // 既にアニメーションが走っている場合はキャンセル
+        if (activeAnimations[id]) {
+            cancelAnimationFrame(activeAnimations[id]);
+            activeAnimations[id] = null;
+        }
         
         // 直近の数値をパースして開始値とする（なければ0）
         const currentText = obj.innerText.replace(/,/g, '').trim();
@@ -2518,17 +2527,21 @@
             obj.innerText = isCurrency ? Math.round(currentVal).toLocaleString() : currentVal.toFixed(1);
             
             if (progress < 1) {
-                requestAnimationFrame(updateNumber);
+                activeAnimations[id] = requestAnimationFrame(updateNumber);
             } else {
                 obj.innerText = isCurrency ? Math.round(endVal).toLocaleString() : endVal.toFixed(1);
+                activeAnimations[id] = null;
                 // アニメーション完了後、1.5秒後にグローを自然にフェードアウト
                 setTimeout(() => {
-                    obj.classList.remove('gold-glow-active');
+                    // 新たに次のアニメーションが始まっていない場合のみフェードアウトを実行
+                    if (!activeAnimations[id]) {
+                        obj.classList.remove('gold-glow-active');
+                    }
                 }, 1500);
             }
         }
         
-        requestAnimationFrame(updateNumber);
+        activeAnimations[id] = requestAnimationFrame(updateNumber);
     }
 
     // ギミック2: グラフの点クリックによるドリルダウン年次収支ポップアップ
