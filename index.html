@@ -4028,7 +4028,7 @@
                 const yearsSinceRepower = i - repowerYear - 1;
                 // モジュールは最新の新品に交換されるため、経年劣化率は古い実績を引き継がず、標準の0.005ベースの60%低減とする
                 const repowerEfficiency = (1 + generationBoost) * (1 - (yearsSinceRepower * (0.005 * 0.6))) * (1 - effLoss);
-                const repowerStdGen = calcStandardGeneration(data.panelCapacity, data.capacity);
+                const repowerStdGen = calcStandardGeneration(data.panelCapacity * 1.385, data.capacity);
                 
                 repowerIncome = (i === 0) ? 0 : (repowerStdGen * repowerCapacityFactor * repowerEfficiency * price * (1 - finalSuppressionRate)) / 10000;
                 
@@ -4545,13 +4545,36 @@
             // 損得判定
             if (netGainRepower > 0 && netGainRepower > netGainPcsOpt) {
                 // プランB（リパワリング）推奨
-                conclusionCard.style.borderLeft = '5px solid #10b981'; // 緑色
-                conclusionBadge.innerText = 'AI推奨：最高収益';
-                conclusionBadge.style.background = '#10b981';
-                conclusionBadge.style.color = 'white';
-                conclusionTitle.innerText = 'プランB（フルリパワリング）の実施を強く推奨します';
-                conclusionBody.innerHTML = `本アセットはリパワリングの投資対効果が極めて高く、現状維持と比較して${simYears}年間で手残りCFが <strong>+${Math.round(netGainRepower).toLocaleString()}万円</strong> 向上します。` +
-                                            `初期投資 ${actualRepowerCost}万円 は、過積載増設と発電効率の向上により、<strong>${paybackRepower}</strong> でスピーディに回収が可能です。将来の資産価値を最大化する最適な選択肢です。`;
+                const remainingYears = Math.max(1, Math.round(20 - data.elapsedYears));
+                
+                if (pbRepower !== null && pbRepower <= 10) {
+                    // ① 早期回収（10年以下）
+                    conclusionCard.style.borderLeft = '5px solid #10b981'; // 緑色
+                    conclusionBadge.innerText = 'AI推奨：最高収益 (早期回収型)';
+                    conclusionBadge.style.background = '#10b981';
+                    conclusionBadge.style.color = 'white';
+                    conclusionTitle.innerText = 'プランB（フルリパワリング）の実施を強く推奨します';
+                    conclusionBody.innerHTML = `本アセットはリパワリングの投資対効果が極めて高く、現状維持と比較して${simYears}年間で手残りCFが <strong>+${Math.round(netGainRepower).toLocaleString()}万円</strong> 向上します。` +
+                                                `初期投資 ${actualRepowerCost}万円 は、過積載増設と発電効率の向上により、<strong>${paybackRepower}</strong> という極めてスピーディーな期間で投資回収が可能です。早期に純利益化フェーズへ移行するため、将来の資産価値を最大化する最適な選択肢です。`;
+                } else if (pbRepower !== null && (pbRepower <= 15 || pbRepower <= remainingYears)) {
+                    // ② 合理的回収（残存FIT内）
+                    conclusionCard.style.borderLeft = '5px solid #10b981'; // 緑色
+                    conclusionBadge.innerText = 'AI推奨：手残り最大';
+                    conclusionBadge.style.background = '#10b981';
+                    conclusionBadge.style.color = 'white';
+                    conclusionTitle.innerText = 'プランB（フルリパワリング）の実行をおすすめします';
+                    conclusionBody.innerHTML = `本アセットはリパワリングにより手残りCFが大幅に増加し、現状維持と比較して${simYears}年間で手残りCFが <strong>+${Math.round(netGainRepower).toLocaleString()}万円</strong> 向上します。` +
+                                                `初期投資 ${actualRepowerCost}万円 は、過積載増設と発電効率の向上により、<strong>${paybackRepower}</strong> で着実に投資回収が可能です。残存FIT期間（残り${remainingYears}年）内に初期投資を回収できるためリスクが低く、将来の資産価値を最大化する最適な選択肢です。`;
+                } else {
+                    // ③ 長期回収（15年超 かつ 残存FIT超）
+                    conclusionCard.style.borderLeft = '5px solid #fbbf24'; // 黄色・アンバー
+                    conclusionBadge.innerText = 'AI推奨：要長期判断';
+                    conclusionBadge.style.background = '#eab308'; // 少し濃い黄色
+                    conclusionBadge.style.color = 'white';
+                    conclusionTitle.innerText = 'プランB（リパワリング）は収益は増えますが、回収の長期化に留意してください';
+                    conclusionBody.innerHTML = `本アセットはリパワリングにより${simYears}年間で手残りCFが <strong>+${Math.round(netGainRepower).toLocaleString()}万円</strong> 向上しますが、初期投資 ${actualRepowerCost}万円 の回収には <strong>${paybackRepower}</strong> と長期を要します。` +
+                                                `回収完了がFIT期間終了（残り${remainingYears}年）の翌年以降になるため、卒FIT後も長期運用を継続することを前提とした計画的な実行を推奨します。`;
+                }
             } else if (netGainPcsOpt > 0 && netGainPcsOpt >= netGainRepower) {
                 // プランA（PCS交換）推奨
                 conclusionCard.style.borderLeft = '5px solid #3b82f6'; // 青色
@@ -4590,6 +4613,9 @@
         window.baseCF = baseCF;
         window.pcsOptCF = pcsOptCF;
         window.repowerCF = repowerCF;
+        window.netGainRepower = netGainRepower;
+        window.pbRepower = pbRepower;
+        window.netGainPcsOpt = netGainPcsOpt;
     }
 
     // 印刷ボタンの押下制御
@@ -5097,9 +5123,24 @@
                 
                 let adviceText = "";
                 if (diffCF > 0 && diffCF > diffPcsCF) {
+                    const remainingYears = Math.max(1, Math.round(20 - data.elapsedYears));
+                    const pbYears = parseFloat(paybackRepowerText.replace(/[^0-9.]/g, ''));
+                    let paybackAdvice = "";
+                    if (!isNaN(pbYears)) {
+                        if (pbYears <= 10) {
+                            paybackAdvice = `・<strong>投資回収</strong>: 初期投資に ${repowerCost}万円 を要しますが、過積載の1.385倍化と発電量向上効果により、回収期間は <strong>${paybackRepowerText}</strong> と極めて短期間であり、早期に純利益化フェーズへ移行します。<br>`;
+                        } else if (pbYears <= remainingYears) {
+                            paybackAdvice = `・<strong>投資回収</strong>: 初期投資に ${repowerCost}万円 を要しますが、過積載の1.385倍化と発電量向上効果により、回収期間は <strong>${paybackRepowerText}</strong> と残存FIT期間（残り${remainingYears}年）内に収まっており、非常に合理的です。<br>`;
+                        } else {
+                            paybackAdvice = `・<strong>投資回収の長期化リスク</strong>: 初期投資に ${repowerCost}万円 を要し、回収期間は <strong>${paybackRepowerText}</strong> と残存FIT期間（残り${remainingYears}年）を超えて長期化します。そのため、卒FIT後も10年以上にわたり稼働し続けることを前提とした、長期目線での慎重な投資判断が必要です。<br>`;
+                        }
+                    } else {
+                        paybackAdvice = `・<strong>投資回収</strong>: 初期投資の回収がシミュレーション期間内で困難です。<br>`;
+                    }
+                    
                     adviceText = `結論から申し上げますと、アセット全体の価値と累積収益を最大化できる<strong>プランB（フルリパワリング）が最もおすすめ</strong>です。<br><br>` +
                                  `・<strong>収支の最大化</strong>: プランBの${simYears}年間の累積CFは <strong>${repowerCFText}</strong> となり、現状維持（${baseCFText}）と比較して <strong>+${diffCF.toLocaleString()}万円</strong> の上乗せが見込めます。<br>` +
-                                 `・<strong>投資回収</strong>: 初期投資に ${repowerCost}万円 を要しますが、過積載の1.385倍化と発電量向上効果により、回収期間は <strong>${paybackRepowerText}</strong> と合理的です。<br>` +
+                                 paybackAdvice +
                                  `・<strong>アセット延命</strong>: モジュールを最新の高効率品に全交換するため、将来30〜40年の超長期運用（FIT期間外も含む）にも高い耐性を誇ります。中期的な機器延命のみを目指す場合はプランA（PCS交換のみ：累積CF ${pcsCFText}）も選択肢になりますが、事業性・資産価値を最大化する観点ではプランBが最適です。`;
                 } else if (diffPcsCF > 0 && diffPcsCF >= diffCF) {
                     adviceText = `結論から申し上げますと、コストを抑えつつ機器の故障リスクを回避できる<strong>プランA（PCS一括交換）が最もおすすめ</strong>です。<br><br>` +
@@ -5151,12 +5192,27 @@
                         `3. <strong>卒FIT直前に売却する場合【推奨：運転開始から18〜20年目】</strong><br>` +
                         `　20年間のFIT売電収入を最大限手元に回収した上で、卒FITアセットとして新電力等に売却、または自家消費用アセットとして隣接企業にPPA売却する出口です。`;
             } else if (text.includes("回収") || text.includes("投資") || text.includes("payback") || text.includes("元が取れる")) {
+                const remainingYears = Math.max(1, Math.round(20 - data.elapsedYears));
+                const pbYears = parseFloat(paybackRepowerText.replace(/[^0-9.]/g, ''));
+                let repowerPaybackAdvice = "";
+                if (!isNaN(pbYears)) {
+                    if (pbYears <= 10) {
+                        repowerPaybackAdvice = `投資回収は <strong>${paybackRepowerText}</strong> と極めて優秀（早期回収型）です。早期に純利益化フェーズへ移行するため、アセット価値を最大化できます。`;
+                    } else if (pbYears <= remainingYears) {
+                        repowerPaybackAdvice = `投資回収は <strong>${paybackRepowerText}</strong> と残存FIT期間（残り${remainingYears}年）内に収まっており、非常に合理的です。高単価FIT期間中に初期投資を完全に回収しきることができます。`;
+                    } else {
+                        repowerPaybackAdvice = `投資回収は <strong>${paybackRepowerText}</strong> と残存FIT期間（残り${remainingYears}年）を超えて長期化するため、卒FIT後も長期運用を継続することを前提とした慎重な投資判断が必要です。`;
+                    }
+                } else {
+                    repowerPaybackAdvice = `初期投資の回収がシミュレーション期間内で困難です。`;
+                }
+                
                 aiMsg = `<strong>投資回収期間（投資効率）に関する分析：</strong><br><br>` +
                         `現在のシミュレーション設定における投資回収の分析結果です。<br><br>` +
                         `・<strong>プランA（PCS交換のみ：投資額 ${pcsCFText.includes('万円') ? pcsCFText : '約200万円'}）</strong>:<br>` +
                         `　投資回収は <strong>${document.getElementById('roi-pcs-payback')?.innerText || '回収不能'}</strong> と予測されます。PCSを新品にするのみの守りの投資であるため、劇的な売電向上は見込めず、回収には時間がかかります。<br>` +
                         `・<strong>プランB（フルリパワリング：投資額 ${repowerCost}万円）</strong>:<br>` +
-                        `　投資回収は <strong>${paybackRepowerText}</strong> と極めて優秀です。初期投資はかかりますが、過積載の1.385倍化と想定発電量 +${generationBoost}% 向上による増収効果が投資額を大きく上回るため、事業期間全体を通じて <strong>${repowerCFText}</strong> の手残りCFを生み出し、効率的な資産形成に繋がります。`;
+                        `　${repowerPaybackAdvice}`;
             } else if (text.includes("ppa") || text.includes("自家消費") || text.includes("自己消費") || text.includes("オフサイト")) {
                 aiMsg = `<strong>PPA（電力販売契約）および自家消費への切り替え分析：</strong><br><br>` +
                         `卒FIT後、またはFIT期間中からのオンサイト/オフサイトPPAモデルへの切り替えは、アセット価値を維持する重要な選択肢です。<br><br>` +
@@ -5175,10 +5231,19 @@
                         `・<strong>${data.name}でのシミュレーション効果</strong>:<br>` +
                         `　投資額 <strong>${repowerCost}万円</strong> を投じることで、想定発電量を <strong>+${generationBoost}%</strong> 改善し、現状維持と比較して <strong>${repowerCFText}</strong> の累積CFを生み出す計画となっています。`;
             } else if (text.includes("必要") || text.includes("なぜ") || text.includes("8年") || text.includes("意味ある") || text.includes("するべき")) {
+                const remainingYears = Math.max(1, Math.round(20 - data.elapsedYears));
+                const pbYears = parseFloat(paybackRepowerText.replace(/[^0-9.]/g, ''));
+                let reasonAdvice = "";
+                if (!isNaN(pbYears) && pbYears <= remainingYears) {
+                    reasonAdvice = `本発電所のFIT売電単価は <strong>${data.fitPrice}円</strong> と非常に高単価です。プランBの回収期間は <strong>${paybackRepowerText}</strong> ですので、残り <strong>${remainingYears}年間</strong> のFIT期間中に投資額（${repowerCost}万円）を完全に回収しきり、残りのFIT期間（約7〜8年間）で高単価の増収メリットをまるまる純利益として享受できます。これがFIT終了直前（残り3〜4年など）になると、投資回収が間に合わず手遅れになります。`;
+                } else {
+                    reasonAdvice = `本発電所のFIT売電単価は <strong>${data.fitPrice}円</strong> と非常に高単価ですが、今回の設定では投資額（${repowerCost}万円）に対して回収期間が <strong>${paybackRepowerText}</strong> と残存FIT期間（残り ${remainingYears}年）を超過してしまいます。そのため、FIT終了後（卒FIT後）も高い価格で電力を買い取ってもらうPPAモデルへの円滑な切り替えなど、超長期の運用を視野に入れた戦略的実行が必要になります。`;
+                }
+                
                 aiMsg = `<strong>稼働後 ${data.elapsedYears}年 が経過した発電所でリパワリングが必要な理由：</strong><br><br>` +
                         `結論から申し上げますと、<strong>「残存FIT期間がたっぷり（残り ${20 - data.elapsedYears}年）残っている『今』だからこそ、リパワリングの投資効果が最大化する」</strong>と言えます。理由は大きく3つあります。<br><br>` +
-                        `1. <strong>高単価での回収期間が十分に確保できるため</strong><br>` +
-                        `　本発電所のFIT売電単価は <strong>${data.fitPrice}円</strong> と非常に高単価です。プランBの回収期間は <strong>${paybackRepowerText}</strong> ですので、残り <strong>${20 - data.elapsedYears}年間</strong> のFIT期間中に投資額（${repowerCost}万円）を完全に回収しきり、残りのFIT期間（約7〜8年間）で高単価の増収メリットをまるまる純利益として享受できます。これがFIT終了直前（残り3〜4年など）になると、投資回収が間に合わず手遅れになります。<br>` +
+                        `1. <strong>高単価での回収または超長期PPAへの布石となるため</strong><br>` +
+                        `　${reasonAdvice}<br>` +
                         `2. <strong>パネルの『技術世代ギャップ』を活用できるため</strong><br>` +
                         `　初期（稼働${data.elapsedYears}年）の太陽光パネルに比べ、現在の最新パネルはモジュール変換効率や実効出力が著しく向上しています。これらを最新型へ全交換し、積載率を <strong>1.4倍（過積載）</strong> に高めることで、同じ土地面積であっても年間発電量を劇的に底上げでき、アセット価値（評価額：<strong>${assetValueText}</strong>）を効率よく引き上げられます。<br>` +
                         `3. <strong>いずれ発生する「PCS交換費用」を包括してプラスにできるため</strong><br>` +
