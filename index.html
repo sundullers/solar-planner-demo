@@ -1029,6 +1029,38 @@
             border-color: var(--border-color) !important;
         }
 
+        /* ドリルダウンポップアップのライトモード対応 */
+        body.light-mode .drilldown-popup {
+            background-color: var(--bg-secondary) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.8) !important;
+        }
+        body.light-mode .drilldown-header {
+            border-bottom: 1px solid var(--border-color) !important;
+            color: var(--text-primary) !important;
+        }
+        body.light-mode .drilldown-row {
+            background: var(--table-hover-bg) !important;
+        }
+        body.light-mode .drilldown-row span {
+            color: var(--text-primary) !important;
+        }
+        body.light-mode .drilldown-close-btn:hover {
+            color: var(--danger-color) !important;
+        }
+
+        /* アクションモーダルのライトモード対応 */
+        body.light-mode #action-modal > div {
+            background-color: var(--bg-secondary) !important;
+            color: var(--text-primary) !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15) !important;
+            border-color: var(--border-color) !important;
+        }
+        body.light-mode #action-modal h3 {
+            color: var(--text-primary) !important;
+        }
+
         /* 印刷レイアウト用CSS */
         .pdf-page {
             background: #fff;
@@ -1526,7 +1558,7 @@
                     </span>
                     <label class="opt-switch" style="width: 36px; height: 20px; position: relative; display: inline-block;">
                         <input type="checkbox" id="toggle-advanced-mode" onchange="toggleAdvancedMode()" style="opacity: 0; width: 0; height: 0;">
-                        <span class="opt-switch-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #334155; transition: .3s; border-radius: 20px;"></span>
+                        <span class="opt-switch-slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; transition: .3s; border-radius: 20px;"></span>
                     </label>
                 </label>
             </div>
