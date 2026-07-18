@@ -1589,12 +1589,12 @@
             <!-- オーナー専用：アセット資産評価額表示 (上部配置、最大幅制限で間延び防止) -->
             <div class="owner-only" style="max-width: 900px; width: 100%; margin-bottom: 25px;">
                 <div style="font-size: 0.85rem; font-weight: bold; color: var(--text-primary); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-                    <span>💎 アセット資産評価 <span class="tooltip" data-tooltip="本シミュレータが財務・工学・立地リスク等の全変数から客観的に算出した、アセットの統合評価結果です。">?</span></span>
+                    <span>💎 発電所（資産）評価 <span class="tooltip" data-tooltip="本シミュレータが財務・工学・立地リスク等の全変数から客観的に算出した、発電所の統合評価結果です。">?</span></span>
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
                     <div class="card" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9)); border: 1px solid rgba(59, 130, 246, 0.3); padding: 15px; border-radius: 8px; display: flex; flex-direction: column; justify-content: flex-start;">
                         <div>
-                            <div style="font-size: 0.75rem; color: #60a5fa; font-weight: bold; margin-bottom: 3px; text-transform: uppercase; display: flex; align-items: center;">💎 アセット評価額 <span class="tooltip" data-tooltip="将来35〜40年間に設備が生み出す手残りCFの総額を、期待収益率（割引率 5%）で現在価値に割り戻したアセットの理論査定額です。セカンダリー市場での取引や融資評価の強固な基準になります。">?</span></div>
+                            <div style="font-size: 0.75rem; color: #60a5fa; font-weight: bold; margin-bottom: 3px; text-transform: uppercase; display: flex; align-items: center;">💎 発電所評価額 <span class="tooltip" data-tooltip="将来35〜40年間に設備が生み出す手残りCFの総額を、期待収益率（割引率 5%）で現在価値に割り戻した発電所の理論査定額です。セカンダリー市場での取引や融資評価の強固な基準になります。">?</span></div>
                             <div style="font-size: 1.35rem; font-weight: bold; color: white; display: flex; align-items: baseline; gap: 3px;">
                                 <span style="color: #60a5fa; font-size: 1rem;">¥</span><span id="owner-asset-value">24,500,000</span>
                             </div>
@@ -1799,7 +1799,7 @@
                             <div id="ai-chat-history" style="flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; padding-right: 5px; font-size: 0.85rem; line-height: 1.45; max-height: 330px;">
                                 <!-- AIの初期メッセージ -->
                                 <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 10px 12px; border-radius: 8px 8px 8px 0; color: #e2e8f0; align-self: flex-start; max-width: 90%;">
-                                    こんにちは！「そらバリュAI」です。現在のシミュレーション結果に基づき、アセットの価値最大化に向けたアドバイスをリアルタイムに提供します。気になる質問を選択するか、メッセージを入力してください。
+                                    こんにちは！「そらバリュAI」です。現在のシミュレーション結果に基づき、発電所の価値最大化に向けたアドバイスをリアルタイムに提供します。気になる質問を選択するか、メッセージを入力してください。
                                 </div>
                             </div>
 
@@ -4574,7 +4574,7 @@
                     conclusionBadge.style.background = '#10b981';
                     conclusionBadge.style.color = 'white';
                     conclusionTitle.innerText = 'プランB（フルリパワリング）の実施を強く推奨します';
-                    conclusionBody.innerHTML = `本アセットはリパワリングの投資対効果が極めて高く、現状維持と比較して${simYears}年間で手残りCFが <strong>+${Math.round(netGainRepower).toLocaleString()}万円</strong> 向上します。` +
+                    conclusionBody.innerHTML = `本発電所はリパワリングの投資対効果が極めて高く、現状維持と比較して${simYears}年間で手残りCFが <strong>+${Math.round(netGainRepower).toLocaleString()}万円</strong> 向上します。` +
                                                 `初期投資 ${actualRepowerCost}万円 は、過積載増設と発電効率の向上により、<strong>${paybackRepower}</strong> という極めてスピーディーな期間で投資回収が可能です。早期に純利益化フェーズへ移行するため、将来の資産価値を最大化する最適な選択肢です。`;
                 } else if (pbRepower !== null && (pbRepower <= 15 || pbRepower <= remainingYears)) {
                     // ② 合理的回収（残存FIT内）
@@ -4583,7 +4583,7 @@
                     conclusionBadge.style.background = '#10b981';
                     conclusionBadge.style.color = 'white';
                     conclusionTitle.innerText = 'プランB（フルリパワリング）の実行をおすすめします';
-                    conclusionBody.innerHTML = `本アセットはリパワリングにより手残りCFが大幅に増加し、現状維持と比較して${simYears}年間で手残りCFが <strong>+${Math.round(netGainRepower).toLocaleString()}万円</strong> 向上します。` +
+                    conclusionBody.innerHTML = `本発電所はリパワリングにより手残りCFが大幅に増加し、現状維持と比較して${simYears}年間で手残りCFが <strong>+${Math.round(netGainRepower).toLocaleString()}万円</strong> 向上します。` +
                                                 `初期投資 ${actualRepowerCost}万円 は、過積載増設と発電効率の向上により、<strong>${paybackRepower}</strong> で着実に投資回収が可能です。残存FIT期間（残り${remainingYears}年）内に初期投資を回収できるためリスクが低く、将来の資産価値を最大化する最適な選択肢です。`;
                 } else {
                     // ③ 長期回収（15年超 かつ 残存FIT超）
@@ -4592,7 +4592,7 @@
                     conclusionBadge.style.background = '#eab308'; // 少し濃い黄色
                     conclusionBadge.style.color = 'white';
                     conclusionTitle.innerText = 'プランB（リパワリング）は収益は増えますが、回収の長期化に留意してください';
-                    conclusionBody.innerHTML = `本アセットはリパワリングにより${simYears}年間で手残りCFが <strong>+${Math.round(netGainRepower).toLocaleString()}万円</strong> 向上しますが、初期投資 ${actualRepowerCost}万円 の回収には <strong>${paybackRepower}</strong> と長期を要します。` +
+                    conclusionBody.innerHTML = `本発電所はリパワリングにより${simYears}年間で手残りCFが <strong>+${Math.round(netGainRepower).toLocaleString()}万円</strong> 向上しますが、初期投資 ${actualRepowerCost}万円 の回収には <strong>${paybackRepower}</strong> と長期を要します。` +
                                                 `回収完了がFIT期間終了（残り${remainingYears}年）の翌年以降になるため、卒FIT後も長期運用を継続することを前提とした計画的な実行を推奨します。`;
                 }
             } else if (netGainPcsOpt > 0 && netGainPcsOpt >= netGainRepower) {
@@ -5237,7 +5237,7 @@
                 aiMsg = `<strong>PPA（電力販売契約）および自家消費への切り替え分析：</strong><br><br>` +
                         `卒FIT後、またはFIT期間中からのオンサイト/オフサイトPPAモデルへの切り替えは、発電所価値を維持する重要な選択肢です。<br><br>` +
                         `・<strong>FIT終了後（卒FIT）の対策として</strong>:<br>` +
-                        `　本発電所は ${data.fitEndDate} にFIT売電が終了し、売電単価が 8.5円/kWh に下がりますが、隣接する工場や施設とPPAを締結し、電気を直接 15円〜20円/kWh 程度で供給（自家消費化）できれば、アセットの収益性をFIT終了後も高く維持できます。<br>` +
+                        `　本発電所は ${data.fitEndDate} にFIT売電が終了し、売電単価が 8.5円/kWh に下がりますが、隣接する工場や施設とPPAを締結し、電気を直接 15円〜20円/kWh 程度で供給（自家消費化）できれば、発電所の収益性をFIT終了後も高く維持できます。<br>` +
                         `・<strong>そらバリュのサポート</strong>:<br>` +
                         `　画面左下の「PPA切り替え・相談窓口に問い合わせ」ボタンから、対象施設とのマッチングやPPAシミュレーションの詳細査定をシームレスに依頼可能です。`;
             } else if (text.includes("リパワ") || text.includes("repower") || text.includes("パネル交換") || text.includes("機器交換")) {
