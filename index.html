@@ -2244,11 +2244,35 @@
     }
 
     // パネル容量とパワコン容量から、過積載カットを考慮した年間標準発電量を計算
-    function calcStandardGeneration(panelCapacity, capacity) {
+    // 【NEDO日射取得量の小さくテスト（POC）】位置情報（緯度経度）から、NEDOデータベースの年間斜面日射量を反映
+    function calcStandardGeneration(panelCapacity, capacity, lat, lng) {
         const overcapacityRate = panelCapacity / capacity;
         // 過積載カットロス率の簡易モデル（積載率1.5倍超なら12%ロス、1.3倍超なら5%ロス、1.1倍超なら2%ロス）
         const lossFactor = overcapacityRate > 1.5 ? 0.12 : (overcapacityRate > 1.3 ? 0.05 : (overcapacityRate > 1.1 ? 0.02 : 0.0));
-        return Math.round(panelCapacity * 1150 * (1 - lossFactor));
+        
+        let nedoFactor = 1150; // デフォルト（徳島県平均）
+        if (lat && lng) {
+            const latF = parseFloat(lat);
+            const lngF = parseFloat(lng);
+            // 1. 那賀川町（平地・沿岸平野・日射多）：lat≒33.94, lng≒134.63
+            if (Math.abs(latF - 33.945023) < 0.05 && Math.abs(lngF - 134.639023) < 0.05) {
+                nedoFactor = 1240; // NEDO日射量 4.10 kWh/㎡/day 換算
+            }
+            // 2. 三好市三野町（吉野川中流・山間寄）：lat≒34.08, lng≒133.93
+            else if (Math.abs(latF - 34.081779) < 0.05 && Math.abs(lngF - 133.934921) < 0.05) {
+                nedoFactor = 1120; // NEDO日射量 3.70 kWh/㎡/day 換算
+            }
+            // 3. 名西郡神山町（中山間地・日射少）：lat≒33.96, lng≒134.35
+            else if (Math.abs(latF - 33.960896) < 0.05 && Math.abs(lngF - 134.357147) < 0.05) {
+                nedoFactor = 1075; // NEDO日射量 3.55 kWh/㎡/day 換算
+            }
+            // 4. 阿波市阿波町（内陸平野・標準）：lat≒34.07, lng≒134.26
+            else if (Math.abs(latF - 34.076172) < 0.05 && Math.abs(lngF - 134.268555) < 0.05) {
+                nedoFactor = 1165; // NEDO日射量 3.85 kWh/㎡/day 換算
+            }
+        }
+        
+        return Math.round(panelCapacity * nedoFactor * (1 - lossFactor));
     }
 
     // 徳島県データのロード
@@ -3126,7 +3150,7 @@
         const data = getSolarData(id);
         
         // 理論値の算出（出力抑制率2.9%を考慮）
-        const stdGen = calcStandardGeneration(data.panelCapacity, data.capacity);
+        const stdGen = calcStandardGeneration(data.panelCapacity, data.capacity, data.lat, data.lng);
         const currentEfficiency = 1 - (data.elapsedYears * 0.005);
         const theoreticalIncome = (stdGen * currentEfficiency * data.fitPrice * (1 - 0.029)) / 10000;
 
@@ -3554,7 +3578,7 @@
             
             // 直近1年の売電額の初期値を理論想定値から自動計算して入力
             const currentEfficiency = 1 - (data.elapsedYears * 0.005);
-            const stdGen = calcStandardGeneration(data.panelCapacity, data.capacity);
+            const stdGen = calcStandardGeneration(data.panelCapacity, data.capacity, data.lat, data.lng);
             const initialExpectedRevenue = Math.round((stdGen * currentEfficiency * data.fitPrice * (1 - 0.029)) / 10000);
             document.getElementById('actual-revenue-input').value = initialExpectedRevenue;
 
@@ -3838,7 +3862,7 @@
         let repowerPostIncomeSum = 0; let repowerPostYears = 0;
 
         // 年間標準発電量推定（過積載カットロス考慮）
-        const stdGen = calcStandardGeneration(data.panelCapacity, data.capacity) * calRatio; 
+        const stdGen = calcStandardGeneration(data.panelCapacity, data.capacity, data.lat, data.lng) * calRatio; 
         const simYears = parseInt(document.getElementById('sim-years').value) || 20;
 
 
@@ -3983,7 +4007,7 @@
                 const yearsSinceRepower = i - repowerYear - 1;
                 // モジュールは最新の新品に交換されるため、経年劣化率は古い実績を引き継がず、標準の0.005ベースの60%低減とする
                 const repowerEfficiency = (1 + generationBoost) * (1 - (yearsSinceRepower * (0.005 * 0.6))) * (1 - effLoss);
-                const repowerStdGen = calcStandardGeneration(data.panelCapacity, data.capacity);
+                const repowerStdGen = calcStandardGeneration(data.panelCapacity, data.capacity, data.lat, data.lng);
                 
                 repowerIncome = (i === 0) ? 0 : (repowerStdGen * repowerCapacityFactor * repowerEfficiency * price * (1 - finalSuppressionRate)) / 10000;
                 
@@ -4740,7 +4764,7 @@
     function triggerPpaConsult() {
         const id = document.getElementById('solar-id').value;
         const data = getSolarData(id);
-        const annualGen = calcStandardGeneration(data.panelCapacity, data.capacity);
+        const annualGen = calcStandardGeneration(data.panelCapacity, data.capacity, data.lat, data.lng);
         document.getElementById('modal-icon-area').innerText = "⚡";
         document.getElementById('modal-title').innerText = "PPA移行・環境価値相談（デモ）";
         document.getElementById('modal-message').innerHTML = `
