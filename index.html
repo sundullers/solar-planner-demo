@@ -3792,8 +3792,37 @@
         document.getElementById('fip-checkbox').checked = false;
         document.getElementById('battery-checkbox').checked = false;
         document.getElementById('battery-capacity-group').style.display = 'none';
-        document.getElementById('repower-year').value = "0";
-        document.getElementById('repower-year-val').innerText = "今すぐ（0年後）";
+
+        // 全スライダーおよび表示ラベルを標準のデフォルト初期値へリセット
+        const sliderDefaults = {
+            'repower-cost': '800',
+            'generation-boost': '15',
+            'repower-year': '0',
+            'pcs-cost': '150',
+            'pcs-unit-cost': '15',
+            'pcs-count': '10',
+            'pcs-design-life': '15',
+            'fit-price': '24.0',
+            'post-fit-price': '8.5',
+            'battery-capacity': '50',
+            'option-decom-cost': '100'
+        };
+
+        for (const [id, defVal] of Object.entries(sliderDefaults)) {
+            const slider = document.getElementById(id);
+            if (slider) {
+                slider.value = defVal;
+                // 表示ラベルテキストの同期
+                const valEl = document.getElementById(`${id}-val`);
+                if (valEl) {
+                    if (id === 'repower-year') {
+                        valEl.innerText = "今すぐ（0年後）";
+                    } else {
+                        valEl.innerText = defVal;
+                    }
+                }
+            }
+        }
 
         // ハザード関連UIを即座にリセット・非表示にする
         const alertBox = document.getElementById('hazard-alert');
