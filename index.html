@@ -2618,6 +2618,19 @@
             hazard: "ハザードマップ上、災害リスクは極めて低いです（浸水・土砂災害区域外）。",
             lat: 34.661751,
             lng: 133.935028
+        },
+        "A849491D23": {
+            name: "名古屋南太陽光第2発電所",
+            location: "愛知県名古屋市昭和区高辻町",
+            capacity: 80.0,
+            panelCapacity: 110.4,
+            fitPrice: 24,
+            elapsedYears: 9,
+            fitCertDate: "2015年6月10日",
+            fitEndDate: "2035年6月",
+            hazard: "土砂災害警戒区域（イエローゾーン）に近接、および洪水浸水想定区域（想定最大規模）に近接。",
+            lat: 35.138241,
+            lng: 136.920958
         }
     };
 
@@ -2634,8 +2647,8 @@
     let dynamicLoadedCache = {};
 
     // 設備IDからデータを取得する共通関数（demoDataおよび徳島データ、動的ロードデータから横断検索）
-    function getSolarData(id) {
-        if (!id) return demoData["A614245G36"];
+    function getSolarData(id, allowUndefined = false) {
+        if (!id) return allowUndefined ? undefined : demoData["A614245G36"];
         let data = demoData[id];
         if (!data && dynamicLoadedCache[id]) {
             data = dynamicLoadedCache[id];
@@ -2643,6 +2656,7 @@
         if (!data && loadedTokushimaData && loadedTokushimaData.length > 0) {
             data = loadedTokushimaData.find(item => item.id === id);
         }
+        if (!data && allowUndefined) return undefined;
         return data || demoData["A614245G36"];
     }
 
@@ -3861,7 +3875,7 @@
                 if (id !== currentLoadingAssetId) return;
 
                 // フォールバック: ローカルJSONまたはデモ用モックデータから取得
-                let data = getSolarData(id);
+                let data = getSolarData(id, true);
                 if (data) {
                     // フォールバックデータの場合でも、IDを入力されたIDと一致させる（レースコンディションガード通過のため）
                     const fallbackData = { ...data, id: id };
