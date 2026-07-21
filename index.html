@@ -5511,10 +5511,12 @@
         // ハザードアラート状態チェック
         if (hazardAlert && hazardAlert.style.display !== 'none') {
             const isHazardVisible = window.getComputedStyle(hazardAlert).display !== 'none';
-            const isWarning = hazardAlert.classList.contains('asset-alert-warning');
-            if (isHazardVisible && isWarning) {
-                count++;
-                hasWarning = true;
+            if (isHazardVisible) {
+                count++; // 安全（success）ステータス情報カードが表示されている場合も総件数としてカウント
+                const isWarning = hazardAlert.classList.contains('asset-alert-warning');
+                if (isWarning) {
+                    hasWarning = true;
+                }
             }
         }
         
