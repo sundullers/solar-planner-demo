@@ -1849,7 +1849,17 @@
             <div class="dashboard-main">
             <!-- グラフ拡大モーダル (右カラム全体を覆う絶対配置オーバーレイ) -->
             <div id="chart-zoom-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.97); backdrop-filter: blur(12px); border: 1px solid var(--border-color); border-radius: 16px; padding: 25px 30px; color: white; flex-direction: column; z-index: 1000; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);" onclick="closeChartZoomModal()">
-                <div style="width: 100%; height: 100%; display: flex; flex-direction: column; position: relative;" onclick="event.stopPropagation()">
+                <div id="zoom-modal-container" style="width: 100%; height: 100%; display: flex; flex-direction: column; position: relative;" onclick="event.stopPropagation()">
+                    <!-- 拡大グラフ用ドリルダウンポップアップ -->
+                    <div id="zoom-drilldown-popup" class="drilldown-popup" style="z-index: 2100;">
+                        <div class="drilldown-header">
+                            <span id="zoom-drilldown-year-title">N年目の年間収支内訳</span>
+                            <button type="button" class="drilldown-close-btn" onclick="closeZoomDrilldownPopup()">×</button>
+                        </div>
+                        <div class="drilldown-body" id="zoom-drilldown-popup-body">
+                            <!-- JSで動的に内訳行を挿入 -->
+                        </div>
+                    </div>
                     <!-- 閉じるボタン -->
                     <button type="button" style="position: absolute; top: -5px; right: -5px; background: none; border: none; color: var(--text-secondary); font-size: 2.2rem; line-height: 1; cursor: pointer; transition: color 0.2s;" onclick="closeChartZoomModal()">&times;</button>
                     
@@ -3001,6 +3011,76 @@
 
     function closeDrilldownPopup() {
         const popup = document.getElementById('drilldown-popup');
+        if (popup) popup.classList.remove('active');
+        closeZoomDrilldownPopup();
+    }
+
+    function showZoomDrilldownPopup(event, index) {
+        if (!lastSimDetailData || index === undefined) return;
+        
+        const popup = document.getElementById('zoom-drilldown-popup');
+        const body = document.getElementById('zoom-drilldown-popup-body');
+        const title = document.getElementById('zoom-drilldown-year-title');
+        
+        if (!popup || !body || !title) return;
+        
+        // 年タイトル更新
+        title.innerText = index === 0 ? "現在の初期収支内訳" : `${index}年後の年間収支内訳`;
+        
+        // 該当インデックスの詳細データを抽出
+        const d = {
+            baseSales: lastSimDetailData.baseSales[index] || 0,
+            baseExpense: lastSimDetailData.baseExpense[index] || 0,
+            pcsOptSales: lastSimDetailData.pcsOptSales[index] || 0,
+            pcsOptExpense: lastSimDetailData.pcsOptExpense[index] || 0,
+            repowerSales: lastSimDetailData.repowerSales[index] || 0,
+            repowerExpense: lastSimDetailData.repowerExpense[index] || 0,
+        };
+        
+        const baseCF = d.baseSales - d.baseExpense;
+        const pcsOptCF = d.pcsOptSales - d.pcsOptExpense;
+        const repowerCF = d.repowerSales - d.repowerExpense;
+        
+        // 各プランの内訳HTMLを生成
+        body.innerHTML = `
+            <div class="drilldown-title">① 現状維持（成り行き）</div>
+            <div class="drilldown-row highlight-red">
+                <span>売電: +${Math.round(d.baseSales)}万 / 経費: -${Math.round(d.baseExpense)}万</span>
+                <strong>手残り: ${Math.round(baseCF)}万円</strong>
+            </div>
+            
+            <div class="drilldown-title" style="margin-top: 4px;">② プランA（PCS一括交換）</div>
+            <div class="drilldown-row highlight-blue">
+                <span>売電: +${Math.round(d.pcsOptSales)}万 / 経費: -${Math.round(d.pcsOptExpense)}万</span>
+                <strong>手残り: ${Math.round(pcsOptCF)}万円</strong>
+            </div>
+            
+            <div class="drilldown-title" style="margin-top: 4px;">③ プランB（フル・リパワリング）</div>
+            <div class="drilldown-row highlight">
+                <span>売電: +${Math.round(d.repowerSales)}万 / 経費: -${Math.round(d.repowerExpense)}万</span>
+                <strong style="color:#34d399">手残り: ${Math.round(repowerCF)}万円</strong>
+            </div>
+        `;
+        
+        // ポップアップの表示位置の算出（親要素 #zoom-modal-container から見た正確な相対座標で配置）
+        const rect = event.chart.canvas.getBoundingClientRect();
+        const parentEl = document.getElementById('zoom-modal-container');
+        const parentRect = parentEl ? parentEl.getBoundingClientRect() : { left: 0, top: 0, width: window.innerWidth };
+        
+        // 親要素の左上からのクリック位置の相対X, Y座標
+        const relativeX = (rect.left - parentRect.left) + event.x;
+        const relativeY = (rect.top - parentRect.top) + event.y - 170; // 吹き出しの高さ分浮かせる
+        
+        popup.style.left = `${Math.max(10, Math.min(parentRect.width - 310, relativeX - 145))}px`;
+        popup.style.top = `${relativeY}px`;
+        popup.classList.add('active');
+        
+        // グラフキャンバスクリックイベントが親のclose等へ伝播するのを防止
+        if (event.native) event.native.stopPropagation();
+    }
+
+    function closeZoomDrilldownPopup() {
+        const popup = document.getElementById('zoom-drilldown-popup');
         if (popup) popup.classList.remove('active');
     }
 
@@ -5577,6 +5657,13 @@
                 mode: 'index',
                 intersect: false
             },
+            onClick: (event, activeElements) => {
+                if (activeElements && activeElements.length > 0) {
+                    const firstPoint = activeElements[0];
+                    const index = firstPoint.index;
+                    showZoomDrilldownPopup(event, index);
+                }
+            },
             plugins: {
                 legend: {
                     position: 'top',
@@ -5648,6 +5735,13 @@
                 mode: 'index',
                 intersect: false
             },
+            onClick: (event, activeElements) => {
+                if (activeElements && activeElements.length > 0) {
+                    const firstPoint = activeElements[0];
+                    const index = firstPoint.index;
+                    showZoomDrilldownPopup(event, index);
+                }
+            },
             plugins: {
                 legend: {
                     position: 'top',
@@ -5690,6 +5784,7 @@
     // 拡大モーダルクローズ
     function closeChartZoomModal() {
         document.getElementById('chart-zoom-modal').style.display = 'none';
+        closeZoomDrilldownPopup();
         if (zoomChart) {
             zoomChart.destroy();
             zoomChart = null;
