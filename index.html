@@ -3614,7 +3614,7 @@
         updateSimulation();
     }
 
-    // デモデータのロード
+    // デモデータおよび本番データの非同期ロード
     function loadDemoData(customCoords) {
         closeDrilldownPopup(); // アセット変更時に古いポップアップを閉じる
         // オプションのリセット
@@ -3650,287 +3650,346 @@
             const el = document.getElementById(resetId);
             if (el) el.innerText = "---";
         });
-        
-        let data = getSolarData(id);
 
-        if (data) {
-            // URLから引き継がれた座標があれば適用
-            if (customCoords) {
-                data.lat = customCoords.lat;
-                data.lng = customCoords.lng;
-            }
-            const remainingYears = Math.max(1, Math.round(20 - data.elapsedYears));
-            const simYearsSelect = document.getElementById('sim-years');
-            if (simYearsSelect) {
-                simYearsSelect.innerHTML = `
-                    <option value="${remainingYears}" selected>残存FIT期間（${remainingYears}年間）</option>
-                    <option value="15">今から15年間</option>
-                    <option value="20">今から20年間</option>
-                    <option value="25">今から25年間</option>
-                    <option value="30">今から30年間</option>
-                    <option value="35">今から35年間</option>
-                    <option value="40">今から40年間</option>
-                `;
-            }
-            document.getElementById('spec-name').innerHTML = `<span style="font-weight: bold; color: var(--text-primary); font-size: 1.05rem; display: block; word-break: keep-all; overflow-wrap: break-word; margin-bottom: 4px;">${data.name}</span><span style="font-size: 0.72rem; color: var(--text-secondary); font-weight: normal; line-height: 1.3; display: block;">${data.location}</span>`;
-            const overcapacityRate = Math.round((data.panelCapacity / data.capacity) * 100);
-            document.getElementById('spec-capacity').innerHTML = `${data.panelCapacity.toFixed(1)}<span class="spec-unit">kW</span>`;
-            document.getElementById('spec-capacity-sub').innerHTML = `パワコン容量: ${data.capacity.toFixed(1)} kW<br>積載率: ${overcapacityRate}%`;
-            document.getElementById('spec-fit-price').innerText = data.fitPrice.toFixed(1);
-            document.getElementById('spec-fit-price-sub').innerHTML = `新規認定日:<br>${data.fitCertDate}`;
-            document.getElementById('spec-years').innerHTML = `${data.elapsedYears}年<span class="spec-unit">/ 残り${20 - data.elapsedYears}年</span>`;
-            document.getElementById('spec-years-sub').innerHTML = `終了年月:<br>${data.fitEndDate}`;
-            
-            // API結果待ち中の中立ローディング初期表示
-            const alertBox = document.getElementById('hazard-alert');
-            const iconElStatic = alertBox?.querySelector('.asset-alert-icon');
-            const togglePanelStatic = document.getElementById('fp-hazard-toggle-panel');
-            
-            if (alertBox) {
-                document.getElementById('hazard-alert-text').innerHTML = `<strong>ハザードリスク情報:</strong> 🔍 リアルタイム国土交通省GISハザード情報を照会中...`;
-                alertBox.style.display = 'flex';
-                alertBox.className = "owner-only asset-alert-box asset-alert-info"; // 中立な青色
-                if (iconElStatic) {
-                    iconElStatic.className = "asset-alert-icon info";
-                    iconElStatic.innerText = "i";
+        // 1. まずは本番の設備詳細APIからフェッチを試みる
+        fetch(`/api/equipments/${id}`)
+            .then(res => {
+                if (!res.ok) throw new Error("Equipment API is not available or returned error");
+                return res.json();
+            })
+            .then(eqData => {
+                // レースコンディション対策: 応答が返ってきた時点で別のアセットに切り替わっていれば処理を破棄
+                if (id !== currentLoadingAssetId) {
+                    console.log(`[API Equipment Bypass] Ignored stale response for ${id}`);
+                    return;
                 }
-            }
-            
-            const toggleLabel = document.getElementById('fp-hazard-toggle-label');
-            if (toggleLabel) {
-                toggleLabel.innerText = "⚠️ ハザードリスク連動情報を照会中...";
-            }
-            if (togglePanelStatic) togglePanelStatic.style.display = 'none';
-            if (currentMode === 'fp-enhanced') {
-                const hzCheck = document.getElementById('fp-hazard-checkbox');
-                if (hzCheck) hzCheck.checked = false; // 一旦チェックをOFFにして中立化
-                toggleHazardSwitch(); // 撤去費連動を一旦リセット
-            }
-
-            // 非同期でリアルタイム GIS ハザード判定 API をフェッチ
-            const address = data.location || "";
-            let url = `/api/hazard?address=${encodeURIComponent(address)}`;
-            if (data.lat !== undefined && data.lng !== undefined) {
-                url += `&lat=${data.lat}&lng=${data.lng}`;
-            }
-            
-            fetch(url)
-                .then(res => {
-                    if (!res.ok) throw new Error("API response error");
-                    return res.json();
-                })
-                .then(resData => {
-                    // レースコンディション対策: 応答が返ってきた時点で別のアセットに切り替わっていれば処理を破棄
-                    if (id !== currentLoadingAssetId) {
-                        console.log(`[API Response Bypass] Ignored stale response for ${id} (current: ${currentLoadingAssetId})`);
-                        return;
-                    }
-                    if (resData) {
-                        // APIから取得したNEDO発電係数をキャッシュに同期
-                        currentNedoFactor = resData.nedo_factor || 1150;
-
-                        // トグル説明ラベルの動的更新
-                        const toggleLabel = document.getElementById('fp-hazard-toggle-label');
-                        if (toggleLabel) {
-                            if (resData.hazard.includes("土砂") || resData.hazard.includes("イエロー")) {
-                                toggleLabel.innerText = "⚠️ ハザードリスク連動（撤去費+50万円加算、保険料上乗せ）を適用する";
-                            } else if (resData.hazard.includes("洪水") || resData.hazard.includes("浸水")) {
-                                toggleLabel.innerText = "⚠️ ハザードリスク連動（撤去費+30万円加算、保険料上乗せ、初期対策費+100万円）を適用する";
-                            } else if (resData.hazard.includes("塩害") || resData.hazard.includes("海岸")) {
-                                toggleLabel.innerText = "⚠️ ハザードリスク連動（沿岸塩害エリア・機器寿命影響考慮）を適用する";
-                            } else {
-                                toggleLabel.innerText = "⚠️ ハザードリスク連動（該当する重大なハザードリスクなし）";
-                            }
-                        }
-
-                        // ハザード警告テキストの更新
-                        let alertHtml = `<strong>ハザードリスク情報:</strong> ${resData.hazard}`;
-                        if (resData.lat && resData.lng) {
-                            const mapUrl = getGsiHazardMapUrl(resData.lat, resData.lng, resData.hazard);
-                            alertHtml += `<br><a href="${mapUrl}" target="_blank" style="display: inline-flex; align-items: center; gap: 4px; color: #60a5fa; text-decoration: underline; font-weight: bold; font-size: 0.8rem; margin-top: 6px;" onmouseover="this.style.color='#93c5fd'" onmouseout="this.style.color='#60a5fa'">🗺️ 国土地理院「重ねるハザードマップ」で詳細位置を確認する ↗</a>`;
-                        }
-                        document.getElementById('hazard-alert-text').innerHTML = alertHtml;
-                        const iconEl = alertBox.querySelector('.asset-alert-icon');
-                        const togglePanel = document.getElementById('fp-hazard-toggle-panel');
-                        
-                        if (!resData.is_safe) {
-                            alertBox.style.display = 'flex';
-                            alertBox.className = "owner-only asset-alert-box asset-alert-warning";
-                            if (iconEl) {
-                                iconEl.className = "asset-alert-icon warning";
-                                iconEl.innerText = "!";
-                            }
-                            if (togglePanel) togglePanel.style.display = 'block';
-                            if (currentMode === 'fp-enhanced') {
-                                document.getElementById('fp-hazard-checkbox').checked = true;
-                                toggleHazardSwitch(); // 撤去費連動を同期
-                            }
-                        } else {
-                            alertBox.style.display = 'flex';
-                            alertBox.className = "owner-only asset-alert-box asset-alert-success";
-                            if (iconEl) {
-                                iconEl.className = "asset-alert-icon success";
-                                iconEl.innerText = "!";
-                            }
-                            if (togglePanel) togglePanel.style.display = 'none';
-                            if (currentMode === 'fp-enhanced') {
-                                document.getElementById('fp-hazard-checkbox').checked = false;
-                                toggleHazardSwitch(); // 撤去費連動を同期
-                            }
-                        }
-                        
-                        // レーダーチャートの描画
-                        drawHazardRadarChart(resData);
-                        isApiLoading = false; // APIロード完了
-                        updateSimulation();
-                    }
-                })
-                .catch(err => {
-                    console.warn("Fallback to static hazard logic:", err);
-                    // エラー時はフォールバックで静的描画
-                    applyStaticHazardFallback(data);
-                });
-
-            // FIT売電単価スライダーの初期値をデモデータから自動セット
-            document.getElementById('fit-price').value = data.fitPrice;
-            document.getElementById('fit-price-val').innerText = data.fitPrice.toFixed(1);
-            
-            // 卒FIT後想定買取単価は、売電相場の共通基準として一律 8.5 円に初期化
-            document.getElementById('post-fit-price').value = 8.5;
-            document.getElementById('post-fit-price-val').innerText = "8.5";
-
-            // 残存FIT期間に合わせてリパワリング実行時期スライダーの最大値を動的に制御（例：残り20年なら最大20年後、残り5年なら最大5年後）
-            const remainingFitYears = Math.max(1, 20 - data.elapsedYears);
-            const repowerYearSlider = document.getElementById('repower-year');
-            if (repowerYearSlider) {
-                repowerYearSlider.max = remainingFitYears;
-                repowerYearSlider.value = 0;
-                document.getElementById('repower-year-val').innerText = "今すぐ（0年後）";
-                const guidelineEl = document.getElementById('repower-year-guideline');
-                if (guidelineEl) {
-                    guidelineEl.innerText = `(0=即時 / 最大${remainingFitYears}年後)`;
-                }
-            }
-
-            // 共通の計算マスター単価（パネル容量基準の万円/kW）を定義
-            const masterRepowerCostKw = 7.0;    // 相場下限かつ初期値の基準単価（7万円/kW）
-            const masterRepowerCostKwMax = 12.0; // 相場上限の基準単価（12万円/kW）
-
-            // パネル容量（kW）に基づき、リパワリング費用（初期値）をダイナミックに算出（50万単位丸め）
-            let calcRepowerCost = Math.round(data.panelCapacity * masterRepowerCostKw);
-            calcRepowerCost = Math.max(50, Math.round(calcRepowerCost / 50) * 50);
-
-            // パワコン容量（kW）に基づき、PCS一括交換費用の初期値を算出（50万単位丸め）
-            const masterPcsCostKw = parseFloat(document.getElementById('master-pcs-cost-kw')?.value) || 3.0;
-            let calcPcsCost = Math.round(data.capacity * masterPcsCostKw);
-            calcPcsCost = Math.max(50, Math.round(calcPcsCost / 50) * 50);
-            
-            // 発電所規模に応じてスライダーの最大値（上限）を動的に引き上げる
-            const repowerCostSlider = document.getElementById('repower-cost');
-            if (repowerCostSlider) {
-                repowerCostSlider.max = Math.max(2500, calcRepowerCost * 2);
-            }
-            const pcsCostSlider = document.getElementById('pcs-cost');
-            if (pcsCostSlider) {
-                pcsCostSlider.max = Math.max(800, calcPcsCost * 2.5);
-            }
-            
-            // 発電所規模（パネル容量）に基づいてリパワリング相場目安を動的更新（初期値と下限値が数学的に完全一致する設計）
-            const costGuidelineEl = document.getElementById('repower-cost-guideline');
-            if (costGuidelineEl) {
-                const lowerRange = Math.round(data.panelCapacity * masterRepowerCostKw); 
-                const upperRange = Math.round(data.panelCapacity * masterRepowerCostKwMax);
-                const lowerRounded = Math.max(50, Math.round(lowerRange / 50) * 50);
-                const upperRounded = Math.max(100, Math.round(upperRange / 50) * 50);
                 
-                costGuidelineEl.innerText = `(相場: ${lowerRounded.toLocaleString()}〜${upperRounded.toLocaleString()}万)`;
-            }
+                // データベース取得値から経過年数（elapsedYears）を算出
+                let elapsed = 0.0;
+                if (eqData.assessmentDate) {
+                    const certDate = new Date(eqData.assessmentDate);
+                    const today = new Date();
+                    const years = (today - certDate) / (1000 * 60 * 60 * 24 * 365.25);
+                    elapsed = Math.max(0.0, Math.round(years * 10) / 10);
+                }
 
-            document.getElementById('repower-cost').value = calcRepowerCost;
-            document.getElementById('pcs-cost').value = calcPcsCost;
+                // 終了年月（fitEndDate）の表記の整形
+                let fitEndDateText = eqData.procurementPeriod || "";
+                if (fitEndDateText && !fitEndDateText.includes("年")) {
+                    const match = fitEndDateText.match(/^(\d{4})-(\d{2})/);
+                    if (match) {
+                        fitEndDateText = `${match[1]}年${parseInt(match[2])}月`;
+                    }
+                }
 
-            // パワコン台数と1台あたり単価の初期値＆スライダー上限の動的調整
-            let calcPcsCount = 10;
-            if (data.capacity >= 1000) {
-                calcPcsCount = Math.round(data.capacity / 100); // 100kWパワコン想定
-            } else if (data.capacity >= 100) {
-                calcPcsCount = Math.round(data.capacity / 10); // 10kWパワコン想定
-            } else {
-                calcPcsCount = Math.max(1, Math.round(data.capacity / 5)); // 5kWパワコン想定
-            }
-            
-            const calcPcsUnitCost = Math.round(calcPcsCost / calcPcsCount);
-            
-            const pcsCountSlider = document.getElementById('pcs-count');
-            if (pcsCountSlider) {
-                pcsCountSlider.max = Math.max(30, calcPcsCount * 2);
-                pcsCountSlider.value = calcPcsCount;
-                document.getElementById('pcs-count-val').innerText = calcPcsCount;
-            }
-            
-            const pcsUnitCostSlider = document.getElementById('pcs-unit-cost');
-            if (pcsUnitCostSlider) {
-                pcsUnitCostSlider.max = Math.max(50, calcPcsUnitCost * 2);
-                pcsUnitCostSlider.value = calcPcsUnitCost;
-                document.getElementById('pcs-unit-cost-val').innerText = calcPcsUnitCost;
-            }
-            // パワコンメーカー設計寿命の初期値を15年にリセット
-            const pcsLifeSlider = document.getElementById('pcs-design-life');
-            if (pcsLifeSlider) {
-                pcsLifeSlider.value = 15;
-                document.getElementById('pcs-design-life-val').innerText = "15";
-            }
-            // 想定年間維持管理費（O&M費用）も容量に応じて自動設定（目安：約3,000円/kW、最低10万円）
-            const calcOmCost = Math.max(10, Math.round(data.capacity * 0.3));
-            document.getElementById('master-om-cost-year').value = calcOmCost;
+                const data = {
+                    id: eqData.id,
+                    name: eqData.companyName || "太陽光発電所",
+                    location: eqData.address,
+                    panelCapacity: eqData.totalOutput || eqData.output || 50.0,
+                    capacity: eqData.output || 49.5,
+                    fitPrice: eqData.fit || 10.0,
+                    fitCertDate: eqData.assessmentDate || "2020-01-01",
+                    fitEndDate: fitEndDateText || "2040年12月",
+                    elapsedYears: elapsed,
+                    lat: eqData.latitude,
+                    lng: eqData.longitude
+                };
 
-            // 想定撤去・解体費用の初期値を発電所規模とハザードリスクに応じて自動計算
-            let tempHazardSurcharge = 0;
-            const currentHazardText = document.getElementById('hazard-alert-text')?.innerText || data.hazard;
-            if (currentHazardText.includes("土砂") || currentHazardText.includes("イエロー")) {
-                tempHazardSurcharge = 50;
-            } else if (currentHazardText.includes("洪水") || currentHazardText.includes("浸水")) {
-                tempHazardSurcharge = 30;
-            }
-            const isHazardChecked = document.getElementById('fp-hazard-checkbox')?.checked || false;
-            const calcDecomCost = Math.round(50 + (data.panelCapacity * 1.0) + (isHazardChecked ? tempHazardSurcharge : 0));
-            document.getElementById('master-decom-cost').value = calcDecomCost;
-            
-            // 将来オプション側のスライダーも同期（上限も規模に応じて動的に拡張）
-            const optionDecomSlider = document.getElementById('option-decom-cost');
-            if (optionDecomSlider) {
-                optionDecomSlider.max = Math.max(500, calcDecomCost * 2);
-                optionDecomSlider.value = calcDecomCost;
-                document.getElementById('option-decom-cost-val').innerText = calcDecomCost;
-            }
+                processLoadedSolarData(data, customCoords);
+            })
+            .catch(err => {
+                console.log("Using static local data fallback due to:", err.message);
+                if (id !== currentLoadingAssetId) return;
 
-            // 蓄電池容量の初期値とスライダーの最大値を発電所規模（容量kW）に応じて動的調整
-            // 初期値目安：容量kWの約0.3倍、5kWh刻みに丸める
-            const calcBatteryCapacity = Math.max(5, Math.round((data.capacity * 0.3) / 5) * 5);
-            // スライダー最大値目安：容量kWの1.0倍（最低50kWh上限とする）
-            const calcMaxBatteryCapacity = Math.max(50, Math.round(data.capacity / 5) * 5);
-            
-            const batteryCapacitySlider = document.getElementById('battery-capacity');
-            if (batteryCapacitySlider) {
-                batteryCapacitySlider.max = calcMaxBatteryCapacity;
-                batteryCapacitySlider.value = calcBatteryCapacity;
-                document.getElementById('battery-capacity-val').innerText = calcBatteryCapacity;
-            }
-            
-            // 直近1年の売電額の初期値を理論想定値から自動計算して入力
-            const currentEfficiency = 1 - (data.elapsedYears * 0.005);
-            const stdGen = calcStandardGeneration(data.panelCapacity, data.capacity);
-            const initialExpectedRevenue = Math.round((stdGen * currentEfficiency * data.fitPrice * (1 - 0.029)) / 10000);
-            document.getElementById('actual-revenue-input').value = initialExpectedRevenue;
+                // フォールバック: ローカルJSONまたはデモ用モックデータから取得
+                let data = getSolarData(id);
+                if (data) {
+                    processLoadedSolarData(data, customCoords);
+                } else {
+                    alert('そらスコIDが見つかりません。（デモ用ID: A614245G36, SR-78901 または SR-12345 をご利用ください）');
+                }
+            });
+    }
 
-            isCalibrated = false;
-            document.getElementById('calibration-status').style.display = 'none';
-            calDegradation = 0.005;
-            calLoss = 0.0;
-            calRatio = 1.0;
-        } else {
-            alert('そらスコIDが見つかりません。（デモ用ID: A614245G36, SR-78901 または SR-12345 をご利用ください）');
+    // 取得した設備データをシミュレーターUIにバインド・シミュレーションを実行する共通ヘルパー
+    function processLoadedSolarData(data, customCoords) {
+        const id = data.id;
+        
+        // URLから引き継がれた座標があれば適用
+        if (customCoords) {
+            data.lat = customCoords.lat;
+            data.lng = customCoords.lng;
         }
+        const remainingYears = Math.max(1, Math.round(20 - data.elapsedYears));
+        const simYearsSelect = document.getElementById('sim-years');
+        if (simYearsSelect) {
+            simYearsSelect.innerHTML = `
+                <option value="${remainingYears}" selected>残存FIT期間（${remainingYears}年間）</option>
+                <option value="15">今から15年間</option>
+                <option value="20">今から20年間</option>
+                <option value="25">今から25年間</option>
+                <option value="30">今から30年間</option>
+                <option value="35">今から35年間</option>
+                <option value="40">今から40年間</option>
+            `;
+        }
+        document.getElementById('spec-name').innerHTML = `<span style="font-weight: bold; color: var(--text-primary); font-size: 1.05rem; display: block; word-break: keep-all; overflow-wrap: break-word; margin-bottom: 4px;">${data.name}</span><span style="font-size: 0.72rem; color: var(--text-secondary); font-weight: normal; line-height: 1.3; display: block;">${data.location}</span>`;
+        const overcapacityRate = Math.round((data.panelCapacity / data.capacity) * 100);
+        document.getElementById('spec-capacity').innerHTML = `${data.panelCapacity.toFixed(1)}<span class="spec-unit">kW</span>`;
+        document.getElementById('spec-capacity-sub').innerHTML = `パワコン容量: ${data.capacity.toFixed(1)} kW<br>積載率: ${overcapacityRate}%`;
+        document.getElementById('spec-fit-price').innerText = data.fitPrice.toFixed(1);
+        document.getElementById('spec-fit-price-sub').innerHTML = `新規認定日:<br>${data.fitCertDate}`;
+        document.getElementById('spec-years').innerHTML = `${data.elapsedYears}年<span class="spec-unit">/ 残り${20 - data.elapsedYears}年</span>`;
+        document.getElementById('spec-years-sub').innerHTML = `終了年月:<br>${data.fitEndDate}`;
+        
+        // API結果待ち中の中立ローディング初期表示
+        const alertBox = document.getElementById('hazard-alert');
+        const iconElStatic = alertBox?.querySelector('.asset-alert-icon');
+        const togglePanelStatic = document.getElementById('fp-hazard-toggle-panel');
+        
+        if (alertBox) {
+            document.getElementById('hazard-alert-text').innerHTML = `<strong>ハザードリスク情報:</strong> 🔍 リアルタイム国土交通省GISハザード情報を照会中...`;
+            alertBox.style.display = 'flex';
+            alertBox.className = "owner-only asset-alert-box asset-alert-info"; // 中立な青色
+            if (iconElStatic) {
+                iconElStatic.className = "asset-alert-icon info";
+                iconElStatic.innerText = "i";
+            }
+        }
+        
+        const toggleLabel = document.getElementById('fp-hazard-toggle-label');
+        if (toggleLabel) {
+            toggleLabel.innerText = "⚠️ ハザードリスク連動情報を照会中...";
+        }
+        if (togglePanelStatic) togglePanelStatic.style.display = 'none';
+        if (currentMode === 'fp-enhanced') {
+            const hzCheck = document.getElementById('fp-hazard-checkbox');
+            if (hzCheck) hzCheck.checked = false; // 一旦チェックをOFFにして中立化
+            toggleHazardSwitch(); // 撤去費連動を一旦リセット
+        }
+
+        // 非同期でリアルタイム GIS ハザード判定 API をフェッチ
+        const address = data.location || "";
+        let url = `/api/hazard?address=${encodeURIComponent(address)}`;
+        if (data.lat !== undefined && data.lng !== undefined) {
+            url += `&lat=${data.lat}&lng=${data.lng}`;
+        }
+        
+        fetch(url)
+            .then(res => {
+                if (!res.ok) throw new Error("API response error");
+                return res.json();
+            })
+            .then(resData => {
+                // レースコンディション対策: 応答が返ってきた時点で別のアセットに切り替わっていれば処理を破棄
+                if (id !== currentLoadingAssetId) {
+                    console.log(`[API Response Bypass] Ignored stale response for ${id} (current: ${currentLoadingAssetId})`);
+                    return;
+                }
+                if (resData) {
+                    // APIから取得したNEDO発電係数をキャッシュに同期
+                    currentNedoFactor = resData.nedo_factor || 1150;
+
+                    // トグル説明ラベルの動的更新
+                    const toggleLabel = document.getElementById('fp-hazard-toggle-label');
+                    if (toggleLabel) {
+                        if (resData.hazard.includes("土砂") || resData.hazard.includes("イエロー")) {
+                            toggleLabel.innerText = "⚠️ ハザードリスク連動（撤去費+50万円加算、保険料上乗せ）を適用する";
+                        } else if (resData.hazard.includes("洪水") || resData.hazard.includes("浸水")) {
+                            toggleLabel.innerText = "⚠️ ハザードリスク連動（撤去費+30万円加算、保険料上乗せ、初期対策費+100万円）を適用する";
+                        } else if (resData.hazard.includes("塩害") || resData.hazard.includes("海岸")) {
+                            toggleLabel.innerText = "⚠️ ハザードリスク連動（沿岸塩害エリア・機器寿命影響考慮）を適用する";
+                        } else {
+                            toggleLabel.innerText = "⚠️ ハザードリスク連動（該当する重大なハザードリスクなし）";
+                        }
+                    }
+
+                    // ハザード警告テキストの更新
+                    let alertHtml = `<strong>ハザードリスク情報:</strong> ${resData.hazard}`;
+                    if (resData.lat && resData.lng) {
+                        const mapUrl = getGsiHazardMapUrl(resData.lat, resData.lng, resData.hazard);
+                        alertHtml += `<br><a href="${mapUrl}" target="_blank" style="display: inline-flex; align-items: center; gap: 4px; color: #60a5fa; text-decoration: underline; font-weight: bold; font-size: 0.8rem; margin-top: 6px;" onmouseover="this.style.color='#93c5fd'" onmouseout="this.style.color='#60a5fa'">🗺️ 国土地理院「重ねるハザードマップ」で詳細位置を確認する ↗</a>`;
+                    }
+                    document.getElementById('hazard-alert-text').innerHTML = alertHtml;
+                    const iconEl = alertBox.querySelector('.asset-alert-icon');
+                    const togglePanel = document.getElementById('fp-hazard-toggle-panel');
+                    
+                    if (!resData.is_safe) {
+                        alertBox.style.display = 'flex';
+                        alertBox.className = "owner-only asset-alert-box asset-alert-warning";
+                        if (iconEl) {
+                            iconEl.className = "asset-alert-icon warning";
+                            iconEl.innerText = "!";
+                        }
+                        if (togglePanel) togglePanel.style.display = 'block';
+                        if (currentMode === 'fp-enhanced') {
+                            document.getElementById('fp-hazard-checkbox').checked = true;
+                            toggleHazardSwitch(); // 撤去費連動を同期
+                        }
+                    } else {
+                        alertBox.style.display = 'flex';
+                        alertBox.className = "owner-only asset-alert-box asset-alert-success";
+                        if (iconEl) {
+                            iconEl.className = "asset-alert-icon success";
+                            iconEl.innerText = "!";
+                        }
+                        if (togglePanel) togglePanel.style.display = 'none';
+                        if (currentMode === 'fp-enhanced') {
+                            document.getElementById('fp-hazard-checkbox').checked = false;
+                            toggleHazardSwitch(); // 撤去費連動を同期
+                        }
+                    }
+                    
+                    // レーダーチャートの描画
+                    drawHazardRadarChart(resData);
+                    isApiLoading = false; // APIロード完了
+                    updateSimulation();
+                }
+            })
+            .catch(err => {
+                console.warn("Fallback to static hazard logic:", err);
+                // エラー時はフォールバックで静的描画
+                applyStaticHazardFallback(data);
+            });
+
+        // FIT売電単価スライダーの初期値をデモデータから自動セット
+        document.getElementById('fit-price').value = data.fitPrice;
+        document.getElementById('fit-price-val').innerText = data.fitPrice.toFixed(1);
+        
+        // 卒FIT後想定買取単価は、売電相場の共通基準として一律 8.5 円に初期化
+        document.getElementById('post-fit-price').value = 8.5;
+        document.getElementById('post-fit-price-val').innerText = "8.5";
+
+        // 残存FIT期間に合わせてリパワリング実行時期スライダーの最大値を動的に制御（例：残り20年なら最大20年後、残り5年なら最大5年後）
+        const remainingFitYears = Math.max(1, 20 - data.elapsedYears);
+        const repowerYearSlider = document.getElementById('repower-year');
+        if (repowerYearSlider) {
+            repowerYearSlider.max = remainingFitYears;
+            repowerYearSlider.value = 0;
+            document.getElementById('repower-year-val').innerText = "今すぐ（0年後）";
+            const guidelineEl = document.getElementById('repower-year-guideline');
+            if (guidelineEl) {
+                guidelineEl.innerText = `(0=即時 / 最大${remainingFitYears}年後)`;
+            }
+        }
+
+        // 共通の計算マスター単価（パネル容量基準の万円/kW）を定義
+        const masterRepowerCostKw = 7.0;    // 相場下限かつ初期値の基準単価（7万円/kW）
+        const masterRepowerCostKwMax = 12.0; // 相場上限の基準単価（12万円/kW）
+
+        // パネル容量（kW）に基づき、リパワリング費用（初期値）をダイナミックに算出（50万単位丸め）
+        let calcRepowerCost = Math.round(data.panelCapacity * masterRepowerCostKw);
+        calcRepowerCost = Math.max(50, Math.round(calcRepowerCost / 50) * 50);
+
+        // パワコン容量（kW）に基づき、PCS一括交換費用の初期値を算出（50万単位丸め）
+        const masterPcsCostKw = parseFloat(document.getElementById('master-pcs-cost-kw')?.value) || 3.0;
+        let calcPcsCost = Math.round(data.capacity * masterPcsCostKw);
+        calcPcsCost = Math.max(50, Math.round(calcPcsCost / 50) * 50);
+        
+        // 発電所規模に応じてスライダーの最大値（上限）を動的に引き上げる
+        const repowerCostSlider = document.getElementById('repower-cost');
+        if (repowerCostSlider) {
+            repowerCostSlider.max = Math.max(2500, calcRepowerCost * 2);
+        }
+        const pcsCostSlider = document.getElementById('pcs-cost');
+        if (pcsCostSlider) {
+            pcsCostSlider.max = Math.max(800, calcPcsCost * 2.5);
+        }
+        
+        // 発電所規模（パネル容量）に基づいてリパワリング相場目安を動的更新（初期値と下限値が数学的に完全一致する設計）
+        const costGuidelineEl = document.getElementById('repower-cost-guideline');
+        if (costGuidelineEl) {
+            const lowerRange = Math.round(data.panelCapacity * masterRepowerCostKw); 
+            const upperRange = Math.round(data.panelCapacity * masterRepowerCostKwMax);
+            const lowerRounded = Math.max(50, Math.round(lowerRange / 50) * 50);
+            const upperRounded = Math.max(100, Math.round(upperRange / 50) * 50);
+            
+            costGuidelineEl.innerText = `(相場: ${lowerRounded.toLocaleString()}〜${upperRounded.toLocaleString()}万)`;
+        }
+
+        document.getElementById('repower-cost').value = calcRepowerCost;
+        document.getElementById('pcs-cost').value = calcPcsCost;
+
+        // パワコン台数と1台あたり単価の初期値＆スライダー上限の動的調整
+        let calcPcsCount = 10;
+        if (data.capacity >= 1000) {
+            calcPcsCount = Math.round(data.capacity / 100); // 100kWパワコン想定
+        } else if (data.capacity >= 100) {
+            calcPcsCount = Math.round(data.capacity / 10); // 10kWパワコン想定
+        } else {
+            calcPcsCount = Math.max(1, Math.round(data.capacity / 5)); // 5kWパワコン想定
+        }
+        
+        const calcPcsUnitCost = Math.round(calcPcsCost / calcPcsCount);
+        
+        const pcsCountSlider = document.getElementById('pcs-count');
+        if (pcsCountSlider) {
+            pcsCountSlider.max = Math.max(30, calcPcsCount * 2);
+            pcsCountSlider.value = calcPcsCount;
+            document.getElementById('pcs-count-val').innerText = calcPcsCount;
+        }
+        
+        const pcsUnitCostSlider = document.getElementById('pcs-unit-cost');
+        if (pcsUnitCostSlider) {
+            pcsUnitCostSlider.max = Math.max(50, calcPcsUnitCost * 2);
+            pcsUnitCostSlider.value = calcPcsUnitCost;
+            document.getElementById('pcs-unit-cost-val').innerText = calcPcsUnitCost;
+        }
+        // パワコンメーカー設計寿命の初期値を15年にリセット
+        const pcsLifeSlider = document.getElementById('pcs-design-life');
+        if (pcsLifeSlider) {
+            pcsLifeSlider.value = 15;
+            document.getElementById('pcs-design-life-val').innerText = "15";
+        }
+        // 想定年間維持管理費（O&M費用）も容量に応じて自動設定（目安：約3,000円/kW、最低10万円）
+        const calcOmCost = Math.max(10, Math.round(data.capacity * 0.3));
+        document.getElementById('master-om-cost-year').value = calcOmCost;
+
+        // 想定撤去・解体費用の初期値を発電所規模とハザードリスクに応じて自動計算
+        let tempHazardSurcharge = 0;
+        const currentHazardText = document.getElementById('hazard-alert-text')?.innerText || data.hazard;
+        if (currentHazardText.includes("土砂") || currentHazardText.includes("イエロー")) {
+            tempHazardSurcharge = 50;
+        } else if (currentHazardText.includes("洪水") || currentHazardText.includes("浸水")) {
+            tempHazardSurcharge = 30;
+        }
+        const isHazardChecked = document.getElementById('fp-hazard-checkbox')?.checked || false;
+        const calcDecomCost = Math.round(50 + (data.panelCapacity * 1.0) + (isHazardChecked ? tempHazardSurcharge : 0));
+        document.getElementById('master-decom-cost').value = calcDecomCost;
+        
+        // 将来オプション側のスライダーも同期（上限も規模に応じて動的に拡張）
+        const optionDecomSlider = document.getElementById('option-decom-cost');
+        if (optionDecomSlider) {
+            optionDecomSlider.max = Math.max(500, calcDecomCost * 2);
+            optionDecomSlider.value = calcDecomCost;
+            document.getElementById('option-decom-cost-val').innerText = calcDecomCost;
+        }
+
+        // 蓄電池容量の初期値とスライダーの最大値を発電所規模（容量kW）に応じて動的調整
+        // 初期値目安：容量kWの約0.3倍、5kWh刻みに丸める
+        const calcBatteryCapacity = Math.max(5, Math.round((data.capacity * 0.3) / 5) * 5);
+        // スライダー最大値目安：容量kWの1.0倍（最低50kWh上限とする）
+        const calcMaxBatteryCapacity = Math.max(50, Math.round(data.capacity / 5) * 5);
+        
+        const batteryCapacitySlider = document.getElementById('battery-capacity');
+        if (batteryCapacitySlider) {
+            batteryCapacitySlider.max = calcMaxBatteryCapacity;
+            batteryCapacitySlider.value = calcBatteryCapacity;
+            document.getElementById('battery-capacity-val').innerText = calcBatteryCapacity;
+        }
+        
+        // 直近1年の売電額の初期値を理論想定値から自動計算して入力
+        const currentEfficiency = 1 - (data.elapsedYears * 0.005);
+        const stdGen = calcStandardGeneration(data.panelCapacity, data.capacity);
+        const initialExpectedRevenue = Math.round((stdGen * currentEfficiency * data.fitPrice * (1 - 0.029)) / 10000);
+        document.getElementById('actual-revenue-input').value = initialExpectedRevenue;
+
+        isCalibrated = false;
+        document.getElementById('calibration-status').style.display = 'none';
+        calDegradation = 0.005;
+        calLoss = 0.0;
+        calRatio = 1.0;
     }
 
     // プロ向け詳細設定の表示トグル
