@@ -5458,6 +5458,11 @@
             datasets: clonedDatasets1
         };
 
+        const isLight = document.body.classList.contains('light-mode');
+        const legendColor = isLight ? '#0f172a' : '#ffffff';
+        const gridColor = isLight ? '#cbd5e1' : '#334155';
+        const ticksColor = isLight ? '#0f172a' : '#e2e8f0';
+
         const zoomOptions1 = {
             responsive: true,
             maintainAspectRatio: false,
@@ -5465,7 +5470,7 @@
                 legend: {
                     position: 'top',
                     labels: {
-                        color: '#ffffff',
+                        color: legendColor,
                         font: { size: 13, weight: 'bold' }
                     }
                 },
@@ -5476,14 +5481,14 @@
             },
             scales: {
                 x: {
-                    grid: { color: '#334155', offset: false },
-                    ticks: { color: '#e2e8f0', font: { size: 12 } },
+                    grid: { color: gridColor, offset: false },
+                    ticks: { color: ticksColor, font: { size: 12 } },
                     offset: false
                 },
                 y: {
-                    grid: { color: '#334155' },
+                    grid: { color: gridColor },
                     ticks: {
-                        color: '#e2e8f0',
+                        color: ticksColor,
                         font: { size: 12 },
                         callback: function(value) { return value.toLocaleString() + '万円'; }
                     }
@@ -5532,7 +5537,7 @@
                 legend: {
                     position: 'top',
                     labels: {
-                        color: '#ffffff',
+                        color: legendColor,
                         font: { size: 13, weight: 'bold' }
                     }
                 },
@@ -5543,16 +5548,16 @@
             },
             scales: {
                 x: {
-                    grid: { color: '#334155', offset: false },
-                    ticks: { color: '#e2e8f0', font: { size: 12 } },
+                    grid: { color: gridColor, offset: false },
+                    ticks: { color: ticksColor, font: { size: 12 } },
                     offset: false
                 },
                 y: {
-                    grid: { color: '#334155' },
+                    grid: { color: gridColor },
                     min: annualYMin,
                     max: annualYMax,
                     ticks: {
-                        color: '#e2e8f0',
+                        color: ticksColor,
                         font: { size: 12 },
                         callback: function(value) { return value.toLocaleString() + '万円'; }
                     }
