@@ -2,7 +2,16 @@
 <html lang="ja">
 <head>
     <script>
+        window.__errors = [];
         window.onerror = function(message, source, lineno, colno, error) {
+            window.__errors.push({
+                type: 'error',
+                message: message,
+                source: source,
+                lineno: lineno,
+                colno: colno,
+                stack: error ? error.stack : 'No stack trace available'
+            });
             const div = document.createElement('div');
             div.style.position = 'fixed';
             div.style.top = '0';
@@ -24,6 +33,13 @@
             return false;
         };
         window.onunhandledrejection = function(event) {
+            const reasonStr = event.reason ? String(event.reason) : 'Unknown reason';
+            const stackStr = event.reason && event.reason.stack ? event.reason.stack : 'No stack trace';
+            window.__errors.push({
+                type: 'unhandledrejection',
+                message: reasonStr,
+                stack: stackStr
+            });
             const div = document.createElement('div');
             div.style.position = 'fixed';
             div.style.top = '0';
@@ -37,8 +53,8 @@
             div.style.fontSize = '12px';
             div.style.maxHeight = '50vh';
             div.style.overflowY = 'auto';
-            div.innerHTML = `<strong>⚠️ Unhandled Promise Rejection:</strong> ${event.reason}<br>
-                             <pre style="margin-top:10px; white-space:pre-wrap;">${event.reason && event.reason.stack ? event.reason.stack : 'No stack trace available'}</pre>`;
+            div.innerHTML = `<strong>⚠️ Unhandled Promise Rejection:</strong> ${reasonStr}<br>
+                             <pre style="margin-top:10px; white-space:pre-wrap;">${stackStr}</pre>`;
             document.body.appendChild(div);
         };
     </script>
@@ -3753,7 +3769,9 @@
                 // フォールバック: ローカルJSONまたはデモ用モックデータから取得
                 let data = getSolarData(id);
                 if (data) {
-                    processLoadedSolarData(data, customCoords);
+                    // フォールバックデータの場合でも、IDを入力されたIDと一致させる（レースコンディションガード通過のため）
+                    const fallbackData = { ...data, id: id };
+                    processLoadedSolarData(fallbackData, customCoords);
                 } else {
                     alert('そらスコIDが見つかりません。（デモ用ID: A614245G36, SR-78901 または SR-12345 をご利用ください）');
                 }
