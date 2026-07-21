@@ -3740,9 +3740,18 @@
             const tile = latlngToTile(lat, lng, z);
             const url = `https://disaportaldata.gsi.go.jp/raster/${layerName}/${z}/${tile.x}/${tile.y}.png`;
             
+            // 1.5秒のタイムアウトセーフティを設定（国交省サーバー遅延・ブロック対策）
+            const timeoutId = setTimeout(() => {
+                console.warn(`Tile check timed out for ${layerName}`);
+                img.onload = null;
+                img.onerror = null;
+                resolve(false); // タイムアウト時は安全側（区域外）として解決
+            }, 1500);
+
             const img = new Image();
             img.crossOrigin = "Anonymous"; // CORSアクセスを有効化
             img.onload = function() {
+                clearTimeout(timeoutId);
                 try {
                     const canvas = document.createElement('canvas');
                     canvas.width = 256;
@@ -3772,6 +3781,7 @@
                 }
             };
             img.onerror = function() {
+                clearTimeout(timeoutId);
                 resolve(false); // 画像がない(404)場合は区域外
             };
             img.src = url;
@@ -3961,8 +3971,22 @@
 
         // フロントエンド側でリアルタイム GIS ハザード判定を実行
         const address = data.location || "";
+        let isHazardProcessed = false;
+
+        // 全体のタイムアウト安全弁（2.5秒）を設定し、国交省サーバー遅延や広告ブロック時も計算がハングするのを防止
+        const hazardTimeoutId = setTimeout(() => {
+            if (isHazardProcessed) return;
+            isHazardProcessed = true;
+            console.warn("Total GSI hazard assessment timed out. Falling back to static logic.");
+            applyStaticHazardFallback(data);
+        }, 2500);
+
         assessHazardClientSide(address, data.lat, data.lng)
             .then(resData => {
+                if (isHazardProcessed) return; // すでにタイムアウト等で処理済みの場合はスキップ
+                isHazardProcessed = true;
+                clearTimeout(hazardTimeoutId);
+
                 // レースコンディション対策: 応答が返ってきた時点で別のアセットに切り替わっていれば処理を破棄
                 if (id !== currentLoadingAssetId) {
                     console.log(`[API Response Bypass] Ignored stale response for ${id} (current: ${currentLoadingAssetId})`);
@@ -4029,6 +4053,9 @@
                 }
             })
             .catch(err => {
+                if (isHazardProcessed) return;
+                isHazardProcessed = true;
+                clearTimeout(hazardTimeoutId);
                 console.warn("Fallback to static hazard logic:", err);
                 // エラー時はフォールバックで静的描画
                 applyStaticHazardFallback(data);
