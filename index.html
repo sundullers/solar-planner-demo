@@ -3115,6 +3115,10 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
                 onClick: (event, activeElements) => {
                     if (activeElements && activeElements.length > 0) {
                         const firstPoint = activeElements[0];
@@ -3177,6 +3181,10 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
                 onClick: (event, activeElements) => {
                     if (activeElements && activeElements.length > 0) {
                         const firstPoint = activeElements[0];
@@ -5466,6 +5474,10 @@
         const zoomOptions1 = {
             responsive: true,
             maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
             plugins: {
                 legend: {
                     position: 'top',
@@ -5533,6 +5545,10 @@
         const zoomOptions2 = {
             responsive: true,
             maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
             plugins: {
                 legend: {
                     position: 'top',
