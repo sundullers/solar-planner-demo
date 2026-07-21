@@ -3121,10 +3121,6 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: {
-                    mode: 'index',
-                    intersect: false
-                },
                 onClick: (event, activeElements) => {
                     if (activeElements && activeElements.length > 0) {
                         const firstPoint = activeElements[0];
@@ -3187,10 +3183,6 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: {
-                    mode: 'index',
-                    intersect: false
-                },
                 onClick: (event, activeElements) => {
                     if (activeElements && activeElements.length > 0) {
                         const firstPoint = activeElements[0];
@@ -3837,7 +3829,7 @@
             lng: lng
         };
 
-        // 各ハザードレイヤーの画像解析を非同期で並列実行
+        // 各ハザードレイヤー of 画像解析を非同期で並列実行
         let [tDoseki, tKyukei, tJisuberi, isFlood] = await Promise.all([
             checkHazardTile(lat, lng, "05_dosekiryukeikaikuiki"),
             checkHazardTile(lat, lng, "05_kyukeishakeikaikuiki"),
@@ -5481,10 +5473,6 @@
         const zoomOptions1 = {
             responsive: true,
             maintainAspectRatio: false,
-            interaction: {
-                mode: 'index',
-                intersect: false
-            },
             plugins: {
                 legend: {
                     position: 'top',
@@ -5552,10 +5540,6 @@
         const zoomOptions2 = {
             responsive: true,
             maintainAspectRatio: false,
-            interaction: {
-                mode: 'index',
-                intersect: false
-            },
             plugins: {
                 legend: {
                     position: 'top',
