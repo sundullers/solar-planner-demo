@@ -1586,7 +1586,7 @@
             <div class="partner-logo">WE</div>
             <div class="logo-text">
                 <h1 id="header-main-title">そらバリュ・シミュレーター</h1>
-                <span>Powered by そらスコ B2B2Cモジュール</span>
+                <span>Powered by そらバリュ B2B2Cモジュール</span>
             </div>
         </div>
         <div class="header-meta" style="display: flex; align-items: center; gap: 15px;">
@@ -2232,7 +2232,7 @@
                     </div>
                     <div class="pdf-meta-area">
                         提案日: <span id="pdf-current-date">2026-06-15</span><br>
-                        そらスコID: <strong id="pdf-id">A614245G36</strong>
+                        設備ID: <strong id="pdf-id">A614245G36</strong>
                     </div>
                 </div>
                 <hr style="border:0; border-top:1px solid #cbd5e1; margin: 15px 0;">
@@ -3881,7 +3881,7 @@
                     const fallbackData = { ...data, id: id };
                     processLoadedSolarData(fallbackData, customCoords);
                 } else {
-                    alert('そらスコIDが見つかりません。（デモ用ID: A614245G36, SR-78901 または SR-12345 をご利用ください）');
+                    alert('設備IDが見つかりません。（デモ用ID: A614245G36, SR-78901 または SR-12345 をご利用ください）');
                 }
             });
     }
@@ -5579,10 +5579,10 @@
         const id = document.getElementById('solar-id').value;
         const assetValText = document.getElementById('owner-asset-value').innerText;
         document.getElementById('modal-icon-area').innerText = "🤝";
-        document.getElementById('modal-title').innerText = "「ソラコミュ」査定査定連携（デモ）";
+        document.getElementById('modal-title').innerText = "「ソラコミュ」売却・入札査定連携（デモ）";
         document.getElementById('modal-message').innerHTML = `
             <strong>株式会社TSUNAGU-LAB「ソラコミュ」とのアライアンス送客デモ</strong><br><br>
-            設備ID [<strong>${id}</strong>] の物件スペックおよびそらスコ高精度予測データ（現在価値：約${assetValText}円、過積載率：1.3倍、ハザード考慮等）をソラコミュの入札査定システムへシームレスに転送しました。<br><br>
+            設備ID [<strong>${id}</strong>] の物件スペックおよびそらバリュ高精度予測データ（現在価値：約${assetValText}円、過積載率：1.3倍、ハザード考慮等）をソラコミュの入札査定システムへシームレスに転送しました。<br><br>
             <span style="color: #10b981; font-weight: bold;">✔ 送客連携データ送信完了 (物件入札査定へエントリー)</span>
         `;
         document.getElementById('action-modal').style.display = 'flex';
