@@ -5464,14 +5464,16 @@
         const content = document.getElementById('alert-details-content');
         const arrow = document.getElementById('alert-summary-arrow');
         const header = document.getElementById('alert-summary-header');
+        const isLight = document.body.classList.contains('light-mode');
+        
         if (content.style.display === 'none') {
             content.style.display = 'flex';
             arrow.style.transform = 'rotate(180deg)';
-            header.style.background = 'rgba(245, 158, 11, 0.15)';
+            header.style.background = isLight ? 'rgba(217, 119, 6, 0.12)' : 'rgba(245, 158, 11, 0.15)';
         } else {
             content.style.display = 'none';
             arrow.style.transform = 'rotate(0deg)';
-            header.style.background = 'rgba(245, 158, 11, 0.08)';
+            header.style.background = isLight ? 'rgba(217, 119, 6, 0.04)' : 'rgba(245, 158, 11, 0.08)';
         }
     }
 
@@ -5522,12 +5524,15 @@
         
         const content = document.getElementById('alert-details-content');
         const arrow = document.getElementById('alert-summary-arrow');
+        const isLight = document.body.classList.contains('light-mode');
         
         if (count === 0) {
             summaryContainer.style.display = 'none';
             if (content) content.style.display = 'none';
             if (arrow) arrow.style.transform = 'rotate(0deg)';
-            if (summaryHeader) summaryHeader.style.background = 'rgba(245, 158, 11, 0.08)';
+            if (summaryHeader) {
+                summaryHeader.style.background = isLight ? 'rgba(217, 119, 6, 0.04)' : 'rgba(245, 158, 11, 0.08)';
+            }
         } else {
             summaryContainer.style.display = 'block';
             summaryTitle.innerText = `発電所に関するステータス・警告（${count}件）があります（クリックで展開）`;
@@ -5536,21 +5541,21 @@
             if (content && arrow && summaryHeader) {
                 if (content.style.display === 'flex') {
                     arrow.style.transform = 'rotate(180deg)';
-                    summaryHeader.style.background = 'rgba(245, 158, 11, 0.15)';
+                    summaryHeader.style.background = isLight ? 'rgba(217, 119, 6, 0.12)' : 'rgba(245, 158, 11, 0.15)';
                 } else {
                     arrow.style.transform = 'rotate(0deg)';
-                    summaryHeader.style.background = 'rgba(245, 158, 11, 0.08)';
+                    summaryHeader.style.background = isLight ? 'rgba(217, 119, 6, 0.04)' : 'rgba(245, 158, 11, 0.08)';
                 }
             }
             
             if (hasWarning) {
                 summaryIcon.innerText = '⚠️';
-                summaryTitle.style.color = '#fbbf24';
-                summaryHeader.style.color = '#fbbf24';
+                summaryTitle.style.color = isLight ? '#d97706' : '#fbbf24'; // ライトモード時は濃いアンバー
+                summaryHeader.style.color = isLight ? '#d97706' : '#fbbf24';
             } else {
                 summaryIcon.innerText = 'ℹ️';
-                summaryTitle.style.color = '#60a5fa';
-                summaryHeader.style.color = '#60a5fa';
+                summaryTitle.style.color = isLight ? '#2563eb' : '#60a5fa'; // ライトモード時は濃いブルー
+                summaryHeader.style.color = isLight ? '#2563eb' : '#60a5fa';
             }
         }
     }
