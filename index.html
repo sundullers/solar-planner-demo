@@ -3831,7 +3831,7 @@
         };
 
         // 各ハザードレイヤーの画像解析を非同期で並列実行
-        const [tDoseki, tKyukei, tJisuberi, isFlood] = await Promise.all([
+        let [tDoseki, tKyukei, tJisuberi, isFlood] = await Promise.all([
             checkHazardTile(lat, lng, "05_dosekiryukeikaikuiki"),
             checkHazardTile(lat, lng, "05_kyukeishakeikaikuiki"),
             checkHazardTile(lat, lng, "05_jisuberikeikaikuiki"),
