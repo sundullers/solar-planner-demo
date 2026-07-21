@@ -2557,10 +2557,16 @@
     // リアルタイムGIS APIのロード待ち状態フラグ
     let isApiLoading = false;
 
-    // 設備IDからデータを取得する共通関数（demoDataおよび徳島データから横断検索）
+    // 動的ロードされた設備データのキャッシュ
+    let dynamicLoadedCache = {};
+
+    // 設備IDからデータを取得する共通関数（demoDataおよび徳島データ、動的ロードデータから横断検索）
     function getSolarData(id) {
         if (!id) return demoData["A614245G36"];
         let data = demoData[id];
+        if (!data && dynamicLoadedCache[id]) {
+            data = dynamicLoadedCache[id];
+        }
         if (!data && loadedTokushimaData && loadedTokushimaData.length > 0) {
             data = loadedTokushimaData.find(item => item.id === id);
         }
@@ -3381,7 +3387,7 @@
         const data = getSolarData(id);
         if (data) {
             let tempHazardSurcharge = 0;
-            const currentHazardText = document.getElementById('hazard-alert-text')?.innerText || data.hazard;
+            const currentHazardText = document.getElementById('hazard-alert-text')?.innerText || data.hazard || "";
             if (currentHazardText.includes("土砂") || currentHazardText.includes("イエロー")) {
                 tempHazardSurcharge = 50;
             } else if (currentHazardText.includes("洪水") || currentHazardText.includes("浸水")) {
@@ -3704,6 +3710,7 @@
                     lng: eqData.longitude
                 };
 
+                dynamicLoadedCache[data.id] = data; // 動的ロードキャッシュに保存
                 processLoadedSolarData(data, customCoords);
             })
             .catch(err => {
@@ -4130,7 +4137,7 @@
 
         // 想定撤去・解体費用の初期値を発電所規模とハザードリスクに応じて自動計算
         let tempHazardSurcharge = 0;
-        const currentHazardText = document.getElementById('hazard-alert-text')?.innerText || data.hazard;
+        const currentHazardText = document.getElementById('hazard-alert-text')?.innerText || data.hazard || "";
         if (currentHazardText.includes("土砂") || currentHazardText.includes("イエロー")) {
             tempHazardSurcharge = 50;
         } else if (currentHazardText.includes("洪水") || currentHazardText.includes("浸水")) {
@@ -4388,7 +4395,7 @@
         let hazardInitialMitigationCost = 0; // 初期対策費用（架台かさ上げ等）
         
         if (currentMode === 'fp-enhanced' && document.getElementById('fp-hazard-checkbox').checked) {
-            const currentHazardText = document.getElementById('hazard-alert-text')?.innerText || data.hazard;
+            const currentHazardText = document.getElementById('hazard-alert-text')?.innerText || data.hazard || "";
             const hasLandslide = currentHazardText.includes("土砂") || currentHazardText.includes("イエロー") || currentHazardText.includes("レッド");
             const hasFlood = currentHazardText.includes("洪水") || currentHazardText.includes("浸水");
             
