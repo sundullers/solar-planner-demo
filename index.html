@@ -1,6 +1,47 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            const div = document.createElement('div');
+            div.style.position = 'fixed';
+            div.style.top = '0';
+            div.style.left = '0';
+            div.style.width = '100%';
+            div.style.background = 'rgba(239, 68, 68, 0.95)';
+            div.style.color = '#ffffff';
+            div.style.padding = '15px';
+            div.style.zIndex = '99999';
+            div.style.fontFamily = 'monospace';
+            div.style.fontSize = '12px';
+            div.style.maxHeight = '50vh';
+            div.style.overflowY = 'auto';
+            div.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+            div.innerHTML = `<strong>🚨 JavaScript Error:</strong> ${message}<br>
+                             <strong>Source:</strong> ${source}:${lineno}:${colno}<br>
+                             <pre style="margin-top:10px; white-space:pre-wrap;">${error ? error.stack : 'No stack trace available'}</pre>`;
+            document.body.appendChild(div);
+            return false;
+        };
+        window.onunhandledrejection = function(event) {
+            const div = document.createElement('div');
+            div.style.position = 'fixed';
+            div.style.top = '0';
+            div.style.left = '0';
+            div.style.width = '100%';
+            div.style.background = 'rgba(245, 158, 11, 0.95)';
+            div.style.color = '#ffffff';
+            div.style.padding = '15px';
+            div.style.zIndex = '99999';
+            div.style.fontFamily = 'monospace';
+            div.style.fontSize = '12px';
+            div.style.maxHeight = '50vh';
+            div.style.overflowY = 'auto';
+            div.innerHTML = `<strong>⚠️ Unhandled Promise Rejection:</strong> ${event.reason}<br>
+                             <pre style="margin-top:10px; white-space:pre-wrap;">${event.reason && event.reason.stack ? event.reason.stack : 'No stack trace available'}</pre>`;
+            document.body.appendChild(div);
+        };
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>そらバリュ・シミュレーター - B2B2C営業支援モックアップ</title>
