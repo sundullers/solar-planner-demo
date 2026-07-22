@@ -4662,6 +4662,7 @@
         // 現在表示されているアセットのスペックデータを先頭で取得
         const id = document.getElementById('solar-id').value;
         const data = getSolarData(id);
+        if (!data) return;
         const startYear = data.elapsedYears;
 
         const repowerCost = parseFloat(document.getElementById('repower-cost').value);
