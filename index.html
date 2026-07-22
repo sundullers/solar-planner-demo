@@ -5776,7 +5776,10 @@
     }
 
     // 会員登録誘導モーダルの制御（文脈に応じたメッセージ＆ダイナミックURL対応）
+    let isModalDismissed = false;
+
     function showLoginRequiredModal(featureName, targetAssetId = "") {
+        if (isModalDismissed) return;
         const titleEl = document.getElementById('login-required-title');
         const msgEl = document.getElementById('login-required-message');
         const loginBtn = document.getElementById('login-modal-btn');
@@ -5849,6 +5852,7 @@
             if (typeof event.stopPropagation === 'function') event.stopPropagation();
             if (typeof event.preventDefault === 'function') event.preventDefault();
         }
+        isModalDismissed = true;
         const modalEl = document.getElementById('login-required-modal');
         if (modalEl) {
             modalEl.classList.add('hidden');
