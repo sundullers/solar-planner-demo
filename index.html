@@ -2429,8 +2429,17 @@
             document.body.style.overflow = 'hidden';
             var titleEl = document.getElementById('login-required-title');
             var msgEl = document.getElementById('login-required-message');
+            var loginBtn = document.getElementById('login-modal-btn');
             if (titleEl) titleEl.innerText = "発電所 (ID: " + targetId + ") のシミュレーション";
             if (msgEl) msgEl.innerHTML = "<strong>指定された発電所 (ID: " + targetId + ") の収支・資産価値シミュレーションが利用できます！</strong><br><br>無料の会員登録（所要時間1分）を行っていただくと、この発電所の詳細な手残りキャッシュフロー予測、リスク診断、およびPDF提案レポートが今すぐ利用できます。";
+            if (loginBtn) {
+                var currentUrl = window.location.href;
+                loginBtn.href = "/login?redirect=" + encodeURIComponent(currentUrl);
+                loginBtn.onclick = function(e) {
+                    if (e) e.stopPropagation();
+                    localStorage.setItem('sorasco-post-login-redirect', currentUrl);
+                };
+            }
         } else {
             modal.classList.add('hidden');
             modal.style.display = 'none';
@@ -5715,11 +5724,10 @@
     }
 
     function handleModalBackgroundClick(event) {
-        if (event) {
+        if (event && event.target && event.target.id === 'login-required-modal') {
             event.stopPropagation();
             event.preventDefault();
         }
-        // モーダル以外の箇所をクリックしても何も起きない（クリック不可能な完全シールド）
         return false;
     }
 
