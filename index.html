@@ -5614,8 +5614,11 @@
         }
 
         if (loginBtn) {
-            const redirectUrl = encodeURIComponent(window.location.href);
-            loginBtn.href = `/login?redirect=${redirectUrl}`;
+            const currentUrl = window.location.href;
+            loginBtn.href = `/login?redirect=${encodeURIComponent(currentUrl)}`;
+            loginBtn.onclick = function() {
+                localStorage.setItem('sorasco-post-login-redirect', currentUrl);
+            };
         }
 
         document.getElementById('login-required-modal').style.display = 'flex';
