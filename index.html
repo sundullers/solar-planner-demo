@@ -2400,8 +2400,8 @@
     </div>
 </div>
 
-<!-- 会員登録誘導モーダル (FOUC完全阻止のためHTMLレベルで初期表示) -->
-<div id="login-required-modal" class="modal" onclick="handleModalBackgroundClick(event)" style="display: flex; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(10px); z-index: 999999; pointer-events: auto; user-select: none;">
+<!-- 会員登録誘導モーダル (FOUC完全阻止のため初期制御) -->
+<div id="login-required-modal" class="modal" onclick="handleModalBackgroundClick(event)" style="display: none; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(10px); z-index: 999999; pointer-events: auto; user-select: none;">
     <div class="modal-content" style="background: var(--card-bg, #1e293b); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; padding: 36px 32px; width: 92%; max-width: 520px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05); text-align: center; color: var(--text-primary, #f8fafc); position: relative; animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
         <span class="close-modal" onclick="dismissLoginModal(event)" style="position: absolute; right: 20px; top: 16px; font-size: 26px; cursor: pointer; color: var(--text-secondary, #94a3b8); transition: color 0.2s; z-index: 1000000; display: block !important;">&times;</span>
         <div style="font-size: 42px; margin-bottom: 12px; display: inline-flex; justify-content: center; align-items: center; width: 72px; height: 72px; background: rgba(255, 102, 0, 0.12); border: 1px solid rgba(255, 102, 0, 0.3); border-radius: 50%; color: #ff6600;">🔒</div>
@@ -5856,7 +5856,7 @@
         const modalEl = document.getElementById('login-required-modal');
         if (modalEl) {
             modalEl.classList.add('hidden');
-            modalEl.style.display = 'none';
+            modalEl.style.setProperty('display', 'none', 'important');
         }
         document.body.style.overflow = '';
         closeLoginRequiredModal();
@@ -5867,7 +5867,7 @@
         const modalEl = document.getElementById('login-required-modal');
         if (modalEl) {
             modalEl.classList.add('hidden');
-            modalEl.style.display = 'none';
+            modalEl.style.setProperty('display', 'none', 'important');
         }
         document.body.style.overflow = '';
 
