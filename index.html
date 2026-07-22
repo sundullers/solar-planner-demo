@@ -4316,7 +4316,15 @@
             res.radar_scores.salt = 3.5;
         }
 
-        // NEDO発電量の動的補正
+    function calculateRegionalNedoFactor(address = "", lat = 0, lng = 0) {
+        if (address.includes("甲府") || (lng > 138.0 && lat > 35.0 && lat < 36.5)) return 1360;
+        if (address.includes("高知") || (lat > 0 && lat < 34.0)) return 1310;
+        if (address.includes("岡山")) return 1250;
+        if (address.includes("香川")) return 1210;
+        if (address.includes("名古屋") || address.includes("愛知")) return 1180;
+        if (address.includes("秋田") || (lat > 38.5 && lat < 41.0)) return 960;
+        if (address.includes("札幌") || address.includes("北海道") || lat > 41.0) return 1010;
+
         let nedoFactor = 1150;
         for (const pref in averageEnergyGenerations) {
             if (address.includes(pref)) {
@@ -4325,21 +4333,13 @@
             }
         }
         
-        // 特殊地点のミクロ補正（POC）
-        if (address.includes("那賀川町")) {
-            nedoFactor = 1240;
-        } else if (address.includes("三野町")) {
-            nedoFactor = 1120;
-        } else if (address.includes("神山町")) {
-            nedoFactor = 1075;
-        } else if (address.includes("阿波町")) {
-            nedoFactor = 1165;
-        }
+        if (address.includes("那賀川町")) nedoFactor = 1240;
+        else if (address.includes("三野町")) nedoFactor = 1120;
+        else if (address.includes("神山町")) nedoFactor = 1075;
+        else if (address.includes("阿波町")) nedoFactor = 1165;
 
-        res.nedo_factor = nedoFactor;
-        res.nedo_radiation = Math.round((nedoFactor / 325) * 100) / 100; // 簡易日射量換算
-
-        return res;
+        return nedoFactor;
+    }
     }
 
     // 取得した設備データをシミュレーターUIにバインド・シミュレーションを実行する共通ヘルパー
@@ -4370,13 +4370,8 @@
         // 地域日射量係数 (nedoFactor) のリアルタイム更新
         if (data.nedoFactor) {
             currentNedoFactor = data.nedoFactor;
-        } else if (data.lat && data.lng) {
-            // 全国緯度グラデーション推定（甲府・高知等が高照度、秋田・北海道が低日射）
-            if (data.lat > 40.0) currentNedoFactor = 1010; // 北海道
-            else if (data.lat > 38.5) currentNedoFactor = 960; // 秋田・東北日本海
-            else if (data.lat < 34.0) currentNedoFactor = 1310; // 高知・四国太平洋
-            else if (data.lng > 138.0 && data.lat < 36.0) currentNedoFactor = 1360; // 山梨甲府
-            else currentNedoFactor = 1150;
+        } else {
+            currentNedoFactor = calculateRegionalNedoFactor(data.location || data.address || "", data.lat, data.lng);
         }
         const remainingYears = Math.max(1, Math.round(20 - data.elapsedYears));
         const simYearsSelect = document.getElementById('sim-years');
