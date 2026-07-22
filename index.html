@@ -4004,8 +4004,9 @@
         // URLパラメータに指定IDがある場合は優先して即座にセット（デモデータのチラ見せ防止）
         const urlParams = new URLSearchParams(window.location.search);
         const urlId = urlParams.get('id');
-        if (urlId && document.getElementById('solar-id')) {
-            document.getElementById('solar-id').value = urlId;
+        const solarIdEl = document.getElementById('solar-id');
+        if (urlId && solarIdEl && !solarIdEl.value.startsWith("DEMO-")) {
+            solarIdEl.value = urlId;
         }
 
         const id = document.getElementById('solar-id').value;
@@ -5706,7 +5707,10 @@
         const idInput = document.getElementById('solar-id');
         if (idInput) {
             idInput.value = id;
-            loadDemoData();
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState(null, '', '/valu/?id=' + id);
+            }
+            loadDemoData(id);
         }
     }
 
