@@ -1627,13 +1627,14 @@
                 </button>
             </div>
 
-            <div class="form-group">
+            <!-- 設備ID / デモ選択エリア -->
+            <div class="form-group" id="id-selection-container">
                 <label for="solar-id">🔍 設備ID</label>
                 <div style="display: flex; gap: 10px; margin-bottom: 8px;">
                     <input type="text" id="solar-id" class="input-text" value="DEMO-TOKUSHIMA">
                     <button type="button" class="btn-action" style="margin: 0; width: auto; padding: 0 15px; white-space: nowrap; flex-shrink: 0;" onclick="loadDemoData()">読込</button>
                 </div>
-                <div style="display: flex; align-items: center; gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 6px;" id="demo-selector-row">
                     <span style="font-size: 0.72rem; color: var(--text-secondary); white-space: nowrap;">💡 デモ選択:</span>
                     <select id="demo-asset-selector" onchange="selectDemoAsset(this.value)" style="flex: 1; background: var(--card-bg, #1e293b); color: var(--text-primary, #f8fafc); border: 1px solid var(--border-color, #334155); border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; cursor: pointer;">
                         <option value="DEMO-TOKUSHIMA" selected>徳島（阿波吉野川 100kW）</option>
@@ -1645,6 +1646,15 @@
                         <option value="DEMO-AKITA">秋田（日本海 50kW）</option>
                         <option value="DEMO-HOKKAIDO">北海道（札幌 50kW）</option>
                     </select>
+                </div>
+            </div>
+
+            <!-- 実在アセット専用ステータスバッジ（実在ID閲覧時に表示） -->
+            <div class="form-group" id="real-asset-info-container" style="display: none; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 10px; padding: 12px 16px; margin-bottom: 15px;">
+                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px;">閲覧対象アセット</div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 1.05rem; font-weight: 700; color: #60a5fa;" id="display-real-asset-id">ID: ---</span>
+                    <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 2px 8px; border-radius: 12px; font-weight: 600;">解析完了</span>
                 </div>
             </div>
 
@@ -4313,6 +4323,21 @@
     // 取得した設備データをシミュレーターUIにバインド・シミュレーションを実行する共通ヘルパー
     function processLoadedSolarData(data, customCoords) {
         const id = data.id;
+        const demoIds = ["DEMO-TOKUSHIMA", "DEMO-KAGAWA", "DEMO-OKAYAMA", "DEMO-NAGOYA", "DEMO-YAMANASHI", "DEMO-KOCHI", "DEMO-AKITA", "DEMO-HOKKAIDO"];
+        const isDemo = demoIds.includes(id);
+        
+        const idSelectContainer = document.getElementById('id-selection-container');
+        const realAssetInfoContainer = document.getElementById('real-asset-info-container');
+        const displayRealAssetId = document.getElementById('display-real-asset-id');
+
+        if (!isDemo) {
+            if (idSelectContainer) idSelectContainer.style.display = 'none';
+            if (realAssetInfoContainer) realAssetInfoContainer.style.display = 'block';
+            if (displayRealAssetId) displayRealAssetId.innerText = `ID: ${id}`;
+        } else {
+            if (idSelectContainer) idSelectContainer.style.display = 'block';
+            if (realAssetInfoContainer) realAssetInfoContainer.style.display = 'none';
+        }
         
         // URLから引き継がれた座標があれば適用
         if (customCoords) {
