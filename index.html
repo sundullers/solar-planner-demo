@@ -5917,11 +5917,9 @@ function dismissLoginModal(event) {
             if (window.history && window.history.replaceState) {
                 window.history.replaceState(null, '', '/valu/?id=DEMO-TOKUSHIMA');
             }
-            initCharts();
-            await tokushimaPreloadPromise;
-            loadDemoData();
-            switchMode('fp-enhanced');
-            if (typeof updateSimulation === 'function') {
+            if (typeof selectDemoAsset === 'function') {
+                selectDemoAsset('DEMO-TOKUSHIMA');
+            } else if (typeof updateSimulation === 'function') {
                 updateSimulation('DEMO-TOKUSHIMA');
             }
         }
