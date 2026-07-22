@@ -2429,6 +2429,10 @@ var isModalDismissed = false;
 
 function dismissLoginModal(event) {
     if (event) {
+        if (event.target && event.target.id === 'login-required-modal') {
+            // 背景クリック時は一切閉じない（仕様絶対遵守）
+            return false;
+        }
         if (typeof event.stopPropagation === 'function') event.stopPropagation();
         if (typeof event.preventDefault === 'function') event.preventDefault();
     }
