@@ -603,6 +603,14 @@
             transform: translateX(22px);
         }
 
+        /* ログインモーダルのFOUC完全遮断CSS */
+        #login-required-modal {
+            display: flex;
+        }
+        #login-required-modal.hidden {
+            display: none !important;
+        }
+
         /* 逆算フィッティング用バッジ */
         .calibration-badge {
             background: rgba(16, 185, 129, 0.1);
@@ -2416,6 +2424,7 @@
     var modal = document.getElementById('login-required-modal');
     if (modal) {
         if (targetId && !demoIds.includes(targetId) && !isLoggedIn) {
+            modal.classList.remove('hidden');
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
             var titleEl = document.getElementById('login-required-title');
@@ -2423,6 +2432,7 @@
             if (titleEl) titleEl.innerText = "発電所 (ID: " + targetId + ") のシミュレーション";
             if (msgEl) msgEl.innerHTML = "<strong>指定された発電所 (ID: " + targetId + ") の収支・資産価値シミュレーションが利用できます！</strong><br><br>無料の会員登録（所要時間1分）を行っていただくと、この発電所の詳細な手残りキャッシュフロー予測、リスク診断、およびPDF提案レポートが今すぐ利用できます。";
         } else {
+            modal.classList.add('hidden');
             modal.style.display = 'none';
         }
     }
@@ -5697,7 +5707,11 @@
         }
 
         document.body.style.overflow = 'hidden';
-        document.getElementById('login-required-modal').style.display = 'flex';
+        const modalEl = document.getElementById('login-required-modal');
+        if (modalEl) {
+            modalEl.classList.remove('hidden');
+            modalEl.style.display = 'flex';
+        }
     }
 
     function handleModalBackgroundClick(event) {
@@ -5721,7 +5735,11 @@
             sessionStorage.getItem('token')
         );
 
-        document.getElementById('login-required-modal').style.display = 'none';
+        const modalEl = document.getElementById('login-required-modal');
+        if (modalEl) {
+            modalEl.classList.add('hidden');
+            modalEl.style.display = 'none';
+        }
 
         // 未ログイン状態で非デモIDを開いていた場合、デモ画面へ切り替えてフル計算を確実に実行
         if (!isLoggedIn && idInput && !demoIds.includes(idInput.value)) {
