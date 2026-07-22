@@ -2432,6 +2432,19 @@
         sessionStorage.getItem('token')
     );
     var modal = document.getElementById('login-required-modal');
+    var idSelectContainer = document.getElementById('id-selection-container');
+    var realAssetInfoContainer = document.getElementById('real-asset-info-container');
+    var displayRealAssetId = document.getElementById('display-real-asset-id');
+
+    if (targetId && !demoIds.includes(targetId)) {
+        if (idSelectContainer) idSelectContainer.style.display = 'none';
+        if (realAssetInfoContainer) realAssetInfoContainer.style.display = 'block';
+        if (displayRealAssetId) displayRealAssetId.innerText = "ID: " + targetId;
+    } else {
+        if (idSelectContainer) idSelectContainer.style.display = 'block';
+        if (realAssetInfoContainer) realAssetInfoContainer.style.display = 'none';
+    }
+
     if (modal) {
         if (targetId && !demoIds.includes(targetId) && !isLoggedIn) {
             modal.classList.remove('hidden');
@@ -5716,6 +5729,19 @@
             sessionStorage.getItem('sorasco-access-token') ||
             sessionStorage.getItem('token')
         );
+
+        const idSelectContainer = document.getElementById('id-selection-container');
+        const realAssetInfoContainer = document.getElementById('real-asset-info-container');
+        const displayRealAssetId = document.getElementById('display-real-asset-id');
+
+        if (currentId && !demoIds.includes(currentId)) {
+            if (idSelectContainer) idSelectContainer.style.display = 'none';
+            if (realAssetInfoContainer) realAssetInfoContainer.style.display = 'block';
+            if (displayRealAssetId) displayRealAssetId.innerText = `ID: ${currentId}`;
+        } else {
+            if (idSelectContainer) idSelectContainer.style.display = 'block';
+            if (realAssetInfoContainer) realAssetInfoContainer.style.display = 'none';
+        }
 
         if (currentId && !demoIds.includes(currentId) && !isLoggedIn) {
             titleEl.innerText = `発電所 (ID: ${currentId}) のシミュレーション`;
