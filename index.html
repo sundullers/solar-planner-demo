@@ -4445,8 +4445,8 @@
                     return;
                 }
                 if (resData) {
-                    // 取得したNEDO発電係数をキャッシュに同期
-                    currentNedoFactor = resData.nedo_factor || 1150;
+                    // 取得したNEDO発電係数を地域固有値で維持
+                    currentNedoFactor = data.nedoFactor || calculateRegionalNedoFactor(data.location || data.address || "", data.lat, data.lng);
 
                     // トグル説明ラベルの動的更新
                     const toggleLabel = document.getElementById('fp-hazard-toggle-label');
