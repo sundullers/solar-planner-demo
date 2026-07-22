@@ -5671,8 +5671,48 @@
                                             `修繕を最小限に抑えて現在の売電収入を享受し続けるか、あるいは12年目のパワコン定期更新期（約${actualPcsOptCost}万円の支出）を迎える前に早期売却Exitをご検討ください。`;
             }
         }
+    }
 
-        // 検証スクリプト用に計算配列を一時的にエクスポート
+    // ハザードレーダーチャートの安全描画
+    function drawHazardRadarChart(detectedHazard) {
+        const canvas = document.getElementById('hazard-radar-chart');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        
+        if (window.hazardRadarChartInstance) {
+            window.hazardRadarChartInstance.destroy();
+        }
+        
+        const scores = detectedHazard?.radar_scores || { flood: 1, landslide: 1, salt: 1, snow: 1, wind: 1 };
+        window.hazardRadarChartInstance = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['水害リスク', '土砂災害', '塩害影響', '積雪リスク', '風災リスク'],
+                datasets: [{
+                    label: 'ハザードリスクスコア',
+                    data: [scores.flood, scores.landslide, scores.salt, scores.snow || 1, scores.wind || 1],
+                    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                    borderColor: '#ef4444',
+                    pointBackgroundColor: '#ef4444',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        min: 0,
+                        max: 5,
+                        ticks: { stepSize: 1, display: false },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
         window.baseCF = baseCF;
         window.pcsOptCF = pcsOptCF;
         window.repowerCF = repowerCF;
