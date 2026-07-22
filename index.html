@@ -2741,7 +2741,8 @@
         if (!data && loadedTokushimaData && loadedTokushimaData.length > 0) {
             data = loadedTokushimaData.find(item => item.id === id);
         }
-        if (!data && allowUndefined) return undefined;
+        const demoIds = ["DEMO-TOKUSHIMA", "DEMO-KAGAWA", "DEMO-OKAYAMA", "DEMO-NAGOYA", "DEMO-YAMANASHI", "DEMO-KOCHI", "DEMO-AKITA", "DEMO-HOKKAIDO"];
+        if (!data && (allowUndefined || !demoIds.includes(id))) return undefined;
         return data || demoData["DEMO-TOKUSHIMA"];
     }
 
@@ -5632,18 +5633,31 @@
         const titleEl = document.getElementById('login-required-title');
         const msgEl = document.getElementById('login-required-message');
         const loginBtn = document.getElementById('login-modal-btn');
+        const closeX = document.querySelector('#login-required-modal .close-modal');
+        const cancelBtn = document.querySelector('#login-required-modal button.btn');
         
         const urlParams = new URLSearchParams(window.location.search);
         const currentId = targetAssetId || urlParams.get('id') || document.getElementById('solar-id')?.value || "";
 
         const demoIds = ["DEMO-TOKUSHIMA", "DEMO-KAGAWA", "DEMO-OKAYAMA", "DEMO-NAGOYA", "DEMO-YAMANASHI", "DEMO-KOCHI", "DEMO-AKITA", "DEMO-HOKKAIDO"];
+        const isLoggedIn = !!(
+            localStorage.getItem('sorasco-access-token') ||
+            localStorage.getItem('access_token') ||
+            localStorage.getItem('token') ||
+            sessionStorage.getItem('sorasco-access-token') ||
+            sessionStorage.getItem('token')
+        );
 
-        if (currentId && !demoIds.includes(currentId)) {
+        if (currentId && !demoIds.includes(currentId) && !isLoggedIn) {
             titleEl.innerText = `設備 (ID: ${currentId}) の試算機能制限`;
             msgEl.innerHTML = `<strong>指定された発電所 (ID: ${currentId}) の収支・資産価値シミュレーションレポートが作成されました！</strong><br><br>無料の会員登録（所要時間1分）を行っていただくと、この設備の詳細な手残りキャッシュフロー予測、リスク診断、およびPDF提案レポートを今すぐ閲覧・アンロックしていただけます。`;
+            if (closeX) closeX.style.display = 'none'; // 非デモID閲覧時は閉じる(×)ボタンを非表示
+            if (cancelBtn) cancelBtn.innerText = "デモ操作画面（徳島）へ戻る";
         } else {
             titleEl.innerText = `${featureName}の制限`;
             msgEl.innerText = `実在設備の詳細シミュレーションおよび${featureName}は、会員限定機能となっております。無料の会員登録で今すぐ全ての機能をアンロックしてご利用いただけます。`;
+            if (closeX) closeX.style.display = 'block';
+            if (cancelBtn) cancelBtn.innerText = "デモの操作を続ける";
         }
 
         if (loginBtn) {
@@ -5658,6 +5672,25 @@
     }
 
     function closeLoginRequiredModal() {
+        const idInput = document.getElementById('solar-id');
+        const demoIds = ["DEMO-TOKUSHIMA", "DEMO-KAGAWA", "DEMO-OKAYAMA", "DEMO-NAGOYA", "DEMO-YAMANASHI", "DEMO-KOCHI", "DEMO-AKITA", "DEMO-HOKKAIDO"];
+        const isLoggedIn = !!(
+            localStorage.getItem('sorasco-access-token') ||
+            localStorage.getItem('access_token') ||
+            localStorage.getItem('token') ||
+            sessionStorage.getItem('sorasco-access-token') ||
+            sessionStorage.getItem('token')
+        );
+
+        // 未ログイン状態で非デモIDを開いていた場合、モーダルを閉じようとしたら安全なDEMO-TOKUSHIMAへ復帰させる
+        if (!isLoggedIn && idInput && !demoIds.includes(idInput.value)) {
+            idInput.value = "DEMO-TOKUSHIMA";
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState(null, '', '/valu/?id=DEMO-TOKUSHIMA');
+            }
+            loadDemoData();
+        }
+
         document.getElementById('login-required-modal').style.display = 'none';
     }
 
