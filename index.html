@@ -2396,7 +2396,7 @@
                 会員登録・ログインして利用する
             </a>
             <button type="button" class="btn" onclick="closeLoginRequiredModal()" style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color, #334155); color: var(--text-secondary, #94a3b8); font-weight: 600; padding: 12px; border-radius: 10px; cursor: pointer; font-size: 0.88rem; transition: all 0.2s;">
-                デモ操作画面へ戻る
+                デモ操作画面に移動する
             </button>
         </div>
     </div>
@@ -5651,14 +5651,14 @@
 
         if (currentId && !demoIds.includes(currentId) && !isLoggedIn) {
             titleEl.innerText = `発電所 (ID: ${currentId}) のシミュレーション`;
-            msgEl.innerHTML = `<strong>指定された発電所 (ID: ${currentId}) の収支・資産価値シミュレーションが利用できます！</strong><br><br>無料の会員登録（所要時間1分）を行っていただくと、この発電所の詳細な手残りキャッシュフロー予測、リスク診断、およびPDF提案レポートを今すぐ閲覧・アンロックしていただけます。`;
+            msgEl.innerHTML = `<strong>指定された発電所 (ID: ${currentId}) の収支・資産価値シミュレーションが利用できます！</strong><br><br>無料の会員登録（所要時間1分）を行っていただくと、この発電所の詳細な手残りキャッシュフロー予測、リスク診断、およびPDF提案レポートが今すぐ利用できます。`;
             if (closeX) closeX.style.display = 'none'; // 非デモID閲覧時は閉じる(×)ボタンを非表示
-            if (cancelBtn) cancelBtn.innerText = "デモ操作画面へ戻る";
+            if (cancelBtn) cancelBtn.innerText = "デモ操作画面に移動する";
         } else {
             titleEl.innerText = `${featureName.replace('設備', '発電所')}の機能`;
-            msgEl.innerHTML = `<strong>${featureName.replace('設備', '発電所')}が利用できます！</strong><br><br>無料の会員登録（所要時間1分）を行っていただくと、今すぐ全てのシミュレーション機能およびレポート出力をアンロックしてご利用いただけます。`;
+            msgEl.innerHTML = `<strong>${featureName.replace('設備', '発電所')}が利用できます！</strong><br><br>無料の会員登録（所要時間1分）を行っていただくと、すべてのシミュレーション機能およびレポート出力が今すぐ利用できます。`;
             if (closeX) closeX.style.display = 'block';
-            if (cancelBtn) cancelBtn.innerText = "デモ操作画面へ戻る";
+            if (cancelBtn) cancelBtn.innerText = "デモ操作画面に移動する";
         }
 
         if (loginBtn) {
