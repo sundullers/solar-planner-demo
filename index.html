@@ -3981,8 +3981,14 @@
             return;
         }
 
-        // 1. まずは本番の設備詳細APIからフェッチを試みる
-        fetch(`/api/equipments/${id}`)
+        // 1. まずは本番の設備詳細APIからフェッチを試みる（ログイン済みの場合はAuthorizationヘッダーを添付）
+        const reqHeaders = {};
+        const authToken = localStorage.getItem('sorasco-access-token') || sessionStorage.getItem('sorasco-access-token') || '';
+        if (authToken) {
+            reqHeaders['Authorization'] = `Bearer ${authToken}`;
+        }
+
+        fetch(`/api/equipments/${id}`, { headers: reqHeaders })
             .then(res => {
                 if (!res.ok) throw new Error("Equipment API is not available or returned error");
                 return res.json();
