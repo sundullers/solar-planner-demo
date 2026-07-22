@@ -4353,6 +4353,10 @@ function dismissLoginModal(event) {
             res.radar_scores.salt = 3.5;
         }
 
+        return res;
+    }
+
+    // 全国主要地域別NEDO年間日射量モデル算出ヘルパー
     function calculateRegionalNedoFactor(address = "", lat = 0, lng = 0) {
         if (address.includes("甲府") || (lng > 138.0 && lat > 35.0 && lat < 36.5)) return 1360;
         if (address.includes("高知") || (lat > 0 && lat < 34.0)) return 1310;
@@ -4376,7 +4380,6 @@ function dismissLoginModal(event) {
         else if (address.includes("阿波町")) nedoFactor = 1165;
 
         return nedoFactor;
-    }
     }
 
     // 取得した設備データをシミュレーターUIにバインド・シミュレーションを実行する共通ヘルパー
