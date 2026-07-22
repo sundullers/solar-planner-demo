@@ -3957,6 +3957,13 @@
         if (!isLoggedIn && idInput && !demoIds.includes(idInput.value)) {
             idInput.value = "DEMO-TOKUSHIMA";
         }
+        
+        // キャリブレーション入力およびEPCマスタ入力を初期化
+        const actualInput = document.getElementById('actual-revenue-input');
+        if (actualInput) actualInput.value = '';
+        const calMsg = document.getElementById('calibration-status-msg');
+        if (calMsg) calMsg.style.display = 'none';
+
         loadDemoData();
     }
 
@@ -5078,16 +5085,15 @@
                 // リパワリング実行前および実行当年（効果は翌年から発現）
                 repowerIncome = baseIncome;
                 repowerExpense = baseExpense;
-                if (i === repowerYear) {
+                if (i === repowerYear && i > 0) {
                     repowerExpense += repowerCost;
                     repowerExpense += hazardInitialMitigationCost;
                 }
                 repowerRunningExpense = omCost + hazardInsuranceSurcharge + (fipActive ? (baseIncome * 0.02) : 0);
             } else {
-                // リパワリング実行の翌年以降（効果発現）
+                // リパワリング実行の翌年以降（効果発現：最新パネル交換のため経年劣化率は新品基準 0.3%/年）
                 const yearsSinceRepower = i - repowerYear - 1;
-                // モジュールは最新の新品に交換されるため、経年劣化率は古い実績を引き継がず、標準の0.005ベースの60%低減とする
-                const repowerEfficiency = (1 + generationBoost) * (1 - (yearsSinceRepower * (0.005 * 0.6))) * (1 - effLoss);
+                const repowerEfficiency = (1 + generationBoost) * (1 - (yearsSinceRepower * 0.003)) * (1 - effLoss);
                 const repowerStdGen = calcStandardGeneration(data.panelCapacity * 1.385, data.capacity);
                 
                 repowerIncome = (i === 0) ? 0 : (repowerStdGen * repowerCapacityFactor * repowerEfficiency * price * (1 - finalSuppressionRate)) / 10000;
