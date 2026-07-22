@@ -2406,10 +2406,9 @@
     </div>
 </div>
 
-<!-- 会員登録誘導モーダル (FOUC完全阻止のため初期制御) -->
+<!-- 会員登録誘導モーダル (背景クリック無効・×ボタンなし仕様) -->
 <div id="login-required-modal" class="modal" style="display: none; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(10px); z-index: 999999; pointer-events: auto; user-select: none;">
     <div class="modal-content" style="background: var(--card-bg, #1e293b); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; padding: 36px 32px; width: 92%; max-width: 520px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05); text-align: center; color: var(--text-primary, #f8fafc); position: relative; animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
-        <span id="login-modal-close-x" class="close-modal" style="position: absolute; right: 20px; top: 16px; font-size: 26px; cursor: pointer; color: var(--text-secondary, #94a3b8); transition: color 0.2s; z-index: 1000000; display: block !important;">&times;</span>
         <div style="font-size: 42px; margin-bottom: 12px; display: inline-flex; justify-content: center; align-items: center; width: 72px; height: 72px; background: rgba(255, 102, 0, 0.12); border: 1px solid rgba(255, 102, 0, 0.3); border-radius: 50%; color: #ff6600;">🔒</div>
         <h3 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 14px; line-height: 1.4; color: #ffffff;" id="login-required-title">発電所シミュレーション</h3>
         <p style="font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary, #cbd5e1); margin-bottom: 28px; text-align: left; background: rgba(15, 23, 42, 0.4); padding: 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);" id="login-required-message">
@@ -2419,7 +2418,7 @@
             <a href="/login" id="login-modal-btn" class="btn" style="background: linear-gradient(135deg, #ff6600, #ea580c); border: none; color: #ffffff; font-size: 0.95rem; font-weight: bold; padding: 14px; border-radius: 10px; text-decoration: none; display: block; cursor: pointer; text-align: center; box-shadow: 0 4px 12px rgba(255, 102, 0, 0.3); transition: all 0.2s;">
                 会員登録・ログインして利用する
             </a>
-            <button type="button" id="login-modal-cancel-btn" class="btn" style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color, #334155); color: var(--text-secondary, #94a3b8); font-weight: 600; padding: 12px; border-radius: 10px; cursor: pointer; font-size: 0.88rem; transition: all 0.2s; pointer-events: auto; position: relative; z-index: 1000000;">
+            <button type="button" id="login-modal-cancel-btn" onclick="dismissLoginModal(event)" class="btn" style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color, #334155); color: var(--text-secondary, #94a3b8); font-weight: 600; padding: 12px; border-radius: 10px; cursor: pointer; font-size: 0.88rem; transition: all 0.2s; pointer-events: auto; position: relative; z-index: 1000000;">
                 デモ操作画面に移動する
             </button>
         </div>
@@ -5863,7 +5862,7 @@ function dismissLoginModal(event) {
     }
 
     function handleModalBackgroundClick(event) {
-        if (event && event.target && event.target.id === 'login-required-modal') {
+        if (event) {
             event.stopPropagation();
             event.preventDefault();
         }
