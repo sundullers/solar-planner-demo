@@ -5776,7 +5776,6 @@ function dismissLoginModal(event) {
         const pdfModal = document.getElementById('pdf-modal');
         const guideModal = document.getElementById('guide-modal');
         const logicGuideModal = document.getElementById('logic-guide-modal');
-        const loginRequiredModal = document.getElementById('login-required-modal');
         if (event.target === pdfModal) {
             pdfModal.style.display = 'none';
         }
@@ -5785,9 +5784,6 @@ function dismissLoginModal(event) {
         }
         if (event.target === logicGuideModal) {
             logicGuideModal.style.display = 'none';
-        }
-        if (event.target === loginRequiredModal) {
-            loginRequiredModal.style.display = 'none';
         }
     }
 
