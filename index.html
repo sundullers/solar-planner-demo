@@ -5678,12 +5678,11 @@
             event.stopPropagation();
             event.preventDefault();
         }
-        if (event && event.target && event.target.id === 'login-required-modal') {
-            closeLoginRequiredModal();
-        }
+        // モーダル以外の箇所をクリックしても何も起きない（クリック不可能な完全シールド）
+        return false;
     }
 
-    function closeLoginRequiredModal() {
+    async function closeLoginRequiredModal() {
         document.body.style.overflow = '';
         const idInput = document.getElementById('solar-id');
         const demoIds = ["DEMO-TOKUSHIMA", "DEMO-KAGAWA", "DEMO-OKAYAMA", "DEMO-NAGOYA", "DEMO-YAMANASHI", "DEMO-KOCHI", "DEMO-AKITA", "DEMO-HOKKAIDO"];
@@ -5695,16 +5694,19 @@
             sessionStorage.getItem('token')
         );
 
-        // 未ログイン状態で非デモIDを開いていた場合、モーダルを閉じようとしたら安全なDEMO-TOKUSHIMAへ復帰させる
+        document.getElementById('login-required-modal').style.display = 'none';
+
+        // 未ログイン状態で非デモIDを開いていた場合、デモ画面へ切り替えてフル計算を実行
         if (!isLoggedIn && idInput && !demoIds.includes(idInput.value)) {
             idInput.value = "DEMO-TOKUSHIMA";
             if (window.history && window.history.replaceState) {
                 window.history.replaceState(null, '', '/valu/?id=DEMO-TOKUSHIMA');
             }
+            initCharts();
+            await tokushimaPreloadPromise;
             loadDemoData();
+            switchMode('fp-enhanced');
         }
-
-        document.getElementById('login-required-modal').style.display = 'none';
     }
 
     // ご利用ガイドモーダルの制御
