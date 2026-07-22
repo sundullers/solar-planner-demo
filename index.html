@@ -5696,7 +5696,7 @@
 
         document.getElementById('login-required-modal').style.display = 'none';
 
-        // 未ログイン状態で非デモIDを開いていた場合、デモ画面へ切り替えてフル計算を実行
+        // 未ログイン状態で非デモIDを開いていた場合、デモ画面へ切り替えてフル計算を確実に実行
         if (!isLoggedIn && idInput && !demoIds.includes(idInput.value)) {
             idInput.value = "DEMO-TOKUSHIMA";
             if (window.history && window.history.replaceState) {
@@ -5706,6 +5706,9 @@
             await tokushimaPreloadPromise;
             loadDemoData();
             switchMode('fp-enhanced');
+            if (typeof updateSimulation === 'function') {
+                updateSimulation('DEMO-TOKUSHIMA');
+            }
         }
     }
 
