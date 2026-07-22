@@ -2426,6 +2426,26 @@
     </div>
 </div>
 <script>
+var isModalDismissed = false;
+
+function dismissLoginModal(event) {
+    if (event) {
+        if (typeof event.stopPropagation === 'function') event.stopPropagation();
+        if (typeof event.preventDefault === 'function') event.preventDefault();
+    }
+    isModalDismissed = true;
+    var modalEl = document.getElementById('login-required-modal');
+    if (modalEl) {
+        modalEl.classList.add('hidden');
+        modalEl.style.setProperty('display', 'none', 'important');
+    }
+    document.body.style.overflow = '';
+    if (typeof closeLoginRequiredModal === 'function') {
+        closeLoginRequiredModal();
+    }
+    return false;
+}
+
 (function() {
     var urlParams = new URLSearchParams(window.location.search);
     var targetId = urlParams.get('id') || "";
