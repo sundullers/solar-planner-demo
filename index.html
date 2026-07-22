@@ -2382,8 +2382,8 @@
     </div>
 </div>
 
-<!-- 会員登録誘導モーダル -->
-<div id="login-required-modal" class="modal" onclick="handleModalBackgroundClick(event)" style="display: none; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(10px); z-index: 999999; pointer-events: auto; user-select: none;">
+<!-- 会員登録誘導モーダル (FOUC完全阻止のためHTMLレベルで初期表示) -->
+<div id="login-required-modal" class="modal" onclick="handleModalBackgroundClick(event)" style="display: flex; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(10px); z-index: 999999; pointer-events: auto; user-select: none;">
     <div class="modal-content" style="background: var(--card-bg, #1e293b); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; padding: 36px 32px; width: 92%; max-width: 520px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05); text-align: center; color: var(--text-primary, #f8fafc); position: relative; animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
         <span class="close-modal" onclick="closeLoginRequiredModal()" style="position: absolute; right: 20px; top: 16px; font-size: 26px; cursor: pointer; color: var(--text-secondary, #94a3b8); transition: color 0.2s;">&times;</span>
         <div style="font-size: 42px; margin-bottom: 12px; display: inline-flex; justify-content: center; align-items: center; width: 72px; height: 72px; background: rgba(255, 102, 0, 0.12); border: 1px solid rgba(255, 102, 0, 0.3); border-radius: 50%; color: #ff6600;">🔒</div>
@@ -2401,6 +2401,33 @@
         </div>
     </div>
 </div>
+<script>
+(function() {
+    var urlParams = new URLSearchParams(window.location.search);
+    var targetId = urlParams.get('id') || "";
+    var demoIds = ["DEMO-TOKUSHIMA", "DEMO-KAGAWA", "DEMO-OKAYAMA", "DEMO-NAGOYA", "DEMO-YAMANASHI", "DEMO-KOCHI", "DEMO-AKITA", "DEMO-HOKKAIDO"];
+    var isLoggedIn = !!(
+        localStorage.getItem('sorasco-access-token') ||
+        localStorage.getItem('access_token') ||
+        localStorage.getItem('token') ||
+        sessionStorage.getItem('sorasco-access-token') ||
+        sessionStorage.getItem('token')
+    );
+    var modal = document.getElementById('login-required-modal');
+    if (modal) {
+        if (targetId && !demoIds.includes(targetId) && !isLoggedIn) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            var titleEl = document.getElementById('login-required-title');
+            var msgEl = document.getElementById('login-required-message');
+            if (titleEl) titleEl.innerText = "発電所 (ID: " + targetId + ") のシミュレーション";
+            if (msgEl) msgEl.innerHTML = "<strong>指定された発電所 (ID: " + targetId + ") の収支・資産価値シミュレーションが利用できます！</strong><br><br>無料の会員登録（所要時間1分）を行っていただくと、この発電所の詳細な手残りキャッシュフロー予測、リスク診断、およびPDF提案レポートが今すぐ利用できます。";
+        } else {
+            modal.style.display = 'none';
+        }
+    }
+})();
+</script>
 
 <!-- ご利用ガイドモーダル -->
 <div id="guide-modal" class="modal" style="display: none;">
@@ -6153,6 +6180,9 @@
             showLoginRequiredModal("実在発電所のシミュレーション", targetId);
             return;
         }
+
+        const modalEl = document.getElementById('login-required-modal');
+        if (modalEl) modalEl.style.display = 'none';
 
         initCharts();
         await tokushimaPreloadPromise;
