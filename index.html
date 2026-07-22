@@ -1614,16 +1614,29 @@
         <div class="panel-controls">
             <div class="panel-title" style="display: flex; justify-content: space-between; align-items: center;">
                 <span>シミュレーション設定</span>
-                <button type="button" class="btn-reset" onclick="loadDemoData()">
+                <button type="button" class="btn-reset" onclick="resetSettings()">
                     🔄 設定リセット
                 </button>
             </div>
 
             <div class="form-group">
                 <label for="solar-id">🔍 設備ID</label>
-                <div style="display: flex; gap: 10px;">
-                    <input type="text" id="solar-id" class="input-text" value="A614245G36">
+                <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+                    <input type="text" id="solar-id" class="input-text" value="DEMO-TOKUSHIMA">
                     <button type="button" class="btn-action" style="margin: 0; width: auto; padding: 0 15px; white-space: nowrap; flex-shrink: 0;" onclick="loadDemoData()">読込</button>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="font-size: 0.72rem; color: var(--text-secondary); white-space: nowrap;">💡 デモ選択:</span>
+                    <select id="demo-asset-selector" onchange="selectDemoAsset(this.value)" style="flex: 1; background: var(--card-bg, #1e293b); color: var(--text-primary, #f8fafc); border: 1px solid var(--border-color, #334155); border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; cursor: pointer;">
+                        <option value="DEMO-TOKUSHIMA" selected>徳島（阿波吉野川 100kW）</option>
+                        <option value="DEMO-KAGAWA">香川（高松 49.5kW）</option>
+                        <option value="DEMO-OKAYAMA">岡山（吉備 85kW）</option>
+                        <option value="DEMO-NAGOYA">愛知（名古屋 80kW）</option>
+                        <option value="DEMO-YAMANASHI">山梨（甲府 50kW）</option>
+                        <option value="DEMO-KOCHI">高知（黒潮 50kW）</option>
+                        <option value="DEMO-AKITA">秋田（日本海 50kW）</option>
+                        <option value="DEMO-HOKKAIDO">北海道（札幌 50kW）</option>
+                    </select>
                 </div>
             </div>
 
@@ -2232,7 +2245,7 @@
                     </div>
                     <div class="pdf-meta-area">
                         提案日: <span id="pdf-current-date">2026-06-15</span><br>
-                        設備ID: <strong id="pdf-id">A614245G36</strong>
+                        設備ID: <strong id="pdf-id">DEMO-TOKUSHIMA</strong>
                     </div>
                 </div>
                 <hr style="border:0; border-top:1px solid #cbd5e1; margin: 15px 0;">
@@ -2369,6 +2382,26 @@
     </div>
 </div>
 
+<!-- 会員登録誘導モーダル -->
+<div id="login-required-modal" class="modal" style="display: none; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); z-index: 10000;">
+    <div class="modal-content" style="background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 16px; padding: 32px; width: 90%; max-width: 480px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3), 0 10px 10px -5px rgba(0,0,0,0.3); text-align: center; color: var(--text-primary, #f8fafc); position: relative;">
+        <span class="close-modal" onclick="closeLoginRequiredModal()" style="position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; color: var(--text-secondary, #94a3b8);">&times;</span>
+        <div style="font-size: 48px; margin-bottom: 16px; color: #ff6600;">🔒</div>
+        <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 12px;" id="login-required-title">シミュレーションの制限</h3>
+        <p style="font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary, #94a3b8); margin-bottom: 24px;" id="login-required-message">
+            実在設備のシミュレーションおよびPDFレポート出力は、会員限定機能となっております。無料の会員登録で今すぐ制限をアンロックできます。
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <a href="/login" id="login-modal-btn" class="btn" style="background-color: #ff6600; border-color: #ff6600; color: #ffffff; font-weight: bold; padding: 12px; border-radius: 8px; text-decoration: none; display: block; cursor: pointer; border: 1px solid #ff6600; text-align: center;">
+                会員登録・ログインして利用する
+            </a>
+            <button type="button" class="btn" onclick="closeLoginRequiredModal()" style="background-color: transparent; border: 1px solid var(--border-color, #334155); color: var(--text-secondary, #94a3b8); font-weight: bold; padding: 12px; border-radius: 8px; cursor: pointer;">
+                デモの操作を続ける
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- ご利用ガイドモーダル -->
 <div id="guide-modal" class="modal" style="display: none;">
     <div class="modal-content" style="max-width: 800px; background: #0f172a; color: white; border: 1px solid var(--border-color); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
@@ -2390,7 +2423,7 @@
             <div id="guide-tab-usage" class="guide-tab-content" style="display: block; line-height: 1.6; font-size: 0.85rem;">
                 <h3 style="color: #60a5fa; font-size: 1rem; margin-top: 0; margin-bottom: 10px;">⚙️ 簡単な操作手順</h3>
                 <ol style="padding-left: 20px; margin-bottom: 20px;">
-                    <li style="margin-bottom: 8px;"><strong>設備ID:</strong> 左側のID入力欄に発電所ID（デモ用: <code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">A614245G36</code> など）を入力して「読込」を押すと、発電所の実スペックや立地・ハザード情報が自動ロードされます。</li>
+                    <li style="margin-bottom: 8px;"><strong>設備ID:</strong> 左側のID入力欄に発電所ID（デモ用: <code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">DEMO-TOKUSHIMA</code> など）を入力して「読込」を押すと、発電所の実スペックや立地・ハザード情報が自動ロードされます。</li>
                     <li style="margin-bottom: 8px;"><strong>スライダーでの調整:</strong> リパワリングの投資額や、想定する発電量改善率などのスライダーを動かすと、即座に右側のグラフや<strong>「発電所（資産）評価（手残り予測や回収期間）」</strong>の各数値が瞬時に再計算されます。</li>
                     <li style="margin-bottom: 8px;"><strong>詳細オプション:</strong> 将来のFIP移行（市場価格連動の売電制度への切り替え）や、蓄電池（バッテリー）を併設した場合の予測も、トグルONにすることでリアルタイムに反映されます。</li>
                     <li style="margin-bottom: 8px;"><strong>提案書PDF出力:</strong> 左下の「提案書PDFプレビューを表示」（詳細バージョン時）をクリックすると、A4印刷に最適化された営業提案書が生成され、印刷・PDF保存が可能です。</li>
@@ -2580,9 +2613,9 @@
 <script>
     // デモデータ定義
     const demoData = {
-        "A614245G36": {
-            name: "株式会社ワイヤーエナジー",
-            location: "徳島県吉野川市川島町桑村字中須2343-1",
+        "DEMO-TOKUSHIMA": {
+            name: "（デモ用）阿波吉野川ソーラーパーク",
+            location: "（デモ用）徳島県吉野川市川島町",
             capacity: 100.0,
             panelCapacity: 146.2,
             fitPrice: 32,
@@ -2593,9 +2626,9 @@
             lat: 34.078235,
             lng: 134.331454
         },
-        "SR-78901": {
-            name: "高松第3太陽光発電所",
-            location: "香川県高松市",
+        "DEMO-KAGAWA": {
+            name: "（デモ用）香川高松ソーラーパーク",
+            location: "（デモ用）香川県高松市",
             capacity: 49.5,
             panelCapacity: 69.3,
             fitPrice: 24,
@@ -2606,9 +2639,9 @@
             lat: 34.342782,
             lng: 134.046555
         },
-        "SR-12345": {
-            name: "岡山吉備太陽光ファーム",
-            location: "岡山県岡山市",
+        "DEMO-OKAYAMA": {
+            name: "（デモ用）岡山吉備ソーラーファーム",
+            location: "（デモ用）岡山県岡山市",
             capacity: 85.0,
             panelCapacity: 119.0,
             fitPrice: 32,
@@ -2619,9 +2652,9 @@
             lat: 34.661751,
             lng: 133.935028
         },
-        "A849491D23": {
-            name: "名古屋南太陽光第2発電所",
-            location: "愛知県名古屋市昭和区高辻町",
+        "DEMO-NAGOYA": {
+            name: "（デモ用）愛知名古屋南ソーラーパーク",
+            location: "（デモ用）愛知県名古屋市",
             capacity: 80.0,
             panelCapacity: 110.4,
             fitPrice: 24,
@@ -2632,9 +2665,9 @@
             lat: 35.138241,
             lng: 136.920958
         },
-        "TEST_YAMANASHI": {
-            name: "甲府市高日射テスト太陽光",
-            location: "山梨県甲府市丸の内",
+        "DEMO-YAMANASHI": {
+            name: "（デモ用）山梨甲府テスト太陽光",
+            location: "（デモ用）山梨県甲府市",
             capacity: 50.0,
             panelCapacity: 70.0,
             fitPrice: 32,
@@ -2645,9 +2678,9 @@
             lat: 35.662233,
             lng: 138.568310
         },
-        "TEST_KOCHI": {
-            name: "高知黒潮テスト太陽光",
-            location: "高知県高知市丸ノ内",
+        "DEMO-KOCHI": {
+            name: "（デモ用）高知黒潮テスト太陽光",
+            location: "（デモ用）高知県高知市",
             capacity: 50.0,
             panelCapacity: 70.0,
             fitPrice: 32,
@@ -2658,9 +2691,9 @@
             lat: 33.559702,
             lng: 133.531084
         },
-        "TEST_AKITA": {
-            name: "秋田日本海テスト太陽光",
-            location: "秋田県秋田市山王",
+        "DEMO-AKITA": {
+            name: "（デモ用）秋田日本海テスト太陽光",
+            location: "（デモ用）秋田県秋田市",
             capacity: 50.0,
             panelCapacity: 70.0,
             fitPrice: 32,
@@ -2671,9 +2704,9 @@
             lat: 39.720008,
             lng: 140.102604
         },
-        "TEST_HOKKAIDO": {
-            name: "北海道札幌テスト太陽光",
-            location: "北海道札幌市中央区北1条",
+        "DEMO-HOKKAIDO": {
+            name: "（デモ用）北海道札幌テスト太陽光",
+            location: "（デモ用）北海道札幌市",
             capacity: 50.0,
             panelCapacity: 70.0,
             fitPrice: 32,
@@ -2700,7 +2733,7 @@
 
     // 設備IDからデータを取得する共通関数（demoDataおよび徳島データ、動的ロードデータから横断検索）
     function getSolarData(id, allowUndefined = false) {
-        if (!id) return allowUndefined ? undefined : demoData["A614245G36"];
+        if (!id) return allowUndefined ? undefined : demoData["DEMO-TOKUSHIMA"];
         let data = demoData[id];
         if (!data && dynamicLoadedCache[id]) {
             data = dynamicLoadedCache[id];
@@ -2709,7 +2742,7 @@
             data = loadedTokushimaData.find(item => item.id === id);
         }
         if (!data && allowUndefined) return undefined;
-        return data || demoData["A614245G36"];
+        return data || demoData["DEMO-TOKUSHIMA"];
     }
 
     // パネル容量とパワコン容量から、過積載カットを考慮した年間標準発電量を計算
@@ -3837,6 +3870,18 @@
         updateSimulation();
     }
 
+    // 設定リセット専用関数（未ログイン時でも非デモIDの場合はデフォルトデモIDに復帰させてリセットを可能にする）
+    function resetSettings() {
+        const idInput = document.getElementById('solar-id');
+        const demoIds = ["DEMO-TOKUSHIMA", "DEMO-KAGAWA", "DEMO-OKAYAMA", "DEMO-NAGOYA", "DEMO-YAMANASHI", "DEMO-KOCHI", "DEMO-AKITA", "DEMO-HOKKAIDO"];
+        const isLoggedIn = !!localStorage.getItem('sorasco-access-token');
+
+        if (!isLoggedIn && idInput && !demoIds.includes(idInput.value)) {
+            idInput.value = "DEMO-TOKUSHIMA";
+        }
+        loadDemoData();
+    }
+
     // デモデータおよび本番データの非同期ロード
     function loadDemoData(customCoords) {
         closeDrilldownPopup(); // アセット変更時に古いポップアップを閉じる
@@ -3887,6 +3932,22 @@
         if (radarContainer) radarContainer.style.display = 'none';
 
         const id = document.getElementById('solar-id').value;
+        
+        // 未ログインかつ非デモIDの場合はシミュレーションロードを制限して会員登録へ誘導する
+        const demoIds = ["DEMO-TOKUSHIMA", "DEMO-KAGAWA", "DEMO-OKAYAMA", "DEMO-NAGOYA", "DEMO-YAMANASHI", "DEMO-KOCHI", "DEMO-AKITA", "DEMO-HOKKAIDO"];
+        const isDemoId = demoIds.includes(id);
+        const isLoggedIn = !!localStorage.getItem('sorasco-access-token');
+
+        const selectorEl = document.getElementById('demo-asset-selector');
+        if (selectorEl && isDemoId) {
+            selectorEl.value = id;
+        }
+
+        if (!isLoggedIn && !isDemoId) {
+            showLoginRequiredModal("実在設備の試算機能", id);
+            return;
+        }
+
         currentLoadingAssetId = id; // 最新のロード中アセットIDを記録
         
         // APIロード状態を開始
@@ -3902,6 +3963,15 @@
             const el = document.getElementById(resetId);
             if (el) el.innerText = "---";
         });
+
+        // デモ用IDの場合はAPIフェッチをバイパスして、最初からローカルのモックデータを使用する
+        if (isDemoId) {
+            let data = demoData[id] || demoData["DEMO-TOKUSHIMA"];
+            data.id = id; // idプロパティを明示的に付与（レースコンディションガードのバグ回避）
+            dynamicLoadedCache[id] = data;
+            processLoadedSolarData(data, customCoords);
+            return;
+        }
 
         // 1. まずは本番の設備詳細APIからフェッチを試みる
         fetch(`/api/equipments/${id}`)
@@ -3962,7 +4032,7 @@
                     const fallbackData = { ...data, id: id };
                     processLoadedSolarData(fallbackData, customCoords);
                 } else {
-                    alert('設備IDが見つかりません。（デモ用ID: A614245G36, SR-78901 または SR-12345 をご利用ください）');
+                    alert('設備IDが見つかりません。（デモ用ID: DEMO-TOKUSHIMA, DEMO-KAGAWA または DEMO-OKAYAMA をご利用ください）');
                 }
             });
     }
@@ -5475,6 +5545,12 @@
 
     // 印刷ボタンの押下制御
     function handlePrint() {
+        const isLoggedIn = !!localStorage.getItem('sorasco-access-token');
+        if (!isLoggedIn) {
+            showLoginRequiredModal("PDFレポート印刷・ダウンロード");
+            return;
+        }
+
         if (currentMode === 'standard') {
             // 初期バージョン時はそのままブラウザの標準印刷を実行
             window.print();
@@ -5494,6 +5570,7 @@
         const pdfModal = document.getElementById('pdf-modal');
         const guideModal = document.getElementById('guide-modal');
         const logicGuideModal = document.getElementById('logic-guide-modal');
+        const loginRequiredModal = document.getElementById('login-required-modal');
         if (event.target === pdfModal) {
             pdfModal.style.display = 'none';
         }
@@ -5503,6 +5580,49 @@
         if (event.target === logicGuideModal) {
             logicGuideModal.style.display = 'none';
         }
+        if (event.target === loginRequiredModal) {
+            loginRequiredModal.style.display = 'none';
+        }
+    }
+
+    // デモ用アセットのUI選択時の連動処理
+    function selectDemoAsset(id) {
+        const idInput = document.getElementById('solar-id');
+        if (idInput) {
+            idInput.value = id;
+            loadDemoData();
+        }
+    }
+
+    // 会員登録誘導モーダルの制御（文脈に応じたメッセージ＆ダイナミックURL対応）
+    function showLoginRequiredModal(featureName, targetAssetId = "") {
+        const titleEl = document.getElementById('login-required-title');
+        const msgEl = document.getElementById('login-required-message');
+        const loginBtn = document.getElementById('login-modal-btn');
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentId = targetAssetId || urlParams.get('id') || document.getElementById('solar-id')?.value || "";
+
+        const demoIds = ["DEMO-TOKUSHIMA", "DEMO-KAGAWA", "DEMO-OKAYAMA", "DEMO-NAGOYA", "DEMO-YAMANASHI", "DEMO-KOCHI", "DEMO-AKITA", "DEMO-HOKKAIDO"];
+
+        if (currentId && !demoIds.includes(currentId)) {
+            titleEl.innerText = `設備 (ID: ${currentId}) の試算機能制限`;
+            msgEl.innerHTML = `<strong>指定された発電所 (ID: ${currentId}) の収支・資産価値シミュレーションレポートが作成されました！</strong><br><br>無料の会員登録（所要時間1分）を行っていただくと、この設備の詳細な手残りキャッシュフロー予測、リスク診断、およびPDF提案レポートを今すぐ閲覧・アンロックしていただけます。`;
+        } else {
+            titleEl.innerText = `${featureName}の制限`;
+            msgEl.innerText = `実在設備の詳細シミュレーションおよび${featureName}は、会員限定機能となっております。無料の会員登録で今すぐ全ての機能をアンロックしてご利用いただけます。`;
+        }
+
+        if (loginBtn) {
+            const redirectUrl = encodeURIComponent(window.location.href);
+            loginBtn.href = `/login?redirect=${redirectUrl}`;
+        }
+
+        document.getElementById('login-required-modal').style.display = 'flex';
+    }
+
+    function closeLoginRequiredModal() {
+        document.getElementById('login-required-modal').style.display = 'none';
     }
 
     // ご利用ガイドモーダルの制御
