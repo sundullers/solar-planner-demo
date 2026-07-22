@@ -1591,7 +1591,7 @@
         </div>
         <div class="header-meta" style="display: flex; align-items: center; gap: 15px;">
             <div style="text-align: right; line-height: 1.35;">
-                提案元: <strong>株式会社ワイヤーエナジー 営業部</strong><br>
+                提案元: <strong id="proposal-source">そらスコ</strong><br>
                 作成日: <span id="current-date">2026-06-15</span>
             </div>
             <button type="button" class="btn-guide" onclick="openGuideModal()" style="background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
@@ -2383,7 +2383,7 @@
 </div>
 
 <!-- 会員登録誘導モーダル -->
-<div id="login-required-modal" class="modal" style="display: none; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(10px); z-index: 10000;">
+<div id="login-required-modal" class="modal" onclick="handleModalBackgroundClick(event)" style="display: none; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(10px); z-index: 10000;">
     <div class="modal-content" style="background: var(--card-bg, #1e293b); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; padding: 36px 32px; width: 92%; max-width: 520px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05); text-align: center; color: var(--text-primary, #f8fafc); position: relative; animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
         <span class="close-modal" onclick="closeLoginRequiredModal()" style="position: absolute; right: 20px; top: 16px; font-size: 26px; cursor: pointer; color: var(--text-secondary, #94a3b8); transition: color 0.2s;">&times;</span>
         <div style="font-size: 42px; margin-bottom: 12px; display: inline-flex; justify-content: center; align-items: center; width: 72px; height: 72px; background: rgba(255, 102, 0, 0.12); border: 1px solid rgba(255, 102, 0, 0.3); border-radius: 50%; color: #ff6600;">🔒</div>
@@ -5670,6 +5670,12 @@
         }
 
         document.getElementById('login-required-modal').style.display = 'flex';
+    }
+
+    function handleModalBackgroundClick(event) {
+        if (event && event.target && event.target.id === 'login-required-modal') {
+            closeLoginRequiredModal();
+        }
     }
 
     function closeLoginRequiredModal() {
