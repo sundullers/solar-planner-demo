@@ -3931,6 +3931,13 @@
         const radarContainer = document.getElementById('hazard-radar-container-el');
         if (radarContainer) radarContainer.style.display = 'none';
 
+        // URLパラメータに指定IDがある場合は優先して即座にセット（デモデータのチラ見せ防止）
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlId = urlParams.get('id');
+        if (urlId && document.getElementById('solar-id')) {
+            document.getElementById('solar-id').value = urlId;
+        }
+
         const id = document.getElementById('solar-id').value;
         
         // 未ログインかつ非デモIDの場合はシミュレーションロードを制限して会員登録へ誘導する
@@ -3952,6 +3959,18 @@
         }
 
         if (!isLoggedIn && !isDemoId) {
+            // 吉野川デモデータのチラ見せ防止：画面テキストと数値を即座にプレースホルダー初期化
+            const specNameEl = document.getElementById('spec-name');
+            if (specNameEl) specNameEl.innerText = "---";
+            const elementsToReset = [
+                'owner-lifetime-cf', 'owner-asset-value', 'owner-asset-value-base', 
+                'owner-lifetime-cf-base', 'owner-asset-value-diff', 'owner-lifetime-cf-diff',
+                'repower-benefit-diff', 'repower-roi-period-main'
+            ];
+            elementsToReset.forEach(resetId => {
+                const el = document.getElementById(resetId);
+                if (el) el.innerText = "---";
+            });
             showLoginRequiredModal("実在設備の試算機能", id);
             return;
         }
