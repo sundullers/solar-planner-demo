@@ -4108,6 +4108,7 @@ function dismissLoginModal(event) {
 
         // デモ用IDの場合はAPIフェッチをバイパスして、最初からローカルのモックデータを使用する
         if (isDemoId) {
+            isApiLoading = false; // デモデータは即座にAPIロード完了扱いにする
             let data = demoData[id] || demoData["DEMO-TOKUSHIMA"];
             data.id = id; // idプロパティを明示的に付与（レースコンディションガードのバグ回避）
             dynamicLoadedCache[id] = data;
@@ -4686,6 +4687,11 @@ function dismissLoginModal(event) {
         calDegradation = 0.005;
         calLoss = 0.0;
         calRatio = 1.0;
+        
+        // 即座に最新のシミュレーション数値・グラフを全計算・描画
+        if (typeof updateSimulation === 'function') {
+            updateSimulation();
+        }
     }
 
     // プロ向け詳細設定の表示トグル
@@ -5234,51 +5240,69 @@ function dismissLoginModal(event) {
             repowerExpense: repowerExpenseData
         };
 
-        // チャート更新
-        cfChart.data.labels = baseLabels;
-        cfChart.data.datasets[0].data = baseCF;
-        cfChart.data.datasets[1].data = pcsOptCF;
-        cfChart.data.datasets[2].data = repowerCF;
-        cfChart.update();
+        // チャート更新 (未初期化時のクラッシュを防止する安全ガード)
+        if (typeof initCharts === 'function' && (!cfChart || !annualChart)) {
+            initCharts();
+        }
 
-        annualChart.data.labels = baseLabels;
-        annualChart.data.datasets[0].data = baseAnnualCF;
-        annualChart.data.datasets[1].data = pcsAnnualCF;
-        annualChart.data.datasets[2].data = repowerAnnualCF;
-        annualChart.options.scales.y.min = annualYMin;
-        annualChart.options.scales.y.max = annualYMax;
-        annualChart.update();
+        if (typeof cfChart !== 'undefined' && cfChart && cfChart.data) {
+            cfChart.data.labels = baseLabels;
+            cfChart.data.datasets[0].data = baseCF;
+            cfChart.data.datasets[1].data = pcsOptCF;
+            cfChart.data.datasets[2].data = repowerCF;
+            cfChart.update();
+        }
+
+        if (typeof annualChart !== 'undefined' && annualChart && annualChart.data) {
+            annualChart.data.labels = baseLabels;
+            annualChart.data.datasets[0].data = baseAnnualCF;
+            annualChart.data.datasets[1].data = pcsAnnualCF;
+            annualChart.data.datasets[2].data = repowerAnnualCF;
+            if (annualChart.options && annualChart.options.scales && annualChart.options.scales.y) {
+                annualChart.options.scales.y.min = annualYMin;
+                annualChart.options.scales.y.max = annualYMax;
+            }
+            annualChart.update();
+        }
 
         // 印刷プレビュー用PDFチャートの更新
-        pdfChart.data.labels = baseLabels;
-        pdfChart.data.datasets[0].data = baseCF;
-        pdfChart.data.datasets[1].data = pcsOptCF;
-        pdfChart.data.datasets[2].data = repowerCF;
-        pdfChart.update();
+        if (typeof pdfChart !== 'undefined' && pdfChart && pdfChart.data) {
+            pdfChart.data.labels = baseLabels;
+            pdfChart.data.datasets[0].data = baseCF;
+            pdfChart.data.datasets[1].data = pcsOptCF;
+            pdfChart.data.datasets[2].data = repowerCF;
+            pdfChart.update();
+        }
 
-        pdfAnnualChart.data.labels = baseLabels;
-        pdfAnnualChart.data.datasets[0].data = baseAnnualCF;
-        pdfAnnualChart.data.datasets[1].data = pcsAnnualCF;
-        pdfAnnualChart.data.datasets[2].data = repowerAnnualCF;
-        pdfAnnualChart.options.scales.y.min = annualYMin;
-        pdfAnnualChart.options.scales.y.max = annualYMax;
-        pdfAnnualChart.update();
+        if (typeof pdfAnnualChart !== 'undefined' && pdfAnnualChart && pdfAnnualChart.data) {
+            pdfAnnualChart.data.labels = baseLabels;
+            pdfAnnualChart.data.datasets[0].data = baseAnnualCF;
+            pdfAnnualChart.data.datasets[1].data = pcsAnnualCF;
+            pdfAnnualChart.data.datasets[2].data = repowerAnnualCF;
+            if (pdfAnnualChart.options && pdfAnnualChart.options.scales && pdfAnnualChart.options.scales.y) {
+                pdfAnnualChart.options.scales.y.min = annualYMin;
+                pdfAnnualChart.options.scales.y.max = annualYMax;
+            }
+            pdfAnnualChart.update();
+        }
 
         // 拡大モーダルチャートのリアルタイム更新
-        if (zoomChart) {
+        if (typeof zoomChart !== 'undefined' && zoomChart && zoomChart.data) {
             zoomChart.data.labels = baseLabels;
             zoomChart.data.datasets[0].data = baseCF;
             zoomChart.data.datasets[1].data = pcsOptCF;
             zoomChart.data.datasets[2].data = repowerCF;
             zoomChart.update();
         }
-        if (zoomChart2) {
+        if (typeof zoomChart2 !== 'undefined' && zoomChart2 && zoomChart2.data) {
             zoomChart2.data.labels = baseLabels;
             zoomChart2.data.datasets[0].data = baseAnnualCF;
             zoomChart2.data.datasets[1].data = pcsAnnualCF;
             zoomChart2.data.datasets[2].data = repowerAnnualCF;
-            zoomChart2.options.scales.y.min = annualYMin;
-            zoomChart2.options.scales.y.max = annualYMax;
+            if (zoomChart2.options && zoomChart2.options.scales && zoomChart2.options.scales.y) {
+                zoomChart2.options.scales.y.min = annualYMin;
+                zoomChart2.options.scales.y.max = annualYMax;
+            }
             zoomChart2.update();
         }
 
@@ -5917,11 +5941,9 @@ function dismissLoginModal(event) {
             if (window.history && window.history.replaceState) {
                 window.history.replaceState(null, '', '/valu/?id=DEMO-TOKUSHIMA');
             }
-            if (typeof selectDemoAsset === 'function') {
-                selectDemoAsset('DEMO-TOKUSHIMA');
-            } else if (typeof updateSimulation === 'function') {
-                updateSimulation('DEMO-TOKUSHIMA');
-            }
+            // idInput.value を DEMO-TOKUSHIMA にセット済みなので、
+            // loadDemoData 内の isDemoId チェックを通過しフル計算が実行される
+            loadDemoData();
         }
     }
 
