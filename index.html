@@ -2383,20 +2383,20 @@
 </div>
 
 <!-- 会員登録誘導モーダル -->
-<div id="login-required-modal" class="modal" style="display: none; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); z-index: 10000;">
-    <div class="modal-content" style="background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 16px; padding: 32px; width: 90%; max-width: 480px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3), 0 10px 10px -5px rgba(0,0,0,0.3); text-align: center; color: var(--text-primary, #f8fafc); position: relative;">
-        <span class="close-modal" onclick="closeLoginRequiredModal()" style="position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; color: var(--text-secondary, #94a3b8);">&times;</span>
-        <div style="font-size: 48px; margin-bottom: 16px; color: #ff6600;">🔒</div>
-        <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 12px;" id="login-required-title">シミュレーションの制限</h3>
-        <p style="font-size: 0.9rem; line-height: 1.6; color: var(--text-secondary, #94a3b8); margin-bottom: 24px;" id="login-required-message">
-            実在設備のシミュレーションおよびPDFレポート出力は、会員限定機能となっております。無料の会員登録で今すぐ制限をアンロックできます。
+<div id="login-required-modal" class="modal" style="display: none; justify-content: center; align-items: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(10px); z-index: 10000;">
+    <div class="modal-content" style="background: var(--card-bg, #1e293b); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; padding: 36px 32px; width: 92%; max-width: 520px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05); text-align: center; color: var(--text-primary, #f8fafc); position: relative; animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+        <span class="close-modal" onclick="closeLoginRequiredModal()" style="position: absolute; right: 20px; top: 16px; font-size: 26px; cursor: pointer; color: var(--text-secondary, #94a3b8); transition: color 0.2s;">&times;</span>
+        <div style="font-size: 42px; margin-bottom: 12px; display: inline-flex; justify-content: center; align-items: center; width: 72px; height: 72px; background: rgba(255, 102, 0, 0.12); border: 1px solid rgba(255, 102, 0, 0.3); border-radius: 50%; color: #ff6600;">🔒</div>
+        <h3 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 14px; line-height: 1.4; color: #ffffff;" id="login-required-title">発電所シミュレーション</h3>
+        <p style="font-size: 0.92rem; line-height: 1.65; color: var(--text-secondary, #cbd5e1); margin-bottom: 28px; text-align: left; background: rgba(15, 23, 42, 0.4); padding: 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);" id="login-required-message">
+            指定された発電所の収支・資産価値シミュレーションが利用できます！
         </p>
         <div style="display: flex; flex-direction: column; gap: 12px;">
-            <a href="/login" id="login-modal-btn" class="btn" style="background-color: #ff6600; border-color: #ff6600; color: #ffffff; font-weight: bold; padding: 12px; border-radius: 8px; text-decoration: none; display: block; cursor: pointer; border: 1px solid #ff6600; text-align: center;">
+            <a href="/login" id="login-modal-btn" class="btn" style="background: linear-gradient(135deg, #ff6600, #ea580c); border: none; color: #ffffff; font-size: 0.95rem; font-weight: bold; padding: 14px; border-radius: 10px; text-decoration: none; display: block; cursor: pointer; text-align: center; box-shadow: 0 4px 12px rgba(255, 102, 0, 0.3); transition: all 0.2s;">
                 会員登録・ログインして利用する
             </a>
-            <button type="button" class="btn" onclick="closeLoginRequiredModal()" style="background-color: transparent; border: 1px solid var(--border-color, #334155); color: var(--text-secondary, #94a3b8); font-weight: bold; padding: 12px; border-radius: 8px; cursor: pointer;">
-                デモの操作を続ける
+            <button type="button" class="btn" onclick="closeLoginRequiredModal()" style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color, #334155); color: var(--text-secondary, #94a3b8); font-weight: 600; padding: 12px; border-radius: 10px; cursor: pointer; font-size: 0.88rem; transition: all 0.2s;">
+                デモ操作画面へ戻る
             </button>
         </div>
     </div>
@@ -5650,15 +5650,15 @@
         );
 
         if (currentId && !demoIds.includes(currentId) && !isLoggedIn) {
-            titleEl.innerText = `設備 (ID: ${currentId}) の試算機能制限`;
-            msgEl.innerHTML = `<strong>指定された発電所 (ID: ${currentId}) の収支・資産価値シミュレーションレポートが作成されました！</strong><br><br>無料の会員登録（所要時間1分）を行っていただくと、この設備の詳細な手残りキャッシュフロー予測、リスク診断、およびPDF提案レポートを今すぐ閲覧・アンロックしていただけます。`;
+            titleEl.innerText = `発電所 (ID: ${currentId}) のシミュレーション`;
+            msgEl.innerHTML = `<strong>指定された発電所 (ID: ${currentId}) の収支・資産価値シミュレーションが利用できます！</strong><br><br>無料の会員登録（所要時間1分）を行っていただくと、この発電所の詳細な手残りキャッシュフロー予測、リスク診断、およびPDF提案レポートを今すぐ閲覧・アンロックしていただけます。`;
             if (closeX) closeX.style.display = 'none'; // 非デモID閲覧時は閉じる(×)ボタンを非表示
             if (cancelBtn) cancelBtn.innerText = "デモ操作画面へ戻る";
         } else {
-            titleEl.innerText = `${featureName}の制限`;
-            msgEl.innerText = `実在設備の詳細シミュレーションおよび${featureName}は、会員限定機能となっております。無料の会員登録で今すぐ全ての機能をアンロックしてご利用いただけます。`;
+            titleEl.innerText = `${featureName.replace('設備', '発電所')}の機能`;
+            msgEl.innerHTML = `<strong>${featureName.replace('設備', '発電所')}が利用できます！</strong><br><br>無料の会員登録（所要時間1分）を行っていただくと、今すぐ全てのシミュレーション機能およびレポート出力をアンロックしてご利用いただけます。`;
             if (closeX) closeX.style.display = 'block';
-            if (cancelBtn) cancelBtn.innerText = "デモの操作を続ける";
+            if (cancelBtn) cancelBtn.innerText = "デモ操作画面へ戻る";
         }
 
         if (loginBtn) {
