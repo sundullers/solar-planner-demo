@@ -3936,7 +3936,15 @@
         // 未ログインかつ非デモIDの場合はシミュレーションロードを制限して会員登録へ誘導する
         const demoIds = ["DEMO-TOKUSHIMA", "DEMO-KAGAWA", "DEMO-OKAYAMA", "DEMO-NAGOYA", "DEMO-YAMANASHI", "DEMO-KOCHI", "DEMO-AKITA", "DEMO-HOKKAIDO"];
         const isDemoId = demoIds.includes(id);
-        const isLoggedIn = !!localStorage.getItem('sorasco-access-token');
+        const hasToken = !!(
+            localStorage.getItem('sorasco-access-token') ||
+            localStorage.getItem('access_token') ||
+            localStorage.getItem('token') ||
+            sessionStorage.getItem('sorasco-access-token') ||
+            sessionStorage.getItem('token') ||
+            (document.cookie && (document.cookie.includes('sorasco-access-token') || document.cookie.includes('token')))
+        );
+        const isLoggedIn = hasToken;
 
         const selectorEl = document.getElementById('demo-asset-selector');
         if (selectorEl && isDemoId) {
