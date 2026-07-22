@@ -6122,12 +6122,31 @@
         const today = new Date();
         document.getElementById('current-date').innerText = today.toISOString().split('T')[0];
         document.getElementById('pdf-current-date').innerText = today.toISOString().split('T')[0];
-        
+        initTheme(); // カラーテーマの初期適用
+
+        // 1. 最優先ガード: 未ログイン状態での実在アセットアクセス時は、一切の無駄な描画をスキップして即座に添付画像のクリーン状態に着地
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetId = urlParams.get('id') || "";
+        const demoIds = ["DEMO-TOKUSHIMA", "DEMO-KAGAWA", "DEMO-OKAYAMA", "DEMO-NAGOYA", "DEMO-YAMANASHI", "DEMO-KOCHI", "DEMO-AKITA", "DEMO-HOKKAIDO"];
+        const isLoggedIn = !!(
+            localStorage.getItem('sorasco-access-token') ||
+            localStorage.getItem('access_token') ||
+            localStorage.getItem('token') ||
+            sessionStorage.getItem('sorasco-access-token') ||
+            sessionStorage.getItem('token')
+        );
+
+        if (targetId && !demoIds.includes(targetId) && !isLoggedIn) {
+            const solarIdInput = document.getElementById('solar-id');
+            if (solarIdInput) solarIdInput.value = targetId;
+            showLoginRequiredModal("実在発電所のシミュレーション", targetId);
+            return;
+        }
+
         initCharts();
         await tokushimaPreloadPromise;
         applyUrlParameters();
         switchMode('fp-enhanced'); // 初期状態はブラッシュアップ版（FP拡張）
-        initTheme(); // カラーテーマの初期適用
     };
 
     // テーマトグルロジック
