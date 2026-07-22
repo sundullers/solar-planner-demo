@@ -2689,6 +2689,7 @@
             panelCapacity: 146.2,
             fitPrice: 32,
             elapsedYears: 8,
+            nedoFactor: 1150, // 徳島標準日射量
             fitCertDate: "2014年10月20日",
             fitEndDate: "2038年4月",
             hazard: "吉野川洪水浸水想定区域（浸水深0.5m〜1.0m）に近接。浸水時の架台かさ上げ等の対策を推奨。",
@@ -2702,6 +2703,7 @@
             panelCapacity: 69.3,
             fitPrice: 24,
             elapsedYears: 10,
+            nedoFactor: 1210, // 瀬戸内気候（高照度）
             fitCertDate: "2015年12月15日",
             fitEndDate: "2036年10月",
             hazard: "土砂災害警戒区域（イエローゾーン）に近接。撤去・解体時の予備費＋50万円を自動で見積もり。",
@@ -2715,6 +2717,7 @@
             panelCapacity: 119.0,
             fitPrice: 32,
             elapsedYears: 8,
+            nedoFactor: 1250, // 晴れの国岡山（高日射）
             fitCertDate: "2017年8月10日",
             fitEndDate: "2038年10月",
             hazard: "ハザードマップ上、災害リスクは極めて低いです（浸水・土砂災害区域外）。",
@@ -2728,6 +2731,7 @@
             panelCapacity: 110.4,
             fitPrice: 24,
             elapsedYears: 9,
+            nedoFactor: 1180, // 東海気候
             fitCertDate: "2015年6月10日",
             fitEndDate: "2035年6月",
             hazard: "土砂災害警戒区域（イエローゾーン）に近接、および洪水浸水想定区域（想定最大規模）に近接。",
@@ -2741,6 +2745,7 @@
             panelCapacity: 70.0,
             fitPrice: 32,
             elapsedYears: 5,
+            nedoFactor: 1360, // 日本最高クラスの日照量（甲府盆地）
             fitCertDate: "2018年4月1日",
             fitEndDate: "2038年4月",
             hazard: "ハザードマップ上、災害リスクは極めて低いです。",
@@ -2754,6 +2759,7 @@
             panelCapacity: 70.0,
             fitPrice: 32,
             elapsedYears: 5,
+            nedoFactor: 1310, // 太平洋側高照度
             fitCertDate: "2018年4月1日",
             fitEndDate: "2038年4月",
             hazard: "ハザードマップ上、災害リスクは極めて低いです。",
@@ -2767,6 +2773,7 @@
             panelCapacity: 70.0,
             fitPrice: 32,
             elapsedYears: 5,
+            nedoFactor: 960, // 日本海側積雪・日照短縮（低日射量）
             fitCertDate: "2018年4月1日",
             fitEndDate: "2038年4月",
             hazard: "ハザードマップ上、災害リスクは極めて低いです。",
@@ -2780,6 +2787,7 @@
             panelCapacity: 70.0,
             fitPrice: 32,
             elapsedYears: 5,
+            nedoFactor: 1010, // 高緯度・冬期積雪補正（低日射量）
             fitCertDate: "2018年4月1日",
             fitEndDate: "2038年4月",
             hazard: "ハザードマップ上、災害リスクは極めて低いです。",
@@ -4357,6 +4365,18 @@
         if (customCoords) {
             data.lat = customCoords.lat;
             data.lng = customCoords.lng;
+        }
+
+        // 地域日射量係数 (nedoFactor) のリアルタイム更新
+        if (data.nedoFactor) {
+            currentNedoFactor = data.nedoFactor;
+        } else if (data.lat && data.lng) {
+            // 全国緯度グラデーション推定（甲府・高知等が高照度、秋田・北海道が低日射）
+            if (data.lat > 40.0) currentNedoFactor = 1010; // 北海道
+            else if (data.lat > 38.5) currentNedoFactor = 960; // 秋田・東北日本海
+            else if (data.lat < 34.0) currentNedoFactor = 1310; // 高知・四国太平洋
+            else if (data.lng > 138.0 && data.lat < 36.0) currentNedoFactor = 1360; // 山梨甲府
+            else currentNedoFactor = 1150;
         }
         const remainingYears = Math.max(1, Math.round(20 - data.elapsedYears));
         const simYearsSelect = document.getElementById('sim-years');
