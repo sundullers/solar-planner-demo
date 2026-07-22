@@ -5801,8 +5801,6 @@ function dismissLoginModal(event) {
     }
 
     // 会員登録誘導モーダルの制御（文脈に応じたメッセージ＆ダイナミックURL対応）
-    let isModalDismissed = false;
-
     function showLoginRequiredModal(featureName, targetAssetId = "") {
         if (isModalDismissed) return;
         const titleEl = document.getElementById('login-required-title');
