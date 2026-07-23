@@ -4697,6 +4697,8 @@ function dismissLoginModal(event) {
         calLoss = 0.0;
         calRatio = 1.0;
         
+        updateSimulation(); // アセットロード完了時に最新設定でシミュレーションとカード表示を100%確定更新
+        
         // 即座に最新のシミュレーション数値・グラフを全計算・描画
         if (typeof updateSimulation === 'function') {
             updateSimulation();
