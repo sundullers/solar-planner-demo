@@ -4997,7 +4997,7 @@ function dismissLoginModal(event) {
         // 初期累積CFのセット
         let currentBaseSum = batteryActive ? -batteryCost : 0;
         let currentPcsOptSum = -actualPcsOptCost; // 0年目で全額キャッシュアウト
-        let currentRepowerSum = batteryActive ? -batteryCost : 0; // リパワリングは実行年で引くため、0年目は蓄電池のみ
+        let currentRepowerSum = (repowerYear === 0 && repowerCost > 0) ? -actualRepowerCost : (batteryActive ? -batteryCost : 0); // 0年目即時実行時は0年目に全額キャッシュアウト
 
         // 累積売電額
         let totalBaseSales = 0;
