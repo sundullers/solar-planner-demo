@@ -2841,6 +2841,9 @@ function dismissLoginModal(event) {
     function getSolarData(id, allowUndefined = false) {
         if (!id) return allowUndefined ? undefined : demoData["DEMO-TOKUSHIMA"];
         let data = demoData[id];
+        if (!data && currentLoadedAssetData && currentLoadedAssetData.id === id) {
+            data = currentLoadedAssetData;
+        }
         if (!data && dynamicLoadedCache[id]) {
             data = dynamicLoadedCache[id];
         }
@@ -4387,6 +4390,7 @@ function dismissLoginModal(event) {
 
     // 取得した設備データをシミュレーターUIにバインド・シミュレーションを実行する共通ヘルパー
     function processLoadedSolarData(data, customCoords) {
+        currentLoadedAssetData = data;
         const id = data.id;
         const demoIds = ["DEMO-TOKUSHIMA", "DEMO-KAGAWA", "DEMO-OKAYAMA", "DEMO-NAGOYA", "DEMO-YAMANASHI", "DEMO-KOCHI", "DEMO-AKITA", "DEMO-HOKKAIDO"];
         const isDemo = demoIds.includes(id);
