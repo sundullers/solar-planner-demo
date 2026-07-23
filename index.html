@@ -4433,9 +4433,11 @@ function dismissLoginModal(event) {
         const overcapacityRate = Math.round((data.panelCapacity / data.capacity) * 100);
         document.getElementById('spec-capacity').innerHTML = `${data.panelCapacity.toFixed(1)}<span class="spec-unit">kW</span>`;
         document.getElementById('spec-capacity-sub').innerHTML = `パワコン容量: ${data.capacity.toFixed(1)} kW<br>積載率: ${overcapacityRate}%`;
+        const remYearsVal = Number((Math.max(0, 20 - data.elapsedYears)).toFixed(1));
+        const elapsedYearsVal = Number((data.elapsedYears || 0).toFixed(1));
         document.getElementById('spec-fit-price').innerText = data.fitPrice.toFixed(1);
         document.getElementById('spec-fit-price-sub').innerHTML = `新規認定日:<br>${data.fitCertDate}`;
-        document.getElementById('spec-years').innerHTML = `${data.elapsedYears}年<span class="spec-unit">/ 残り${20 - data.elapsedYears}年</span>`;
+        document.getElementById('spec-years').innerHTML = `${elapsedYearsVal}年<span class="spec-unit">/ 残り${remYearsVal}年</span>`;
         document.getElementById('spec-years-sub').innerHTML = `終了年月:<br>${data.fitEndDate}`;
         
         // API結果待ち中の中立ローディング初期表示
@@ -4565,15 +4567,16 @@ function dismissLoginModal(event) {
         document.getElementById('post-fit-price-val').innerText = "8.5";
 
         // 残存FIT期間に合わせてリパワリング実行時期スライダーの最大値を動的に制御（例：残り20年なら最大20年後、残り5年なら最大5年後）
-        const remainingFitYears = Math.max(1, 20 - data.elapsedYears);
+        const remainingFitYearsVal = Math.max(1, 20 - data.elapsedYears);
+        const remainingFitYearsFormatted = Number(remainingFitYearsVal.toFixed(1));
         const repowerYearSlider = document.getElementById('repower-year');
         if (repowerYearSlider) {
-            repowerYearSlider.max = remainingFitYears;
+            repowerYearSlider.max = remainingFitYearsFormatted;
             repowerYearSlider.value = 0;
             document.getElementById('repower-year-val').innerText = "今すぐ（0年後）";
             const guidelineEl = document.getElementById('repower-year-guideline');
             if (guidelineEl) {
-                guidelineEl.innerText = `(0=即時 / 最大${remainingFitYears}年後)`;
+                guidelineEl.innerText = `(0=即時 / 最大${remainingFitYearsFormatted}年後)`;
             }
         }
 
@@ -6520,6 +6523,8 @@ function dismissLoginModal(event) {
         const currentHazardText = document.getElementById('hazard-alert-text')?.innerText || "ハザードマップ上、災害リスクは極めて低いです（浸水・土砂災害区域外）。";
         const hazardInsuranceSurcharge = fpMode && currentHazardText.includes("警戒") ? 5 : (currentHazardText.includes("浸水") ? 8 : 0);
 
+        const remFitYearsFormatted = Number((Math.max(0, 20 - data.elapsedYears)).toFixed(1));
+
         if (type === 'risk') {
             userMsg = "現状維持（プラン①）の最大のリスクは？";
             const pcsRiskPercentText = document.getElementById('pcs-risk-percent')?.innerText || "0%";
@@ -6527,7 +6532,7 @@ function dismissLoginModal(event) {
                     `1. <strong>PCSの老朽化リスク</strong>: <br>` +
                     `　現在のPCS故障確率は <strong>${pcsRiskPercentText}</strong> と算出されています。既に運転開始から ${data.elapsedYears}年が経過しており、間もなく設計寿命（12年）を迎えるため、突発的な故障による売電停止や修繕費用の急増が懸念されます。<br>` +
                     `2. <strong>FIT終了後の収支悪化</strong>: <br>` +
-                    `　残存FIT期間終了（残り ${20 - data.elapsedYears}年）の翌年以降は、売電単価` +
+                    `　残存FIT期間終了（残り ${remFitYearsFormatted}年）の翌年以降は、売電単価` +
                     `が 8.5円/kWh まで急落します。この状態でO&M費用等の維持経費がかかり続けると、単年収支が赤字化する可能性があります。<br>` +
                     `3. <strong>ハザード立地リスク</strong>: <br>` +
                     `　当発電所は「${currentHazardText.replace("ハザードリスク情報: ", "")}」エリアに属しています。万が一の被災時の復旧コストや、保険料上昇（年数万円）が発生する可能性があるため、適切なリスク引当や事前対策が推奨されます。`;
@@ -6666,7 +6671,7 @@ function dismissLoginModal(event) {
                 }
                 
                 aiMsg = `<strong>稼働後 ${data.elapsedYears}年 が経過した発電所でリパワリングが必要な理由：</strong><br><br>` +
-                        `結論から申し上げますと、<strong>「残存FIT期間がたっぷり（残り ${20 - data.elapsedYears}年）残っている『今』だからこそ、リパワリングの投資効果が最大化する」</strong>と言えます。理由は大きく3つあります。<br><br>` +
+                        `結論から申し上げますと、<strong>「残存FIT期間がたっぷり（残り ${remFitYearsFormatted}年）残っている『今』だからこそ、リパワリングの投資効果が最大化する」</strong>と言えます。理由は大きく3つあります。<br><br>` +
                         `1. <strong>高単価での回収または超長期PPAへの布石となるため</strong><br>` +
                         `　${reasonAdvice}<br>` +
                         `2. <strong>パネルの『技術世代ギャップ』を活用できるため</strong><br>` +
