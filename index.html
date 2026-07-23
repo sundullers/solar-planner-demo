@@ -5350,15 +5350,20 @@ function dismissLoginModal(event) {
         // 精密な差額回収年数（損益分岐点）の計算関数
         function calculatePaybackPeriod(targetCF, baseCF) {
             let hasInvested = false;
+            let firstInvestIndex = -1;
+            
             for (let i = 0; i < targetCF.length; i++) {
                 if (targetCF[i] - baseCF[i] < 0) {
                     hasInvested = true;
+                    if (firstInvestIndex === -1) firstInvestIndex = i;
                 }
             }
             
-            if (!hasInvested) return 0;
+            // 一度も追加投資（現状維持を下回る持ち出し）が発生していない場合
+            if (!hasInvested) return null;
             
-            for (let i = 1; i < targetCF.length; i++) {
+            // 初回投資発生以降、差額（targetCF - baseCF）が0以上に復帰するタイミングを探索
+            for (let i = firstInvestIndex + 1; i < targetCF.length; i++) {
                 const prevDiff = targetCF[i-1] - baseCF[i-1];
                 const currDiff = targetCF[i] - baseCF[i];
                 
@@ -5368,15 +5373,15 @@ function dismissLoginModal(event) {
                     return (i - 1) + interp;
                 }
             }
-            return null; // 回収不能
+            return null; // シミュレーション期間内に回収できず
         }
 
         // 投資回収期間の計算
         const pbPcs = calculatePaybackPeriod(pcsOptCF, baseCF);
-        const paybackPcsOpt = pbPcs !== null ? `${pbPcs.toFixed(1)}年` : '回収不能';
+        const paybackPcsOpt = (pcsCost > 0 && pbPcs !== null) ? `${pbPcs.toFixed(1)}年` : (pcsCost === 0 ? '投資なし' : '回収不能');
 
         const pbRepower = calculatePaybackPeriod(repowerCF, baseCF);
-        const paybackRepower = pbRepower !== null ? (pbRepower > 0 && repowerYear > 0 ? `${(pbRepower - repowerYear).toFixed(1)}年 (投資から)` : `${pbRepower.toFixed(1)}年`) : '回収不能';
+        const paybackRepower = (repowerCost > 0 && pbRepower !== null) ? (pbRepower > 0 && repowerYear > 0 ? `${(pbRepower - repowerYear).toFixed(1)}年 (投資から)` : `${pbRepower.toFixed(1)}年`) : (repowerCost === 0 ? '投資なし' : '回収不能');
 
         // オーナー用表示の更新（プランB：フル・リパワリング適用後のシミュレーション結果を動的に連動反映！！！）
         const ownerAssetValueEl = document.getElementById('owner-asset-value');
