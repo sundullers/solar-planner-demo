@@ -4800,6 +4800,25 @@ function dismissLoginModal(event) {
             return;
         }
 
+        // 選択された評価期間（30年等）に合わせてリパワリング実行時期スライダーMaxを即座に動的同期
+        const simYearsEl = document.getElementById('sim-years');
+        const repowerYearSlider = document.getElementById('repower-year');
+        if (simYearsEl && repowerYearSlider) {
+            const simYears = parseFloat(simYearsEl.value) || 20;
+            const formattedMax = Number(simYears.toFixed(1));
+            repowerYearSlider.max = formattedMax;
+            repowerYearSlider.setAttribute('max', formattedMax);
+            if (parseFloat(repowerYearSlider.value) > formattedMax) {
+                repowerYearSlider.value = formattedMax;
+                const valEl = document.getElementById('repower-year-val');
+                if (valEl) valEl.innerText = formattedMax === 0 ? "今すぐ（0年後）" : `${formattedMax}年後`;
+            }
+            const guidelineEl = document.getElementById('repower-year-guideline');
+            if (guidelineEl) {
+                guidelineEl.innerText = `(0=即時 / 最大${formattedMax}年後)`;
+            }
+        }
+
         toggleAdvancedMode(); // 表示モードの動的同期
         closeDrilldownPopup(); // スライダー等操作時に古いポップアップを閉じる
         
@@ -4996,23 +5015,6 @@ function dismissLoginModal(event) {
         // 年間標準発電量推定（過積載カットロス考慮）
         const stdGen = calcStandardGeneration(data.panelCapacity, data.capacity) * calRatio; 
         const simYears = parseInt(document.getElementById('sim-years').value) || 20;
-
-        // 評価期間の選択変更（例：30年選択）に合わせてリパワリング実行時期スライダーの上限を動的同期
-        const repowerYearSlider = document.getElementById('repower-year');
-        if (repowerYearSlider) {
-            repowerYearSlider.max = simYears;
-            repowerYearSlider.setAttribute('max', simYears);
-            if (parseFloat(repowerYearSlider.value) > simYears) {
-                repowerYearSlider.value = simYears;
-                const valEl = document.getElementById('repower-year-val');
-                if (valEl) valEl.innerText = simYears === 0 ? "今すぐ（0年後）" : `${simYears}年後`;
-            }
-            const guidelineEl = document.getElementById('repower-year-guideline');
-            if (guidelineEl) {
-                const formattedMax = Number(simYears.toFixed(1));
-                guidelineEl.innerText = `(0=即時 / 最大${formattedMax}年後)`;
-            }
-        }
 
 
 
