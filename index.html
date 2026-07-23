@@ -2836,6 +2836,7 @@ function dismissLoginModal(event) {
 
     // 動的ロードされた設備データのキャッシュ
     let dynamicLoadedCache = {};
+    let currentLoadedAssetData = null;
 
     // 設備IDからデータを取得する共通関数（demoDataおよび徳島データ、動的ロードデータから横断検索）
     function getSolarData(id, allowUndefined = false) {
