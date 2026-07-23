@@ -5000,19 +5000,17 @@ function dismissLoginModal(event) {
         // 評価期間の選択変更（例：30年選択）に合わせてリパワリング実行時期スライダーの上限を動的同期
         const repowerYearSlider = document.getElementById('repower-year');
         if (repowerYearSlider) {
-            const currentMax = parseFloat(repowerYearSlider.max) || 0;
-            if (currentMax !== simYears) {
-                repowerYearSlider.max = simYears;
-                if (parseFloat(repowerYearSlider.value) > simYears) {
-                    repowerYearSlider.value = simYears;
-                    const valEl = document.getElementById('repower-year-val');
-                    if (valEl) valEl.innerText = simYears === 0 ? "今すぐ（0年後）" : `${simYears}年後`;
-                }
-                const guidelineEl = document.getElementById('repower-year-guideline');
-                if (guidelineEl) {
-                    const formattedMax = Number(simYears.toFixed(1));
-                    guidelineEl.innerText = `(0=即時 / 最大${formattedMax}年後)`;
-                }
+            repowerYearSlider.max = simYears;
+            repowerYearSlider.setAttribute('max', simYears);
+            if (parseFloat(repowerYearSlider.value) > simYears) {
+                repowerYearSlider.value = simYears;
+                const valEl = document.getElementById('repower-year-val');
+                if (valEl) valEl.innerText = simYears === 0 ? "今すぐ（0年後）" : `${simYears}年後`;
+            }
+            const guidelineEl = document.getElementById('repower-year-guideline');
+            if (guidelineEl) {
+                const formattedMax = Number(simYears.toFixed(1));
+                guidelineEl.innerText = `(0=即時 / 最大${formattedMax}年後)`;
             }
         }
 
