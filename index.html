@@ -6016,6 +6016,7 @@ function dismissLoginModal(event) {
             arrow.style.transform = 'rotate(0deg)';
             header.style.background = isLight ? 'rgba(217, 119, 6, 0.04)' : 'rgba(245, 158, 11, 0.08)';
         }
+        updateAlertAccordionHeader();
     }
 
     // アラートの有効数をカウントしてアコーディオンヘッダーを動的に更新
@@ -6076,11 +6077,14 @@ function dismissLoginModal(event) {
             }
         } else {
             summaryContainer.style.display = 'block';
-            summaryTitle.innerText = `発電所に関するステータス・警告（${count}件）があります（クリックで展開）`;
+            const isExpanded = content && content.style.display === 'flex';
+            summaryTitle.innerText = isExpanded 
+                ? `発電所に関するステータス・警告（${count}件）があります` 
+                : `発電所に関するステータス・警告（${count}件）があります（クリックで展開）`;
             
             // 強制的な自動展開は行わず、現在のアコーディオン開閉状態（display）に応じたスタイル同期のみを行う
             if (content && arrow && summaryHeader) {
-                if (content.style.display === 'flex') {
+                if (isExpanded) {
                     arrow.style.transform = 'rotate(180deg)';
                     summaryHeader.style.background = isLight ? 'rgba(217, 119, 6, 0.12)' : 'rgba(245, 158, 11, 0.15)';
                 } else {
