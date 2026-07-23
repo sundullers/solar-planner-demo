@@ -1677,7 +1677,7 @@
             <!-- シミュレーション評価期間 -->
             <div class="form-group" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px;">
                 <label for="sim-years">📅 評価期間</label>
-                <select id="sim-years" class="input-text" onchange="updateSimulation()" style="width: 100%;">
+                <select id="sim-years" class="input-text" onchange="syncRepowerYearSliderMax(); updateSimulation();" style="width: 100%;">
                     <option value="15">15年間</option>
                     <option value="20" selected>20年間</option>
                     <option value="25">25年間</option>
@@ -4792,15 +4792,8 @@ function dismissLoginModal(event) {
         }
     }
 
-    // シミュレーション計算と描画のアップデート
-    function updateSimulation() {
-        // API照会中の場合は実行を保留し、二重上書きによるカクツキを防ぐ
-        if (isApiLoading) {
-            console.log("[updateSimulation Bypass] Deferring execution until GSI API fetch resolves.");
-            return;
-        }
-
-        // 選択された評価期間（30年等）に合わせてリパワリング実行時期スライダーMaxを即座に動的同期
+    // 評価期間の選択変更（例：30年選択）に合わせてリパワリング実行時期スライダーの上限を動的同期する関数
+    function syncRepowerYearSliderMax() {
         const simYearsEl = document.getElementById('sim-years');
         const repowerYearSlider = document.getElementById('repower-year');
         if (simYearsEl && repowerYearSlider) {
@@ -4817,6 +4810,18 @@ function dismissLoginModal(event) {
             if (guidelineEl) {
                 guidelineEl.innerText = `(0=即時 / 最大${formattedMax}年後)`;
             }
+        }
+    }
+
+    // シミュレーション計算と描画のアップデート
+    function updateSimulation() {
+        // 評価期間スライダーMaxはAPIロード状態に関わらず即座に同期
+        syncRepowerYearSliderMax();
+
+        // API照会中の場合は実行を保留し、二重上書きによるカクツキを防ぐ
+        if (isApiLoading) {
+            console.log("[updateSimulation Bypass] Deferring execution until GSI API fetch resolves.");
+            return;
         }
 
         toggleAdvancedMode(); // 表示モードの動的同期
