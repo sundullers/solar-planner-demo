@@ -4566,9 +4566,9 @@ function dismissLoginModal(event) {
         document.getElementById('post-fit-price').value = 8.5;
         document.getElementById('post-fit-price-val').innerText = "8.5";
 
-        // 残存FIT期間に合わせてリパワリング実行時期スライダーの最大値を動的に制御（例：残り20年なら最大20年後、残り5年なら最大5年後）
-        const remainingFitYearsVal = Math.max(1, 20 - data.elapsedYears);
-        const remainingFitYearsFormatted = Number(remainingFitYearsVal.toFixed(1));
+        // 残存FIT期間または選択された評価期間に合わせてリパワリング実行時期スライダーの最大値を動的に制御
+        const simYearsVal = parseInt(document.getElementById('sim-years')?.value) || Math.max(1, 20 - data.elapsedYears);
+        const remainingFitYearsFormatted = Number(simYearsVal.toFixed(1));
         const repowerYearSlider = document.getElementById('repower-year');
         if (repowerYearSlider) {
             repowerYearSlider.max = remainingFitYearsFormatted;
@@ -4996,6 +4996,25 @@ function dismissLoginModal(event) {
         // 年間標準発電量推定（過積載カットロス考慮）
         const stdGen = calcStandardGeneration(data.panelCapacity, data.capacity) * calRatio; 
         const simYears = parseInt(document.getElementById('sim-years').value) || 20;
+
+        // 評価期間の選択変更（例：30年選択）に合わせてリパワリング実行時期スライダーの上限を動的同期
+        const repowerYearSlider = document.getElementById('repower-year');
+        if (repowerYearSlider) {
+            const currentMax = parseFloat(repowerYearSlider.max) || 0;
+            if (currentMax !== simYears) {
+                repowerYearSlider.max = simYears;
+                if (parseFloat(repowerYearSlider.value) > simYears) {
+                    repowerYearSlider.value = simYears;
+                    const valEl = document.getElementById('repower-year-val');
+                    if (valEl) valEl.innerText = simYears === 0 ? "今すぐ（0年後）" : `${simYears}年後`;
+                }
+                const guidelineEl = document.getElementById('repower-year-guideline');
+                if (guidelineEl) {
+                    const formattedMax = Number(simYears.toFixed(1));
+                    guidelineEl.innerText = `(0=即時 / 最大${formattedMax}年後)`;
+                }
+            }
+        }
 
 
 
