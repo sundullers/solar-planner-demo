@@ -1577,6 +1577,10 @@
                 border-bottom: 2px solid #22c55e !important;
             }
         }
+        /* 初期非表示要素のCSSによる絶対遮断 (JavaScript実行前のチラつきFOUC防止) */
+        .advanced-param {
+            display: none;
+        }
     </style>
 </head>
 <body>
