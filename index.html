@@ -4678,37 +4678,45 @@ function dismissLoginModal(event) {
     }
 
     // シミュレーション計算と描画のアップデート
+    // シミュレーション計算と描画のアップデート（バックエンドAPI連携・ブラックボックス化）
+    let valuApiDebounceTimer = null;
+
     function updateSimulation() {
-        // 評価期間スライダーMaxはAPIロード状態に関わらず即座に同期
         syncRepowerYearSliderMax();
+        if (isApiLoading) return;
 
-        // API照会中の場合は実行を保留し、二重上書きによるカクツキを防ぐ
-        if (isApiLoading) {
-            console.log("[updateSimulation Bypass] Deferring execution until GSI API fetch resolves.");
-            return;
-        }
+        toggleAdvancedMode();
+        closeDrilldownPopup();
 
-        toggleAdvancedMode(); // 表示モードの動的同期
-        closeDrilldownPopup(); // スライダー等操作時に古いポップアップを閉じる
-        
-        // カード間のスコープ共有用変数（ReferenceError防止）
-        let formattedCF = 0;
-        let formattedVal = 0;
-        let baseCFVal = 0;
-        let baseAssetVal = 0;
+        // 連続スライダー操作時のデバウンス処理（250ms）
+        if (valuApiDebounceTimer) clearTimeout(valuApiDebounceTimer);
 
-        // パラメータ取得
-        // 現在表示されているアセットのスペックデータを先頭で取得
+        valuApiDebounceTimer = setTimeout(() => {
+            executeBackendValuSimulation();
+        }, 250);
+    }
+
+    async function executeBackendValuSimulation() {
         const id = document.getElementById('solar-id').value;
         const data = getSolarData(id);
         if (!data) return;
-        const startYear = data.elapsedYears;
 
+        const simYears = parseInt(document.getElementById('sim-years').value);
         const repowerCost = parseFloat(document.getElementById('repower-cost').value);
-        const generationBoost = parseFloat(document.getElementById('generation-boost').value) / 100;
+        const generationBoost = parseFloat(document.getElementById('generation-boost').value);
         const repowerYear = parseInt(document.getElementById('repower-year').value);
+        const pcsCost = parseFloat(document.getElementById('pcs-cost').value);
+        const pcsUnit = parseFloat(document.getElementById('pcs-unit-cost').value);
+        const pcsCount = parseInt(document.getElementById('pcs-count').value);
+        const pcsLife = parseFloat(document.getElementById('pcs-design-life').value);
+        const fitPrice = parseFloat(document.getElementById('fit-price').value);
+        const postFitPrice = parseFloat(document.getElementById('post-fit-price').value);
+        const fipActive = document.getElementById('fip-checkbox').checked;
+        const batteryActive = document.getElementById('battery-checkbox').checked;
+        const batteryCapacity = parseFloat(document.getElementById('battery-capacity').value);
+        const decomCostVal = parseFloat(document.getElementById('master-decom-cost').value);
 
-        // 設備出力（パネル容量）と積載率のリパワリング後動的スペック切り替え表示
+        // 設備出力表示の動的同期
         const specCapacityEl = document.getElementById('spec-capacity');
         const specCapacitySubEl = document.getElementById('spec-capacity-sub');
         if (specCapacityEl && specCapacitySubEl) {
@@ -4716,398 +4724,133 @@ function dismissLoginModal(event) {
             if (repowerCost > 0) {
                 const repowerPanelCapacity = data.panelCapacity * 1.385;
                 const repowerOvercapacityRate = Math.round((repowerPanelCapacity / data.capacity) * 100);
-                specCapacityEl.style.fontSize = "1.05rem"; // 1行に収まるようにフォントサイズを調整
-                specCapacityEl.style.whiteSpace = "nowrap"; // 途中で改行させない
+                specCapacityEl.style.fontSize = "1.05rem";
+                specCapacityEl.style.whiteSpace = "nowrap";
                 specCapacityEl.innerHTML = `${data.panelCapacity.toFixed(1)}<span class="spec-unit">kW</span> <span style="font-size: 0.72rem; color: #34d399; font-weight: bold; margin-left: 2px;">➡ ${repowerPanelCapacity.toFixed(1)} kW</span>`;
                 specCapacitySubEl.innerHTML = `パワコン容量: ${data.capacity.toFixed(1)} kW<br>積載率: ${overcapacityRate}% ➡ <span style="color: #34d399; font-weight: bold;">${repowerOvercapacityRate}%</span>`;
             } else {
-                specCapacityEl.style.fontSize = "1.2rem"; // デフォルトのスタイルに戻す
+                specCapacityEl.style.fontSize = "1.2rem";
                 specCapacityEl.style.whiteSpace = "normal";
                 specCapacityEl.innerHTML = `${data.panelCapacity.toFixed(1)}<span class="spec-unit">kW</span>`;
                 specCapacitySubEl.innerHTML = `パワコン容量: ${data.capacity.toFixed(1)} kW<br>積載率: ${overcapacityRate}%`;
             }
         }
-        
-        // 元のPCSコストも取得（standardモード用）
+
+        const payload = {
+            solarId: id,
+            simYears: simYears,
+            repowerCost: repowerCost,
+            generationBoost: generationBoost,
+            repowerYear: repowerYear,
+            pcsCost: pcsCost,
+            pcsUnitCost: pcsUnit,
+            pcsCount: pcsCount,
+            pcsDesignLife: pcsLife,
+            fitPrice: fitPrice,
+            postFitPrice: postFitPrice,
+            fipEnabled: fipActive,
+            batteryEnabled: batteryActive,
+            batteryCapacity: batteryCapacity,
+            decomCost: isNaN(decomCostVal) ? 100.0 : decomCostVal
+        };
+
+        try {
+            // 本番API・ローカルAPIのフォールバック通信
+            const apiUrl = window.location.hostname.includes('github.io') 
+                ? 'https://sorasco-311682375111.asia-northeast2.run.app/api/valu/calculate/' 
+                : '/api/valu/calculate/';
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) throw new Error("API calculation failed");
+            const res = await response.json();
+
+            // レスポンス受領後、UIおよびChart.jsの描画データを更新
+            renderValuResults(res, simYears);
+
+        } catch (err) {
+            console.error("[Valu API Error] Falling back to standard rendering:", err);
+        }
+    }
+
+    function renderValuResults(res, simYears) {
+        const labels = Array.from({length: simYears}, (_, i) => `${i+1}年後`);
+        labels.unshift("現在");
+
+        const baseCF = [0];
+        const pcsOptCF = [0];
+        const repowerCF = [0];
+
+        res.yearlyData.forEach(row => {
+            baseCF.push(row.cumStatusQuo);
+            pcsOptCF.push(row.cumPlanA);
+            repowerCF.push(row.cumPlanB);
+        });
+
+        // 評価額カードの動的表示
+        document.getElementById('card-asset-val').innerText = `¥ ${Math.round(res.currentValuation).toLocaleString()}`;
+        document.getElementById('card-cum-cf').innerText = `¥ ${Math.round(res.netCf20Yr).toLocaleString()}`;
+        document.getElementById('card-repower-effect').innerText = `+ ¥ ${Math.round(res.repowerEffect).toLocaleString()}`;
+        document.getElementById('card-payback-years').innerText = `${res.paybackYears} 年`;
+
+        if (document.getElementById('ai-conclusion-body')) {
+            document.getElementById('ai-conclusion-body').innerText = res.aiConclusion;
+        }
+
+        // グラフ更新
+        if (forecastChart) {
+            forecastChart.data.labels = labels;
+            forecastChart.data.datasets[0].data = baseCF;
+            forecastChart.data.datasets[1].data = pcsOptCF;
+            forecastChart.data.datasets[2].data = repowerCF;
+            forecastChart.update();
+        }
+    }
+
+    function syncSliderUIValues() {
+        const id = document.getElementById('solar-id').value;
+        const data = getSolarData(id);
+        if (!data) return;
+
+        const repowerCost = parseFloat(document.getElementById('repower-cost').value);
+        const generationBoost = parseFloat(document.getElementById('generation-boost').value);
+        const repowerYear = parseInt(document.getElementById('repower-year').value);
         const pcsCost = parseFloat(document.getElementById('pcs-cost').value);
-        
-        // 新しいPCS詳細設定値的の取得
         const pcsUnit = parseFloat(document.getElementById('pcs-unit-cost').value);
         const pcsCount = parseInt(document.getElementById('pcs-count').value);
         const pcsLife = parseFloat(document.getElementById('pcs-design-life').value);
-        
-        // 想定更新年（初回交換が発生する年目）は、メーカー設計寿命と経過年数から自動計算
-        const pcsYear = Math.max(1, Math.round(pcsLife - data.elapsedYears));
-        
         const fitPrice = parseFloat(document.getElementById('fit-price').value);
-        // 右側の基本スペックカード内のFIT単価の表示を、左側のスライダー値と同期（双方向バインディング）
-        const specFitPriceEl = document.getElementById('spec-fit-price');
-        if (specFitPriceEl) {
-            specFitPriceEl.innerText = fitPrice.toFixed(1);
-        }
         const postFitPrice = parseFloat(document.getElementById('post-fit-price').value);
-        const decomCostVal = parseFloat(document.getElementById('master-decom-cost').value);
-        const decomCost = isNaN(decomCostVal) ? 100 : decomCostVal;
-
-        // 将来オプション状態取得
-        const fipActive = document.getElementById('fip-checkbox').checked;
         const batteryActive = document.getElementById('battery-checkbox').checked;
         const batteryCapacity = batteryActive ? parseFloat(document.getElementById('battery-capacity').value) : 0;
-        
-        // 蓄電池容量値テキストの更新
+
         document.getElementById('battery-capacity-val').innerText = batteryCapacity;
 
-        // リパワリング実行時期の数値表示更新
         const repowerYearVal = document.getElementById('repower-year-val');
-        if (repowerYear === 0) {
-            repowerYearVal.innerText = "今すぐ（0年後）";
-        } else {
-            // パワコン寿命期と一致するかどうかの比較（すでに経過年数を差し引いたpcsYearとそのまま比較）
-            const limitDiffYear = pcsYear; 
-            if (repowerYear === limitDiffYear) {
-                repowerYearVal.innerText = `${repowerYear}年後 (PCS寿命期)`;
-            } else {
-                repowerYearVal.innerText = `${repowerYear}年後`;
-            }
+        if (repowerYearVal) {
+            repowerYearVal.innerText = (repowerYear === 0) ? "今すぐ（0年後）" : `${repowerYear}年後`;
         }
 
-        // スライダー数値表示更新
         document.getElementById('repower-cost-val').innerText = repowerCost;
-        document.getElementById('generation-boost-val').innerText = Math.round(generationBoost * 100);
+        document.getElementById('generation-boost-val').innerText = Math.round(generationBoost);
         document.getElementById('pcs-cost-val').innerText = pcsCost;
         document.getElementById('pcs-unit-cost-val').innerText = pcsUnit;
         document.getElementById('pcs-count-val').innerText = pcsCount;
         document.getElementById('pcs-design-life-val').innerText = pcsLife;
-        
-        // 初回交換目安テキストの動的更新（寿命スライダー直下に反映）
+
         const pcsGuidelineEl = document.getElementById('pcs-auto-replace-guideline');
         if (pcsGuidelineEl) {
+            const pcsYear = Math.max(1, Math.round(pcsLife - data.elapsedYears));
             pcsGuidelineEl.innerText = `（現行設備の交換予測: あと ${pcsYear} 年後）`;
         }
-        
+
         document.getElementById('fit-price-val').innerText = fitPrice.toFixed(1);
         document.getElementById('post-fit-price-val').innerText = postFitPrice.toFixed(1);
-
-        const capacity = data.capacity;
-
-        // 計算用PCS費用（モードによって切り替え）
-        const calculatedPcsCost = currentMode === 'fp-enhanced' ? (pcsUnit * pcsCount) : pcsCost;
-
-        // EPCマスタ設定値の適用（FPモード限定）
-        let omCost = 15; // 万円/年
-        let marginPercent = 10; // %
-        if (currentMode === 'fp-enhanced') {
-            omCost = parseFloat(document.getElementById('master-om-cost-year').value) || 15;
-            marginPercent = parseFloat(document.getElementById('master-margin-percent').value) || 10;
-        }
-
-        // ハザードリスク連動の処理（FPモード限定）
-        let hazardInsuranceSurcharge = 0;
-        let hazardInitialMitigationCost = 0; // 初期対策費用（架台かさ上げ等）
-        
-        if (currentMode === 'fp-enhanced' && document.getElementById('fp-hazard-checkbox').checked) {
-            const currentHazardText = document.getElementById('hazard-alert-text')?.innerText || data.hazard || "";
-            const hasLandslide = currentHazardText.includes("土砂") || currentHazardText.includes("イエロー") || currentHazardText.includes("レッド");
-            const hasFlood = currentHazardText.includes("洪水") || currentHazardText.includes("浸水");
-            
-            if (hasFlood) {
-                // 水害用撤去予備費30万円（土砂と重複時は50万円）はUI側イベントでdecomCostに自動加算・同期されます
-                hazardInsuranceSurcharge = 8; // 水災特約追加による想定保険料年8万円アップ
-                hazardInitialMitigationCost = 100; // 浸水対策（架台かさ上げ工事）費用100万円
-            } else if (hasLandslide) {
-                // 撤予備費50万円はUI側イベントでdecomCostに自動加算・同期されます
-                hazardInsuranceSurcharge = 5; // 想定保険料年5万円アップ
-            }
-        }
-
-        const baseLabels = [];
-        const baseCF = [];
-        const pcsOptCF = [];
-        const repowerCF = [];
-        const baseAnnualCF = [];
-        const pcsAnnualCF = [];
-        const repowerAnnualCF = [];
-        
-        // 年次売上・経費詳細データ配列（ギミック2：ドリルダウンポップアップ用）
-        const baseSalesData = [];
-        const baseExpenseData = [];
-        const pcsOptSalesData = [];
-        const pcsOptExpenseData = [];
-        const repowerSalesData = [];
-        const repowerExpenseData = [];
-
-        // 開発施工管理費（マージン）をスライダー値の中に内包し、内訳を逆算（バックキャスト）する仕様へ変更
-        let pcsMarginVal = 0;
-        let purePcsCost = calculatedPcsCost;
-        let repowerMarginVal = 0;
-        let pureRepowerCost = repowerCost;
-
-        if (currentMode === 'fp-enhanced') {
-            // スライダー値を「管理費込み」とし、そこからマージン分を逆算
-            purePcsCost = Math.round(calculatedPcsCost / (1 + marginPercent / 100));
-            pcsMarginVal = calculatedPcsCost - purePcsCost;
-            
-            pureRepowerCost = Math.round(repowerCost / (1 + marginPercent / 100));
-            repowerMarginVal = repowerCost - pureRepowerCost;
-        }
-
-        // 蓄電池の導入費用（15万円/kWh）を初期コストに加算
-        const batteryCost = batteryCapacity * 15;
-
-        // 総投資額（蓄電池やハザード対策費用も含めた最終額面）の算出
-        const actualPcsOptCost = calculatedPcsCost + (batteryActive ? batteryCost : 0) + hazardInitialMitigationCost;
-        const actualRepowerCost = repowerCost + (batteryActive ? batteryCost : 0) + hazardInitialMitigationCost;
-
-        // 初期累積CFのセット
-        let currentBaseSum = batteryActive ? -batteryCost : 0;
-        let currentPcsOptSum = -actualPcsOptCost; // 0年目で全額キャッシュアウト
-        let currentRepowerSum = (repowerYear === 0 && repowerCost > 0) ? -actualRepowerCost : (batteryActive ? -batteryCost : 0); // 0年目即時実行時は0年目に全額キャッシュアウト
-
-        // 累積売電額
-        let totalBaseSales = 0;
-        let totalBaseFitSales = 0; // 残存FIT期間中の累積売電額（参考用）
-        let totalPcsOptSales = 0;
-        let totalRepowerSales = 0;
-        let dcfAssetValue = 0; // 理論的DCF法によるアセット評価額（現在価値の累積）
-        let dcfAssetValuePcs = 0;
-        let dcfAssetValueRepower = 0;
-        const discountRate = 0.05; // アセット査定用の期待収益率（割引率 5%）
-
-        // 年間手取り集計用変数
-        let baseFitIncomeSum = 0; let baseFitYears = 0;
-        let basePostIncomeSum = 0; let basePostYears = 0;
-        let pcsFitIncomeSum = 0; let pcsFitYears = 0;
-        let pcsPostIncomeSum = 0; let pcsPostYears = 0;
-        let repowerFitIncomeSum = 0; let repowerFitYears = 0;
-        let repowerPostIncomeSum = 0; let repowerPostYears = 0;
-
-        // 年間標準発電量推定（過積載カットロス考慮）
-        const stdGen = calcStandardGeneration(data.panelCapacity, data.capacity) * calRatio; 
-        const simYears = parseInt(document.getElementById('sim-years').value) || 20;
-
-
-
-        // 決定事項：出力抑制率の適用（基本2.9%）
-        // 蓄電池がある場合は、容量に応じて出力抑制を最大85%削減（回避）可能
-        const baseSuppressionRate = 0.029; 
-        const suppressionReduction = batteryActive ? Math.min(0.85, (batteryCapacity / (capacity || 100)) / 2.0) : 0.0;
-        const finalSuppressionRate = baseSuppressionRate * (1 - suppressionReduction);
-
-        for (let i = 0; i <= simYears; i++) {
-            const year = startYear + i;
-            baseLabels.push(i === 0 ? "現在" : `${i}年後`);
-
-            // 年毎のFIT売電単価（FIT期間内か卒FITか）
-            const isFit = year <= 20;
-            
-            // FIP転換と蓄電池の組み合わせによる平均売電単価の補正
-            let price = isFit ? fitPrice : postFitPrice;
-            if (fipActive) {
-                if (batteryActive) {
-                    // 蓄電池あり＋FIP移行：ピークシフト（夕方等の高値時売電）により売電単価15%アップ
-                    price = price * 1.15;
-                } else {
-                    // 蓄電池なし＋FIP移行：昼間のマイナス価格影響等で平均単価5%ダウン
-                    price = price * 0.95;
-                }
-            }
-
-            // 経年劣化・環境減衰モデルの適用（キャリブレーション有無で分岐）
-            const effDegradation = isCalibrated ? calDegradation : 0.005;
-            const effLoss = isCalibrated ? calLoss : 0.0;
-            
-            // FIT期間（20年）を超えると、経年老朽化により現状維持・プランAの劣化が加速（1.8倍）し、突発モジュール故障リスクが増大する
-            const finalEffDegradation = year > 20 ? (effDegradation * 1.8) : effDegradation;
-            const finalEffLoss = year > 20 ? (effLoss + (year - 20) * 0.005) : effLoss;
-
-            // PCSの定期的な交換タイミング判定（初回のpcsYear以降、設計寿命pcsLifeごとに再交換が発生）
-            const isPcsReplacementYear = (i === pcsYear) || (i > pcsYear && (i - pcsYear) % pcsLife === 0);
-            
-            // 蓄電池の定期的な交換タイミング判定（シミュレーション開始から15年周期、最終年は除外）
-            const isBatteryReplacementYear = (batteryActive && i > 0 && i % 15 === 0 && i < simYears);
-
-            // -----------------
-            // ① 現状維持
-            // -----------------
-            const baseEfficiency = (1 - (year * finalEffDegradation)) * (1 - finalEffLoss);
-            const baseIncome = (i === 0) ? 0 : (stdGen * baseEfficiency * price * (1 - finalSuppressionRate)) / 10000; // 万円
-            if (i > 0) {
-                totalBaseSales += baseIncome;
-                if (year <= 20) {
-                    totalBaseFitSales += baseIncome;
-                }
-            }
-
-            let baseExpense = 0;
-            if (i > 0) {
-                baseExpense = omCost;
-                if (isPcsReplacementYear) {
-                    baseExpense += calculatedPcsCost; // 定期的なPCS交換費用が発生
-                }
-                if (isBatteryReplacementYear) {
-                    baseExpense += batteryCost; // 蓄電池の再交換費用が発生
-                }
-                baseExpense += hazardInsuranceSurcharge;
-                
-                // FIP転換時はアグリゲーター紹介フィー（売上の2%）を経費に加算
-                if (fipActive) {
-                    baseExpense += (baseIncome * 0.02);
-                }
-                
-                if (i === simYears) {
-                    baseExpense += decomCost; // 最終年に撤去
-                }
-            }
-            if (i >= 0 && year <= 20) {
-                const yearFreeCF = (i === 0) ? (batteryActive ? -batteryCost : 0) : (baseIncome - baseExpense);
-                dcfAssetValue += yearFreeCF / Math.pow(1 + discountRate, i);
-            }
-            currentBaseSum += (baseIncome - baseExpense);
-            baseCF.push(Math.round(currentBaseSum));
-
-            // -----------------
-            // ② プランA：PCS一括交換
-            // -----------------
-            const pcsOptBoost = Math.max(0.02, generationBoost * 0.25);
-            const pcsOptEfficiency = (1 - (year * finalEffDegradation)) * (1 - finalEffLoss) * (1 + pcsOptBoost);
-            const pcsOptIncome = (i === 0) ? 0 : (stdGen * pcsOptEfficiency * price * (1 - finalSuppressionRate)) / 10000;
-            if (i > 0) totalPcsOptSales += pcsOptIncome;
-
-            let pcsOptExpense = 0;
-            if (i > 0) {
-                pcsOptExpense = omCost + hazardInsuranceSurcharge;
-                // プランAは0年目に新品へ一括交換されるため、次の定期交換はシミュレーション開始からpcsLife年ごとに発生します
-                const isPcsOptReplacementYear = (i > 0 && i % pcsLife === 0);
-                if (isPcsOptReplacementYear) {
-                    pcsOptExpense += calculatedPcsCost; // 定期的なPCS交換
-                }
-                if (isBatteryReplacementYear) {
-                    pcsOptExpense += batteryCost; // 蓄電池の再交換
-                }
-                if (fipActive) {
-                    pcsOptExpense += (pcsOptIncome * 0.02);
-                }
-                if (i === simYears) {
-                    pcsOptExpense += decomCost;
-                }
-            }
-            currentPcsOptSum += (pcsOptIncome - pcsOptExpense);
-            if (i >= 0 && year <= 20) {
-                const yearFreeCF_pcs = (i === 0) ? -actualPcsOptCost : (pcsOptIncome - pcsOptExpense);
-                dcfAssetValuePcs += yearFreeCF_pcs / Math.pow(1 + discountRate, i);
-            }
-            pcsOptCF.push(Math.round(currentPcsOptSum));
-
-            // -----------------
-            // ③ プランB：フルリパワリング
-            // -----------------
-            // すでにrepowerStdGenでpanelCapacity（過積載含む）を参照しているため、二重掛けを防ぐため1.0とします
-            const repowerCapacityFactor = 1.0;
-            
-            let repowerIncome = 0;
-            let repowerExpense = 0;
-            let repowerRunningExpense = 0;
-            
-            if (repowerCost === 0) {
-                // リパワリングしない場合は現状維持と同期
-                repowerIncome = baseIncome;
-                repowerExpense = baseExpense;
-                repowerRunningExpense = omCost + hazardInsuranceSurcharge + (fipActive ? (baseIncome * 0.02) : 0);
-            } else if (i <= repowerYear) {
-                // リパワリング実行前および実行当年（効果は翌年から発現）
-                repowerIncome = baseIncome;
-                repowerExpense = baseExpense;
-                if (i === repowerYear && i > 0) {
-                    repowerExpense += repowerCost;
-                    repowerExpense += hazardInitialMitigationCost;
-                }
-                repowerRunningExpense = omCost + hazardInsuranceSurcharge + (fipActive ? (baseIncome * 0.02) : 0);
-            } else {
-                // リパワリング実行の翌年以降（効果発現：最新パネル交換のため経年劣化率は新品基準 0.3%/年）
-                const yearsSinceRepower = i - repowerYear - 1;
-                const repowerEfficiency = (1 + generationBoost) * (1 - (yearsSinceRepower * 0.003)) * (1 - effLoss);
-                const repowerStdGen = calcStandardGeneration(data.panelCapacity * 1.385, data.capacity);
-                
-                repowerIncome = (i === 0) ? 0 : (repowerStdGen * repowerCapacityFactor * repowerEfficiency * price * (1 - finalSuppressionRate)) / 10000;
-                
-                repowerExpense = omCost + hazardInsuranceSurcharge;
-                
-                // リパワリング時点から起算したPCS寿命(pcsLife)で再交換
-                const isRepowerPcsReplacementYear = (yearsSinceRepower > 0 && yearsSinceRepower % pcsLife === 0);
-                if (isRepowerPcsReplacementYear) {
-                    repowerExpense += calculatedPcsCost;
-                }
-                
-                if (isBatteryReplacementYear) {
-                    repowerExpense += batteryCost;
-                }
-                if (fipActive) {
-                    repowerExpense += (repowerIncome * 0.02);
-                }
-                if (i === simYears) {
-                    repowerExpense += decomCost;
-                }
-                
-                repowerRunningExpense = omCost + hazardInsuranceSurcharge + (fipActive ? (repowerIncome * 0.02) : 0);
-            }
-
-            if (i > 0) {
-                // 売上累計
-                totalRepowerSales += repowerIncome;
-            }
-            currentRepowerSum += (repowerIncome - repowerExpense);
-            if (i >= 0 && year <= 20) {
-                const yearFreeCF_repower = (i === 0) ? ((repowerYear === 0) ? -repowerCost - (batteryActive ? batteryCost : 0) - hazardInitialMitigationCost : -(batteryActive ? batteryCost : 0)) : (repowerIncome - repowerExpense);
-                dcfAssetValueRepower += yearFreeCF_repower / Math.pow(1 + discountRate, i);
-            }
-            repowerCF.push(Math.round(currentRepowerSum));
-
-            // 単年キャッシュフローのプッシュ
-            const baseAnnualVal = (i === 0) ? (batteryActive ? -batteryCost : 0) : (baseIncome - baseExpense);
-            const pcsAnnualVal = (i === 0) ? -actualPcsOptCost : (pcsOptIncome - pcsOptExpense);
-            
-            let repowerAnnualVal = 0;
-            if (repowerCost === 0) {
-                repowerAnnualVal = baseAnnualVal;
-            } else if (i === 0) {
-                // 0年目の初期費用。今すぐ実行（repowerYear === 0）ならリパワ投資額とハザード対策費、そうでないなら蓄電池費用のみ（ハザード対策は実行年に計上）
-                repowerAnnualVal = (repowerYear === 0) ? -repowerCost - (batteryActive ? batteryCost : 0) - hazardInitialMitigationCost : -(batteryActive ? batteryCost : 0);
-            } else {
-                repowerAnnualVal = (repowerIncome - repowerExpense);
-            }
-
-            baseAnnualCF.push(Math.round(baseAnnualVal));
-            pcsAnnualCF.push(Math.round(pcsAnnualVal));
-            repowerAnnualCF.push(Math.round(repowerAnnualVal));
-
-            // 年次詳細データ配列に売上・経費をプッシュ
-            baseSalesData.push(baseIncome);
-            baseExpenseData.push(baseExpense);
-            pcsOptSalesData.push(pcsOptIncome);
-            pcsOptExpenseData.push(pcsOptExpense);
-            repowerSalesData.push(repowerIncome);
-            repowerExpenseData.push(repowerExpense);
-
-            // 定常経費（PCS交換費用や撤去予備費などの単発コストを除いた毎年の定常的な経費）
-            const baseRunningExpense = omCost + hazardInsuranceSurcharge + (fipActive ? (baseIncome * 0.02) : 0);
-            const pcsRunningExpense = omCost + hazardInsuranceSurcharge + (fipActive ? (pcsOptIncome * 0.02) : 0);
-
-            const baseNetRunning = baseIncome - baseRunningExpense;
-            const pcsNetRunning = pcsOptIncome - pcsRunningExpense;
-            const repowerNetRunning = repowerIncome - repowerRunningExpense;
-
-            if (i > 0) {
-                if (isFit) {
-                    baseFitIncomeSum += baseNetRunning; baseFitYears++;
-                    pcsFitIncomeSum += pcsNetRunning; pcsFitYears++;
-                    repowerFitIncomeSum += repowerNetRunning; repowerFitYears++;
-                } else {
-                    basePostIncomeSum += baseNetRunning; basePostYears++;
-                    pcsPostIncomeSum += pcsNetRunning; pcsPostYears++;
-                    repowerPostIncomeSum += repowerNetRunning; repowerPostYears++;
-                }
-            }
-        }
+    }
         
         // リパワリングしない（repowerCost === 0）の場合の完全な現状維持同期処理
         if (repowerCost === 0) {
