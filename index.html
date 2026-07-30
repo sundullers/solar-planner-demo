@@ -1577,16 +1577,10 @@
                 border-bottom: 2px solid #22c55e !important;
             }
         }
-        /* 初期非表示要素およびその子要素のCSSによる絶対遮断 (JavaScript実行前のチラつきFOUC完全根治) */
+        /* 初期非表示要素のCSSによる初期隠蔽 (親の.advanced-param非表示で子要素も連動隠蔽) */
         .advanced-param,
-        .advanced-param .form-group-sub,
-        .accordion-body,
-        #accordion-body,
-        #battery-capacity-group,
-        .fp-only.advanced-param,
-        .standard-only.advanced-param,
-        #fp-master-accordion.advanced-param {
-            display: none !important;
+        #battery-capacity-group {
+            display: none;
         }
     </style>
 </head>
@@ -4731,14 +4725,14 @@ function dismissLoginModal(event) {
             
             if (isChecked) {
                 if (isFpOnly && !isFpActive) {
-                    el.style.setProperty('display', 'none', 'important');
+                    el.style.display = 'none';
                 } else if (isStandardOnly && isFpActive) {
-                    el.style.setProperty('display', 'none', 'important');
+                    el.style.display = 'none';
                 } else {
-                    el.style.setProperty('display', 'block', 'important');
+                    el.style.display = 'block';
                 }
             } else {
-                el.style.setProperty('display', 'none', 'important');
+                el.style.display = 'none';
             }
         });
     }
