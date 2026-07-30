@@ -1577,8 +1577,12 @@
                 border-bottom: 2px solid #22c55e !important;
             }
         }
-        /* 初期非表示要素のCSSによる絶対遮断 (JavaScript実行前のチラつきFOUC防止) */
-        .advanced-param {
+        /* 初期非表示要素およびその子要素のCSSによる絶対遮断 (JavaScript実行前のチラつきFOUC完全根治) */
+        .advanced-param,
+        .advanced-param .form-group-sub,
+        .accordion-body,
+        #accordion-body,
+        #battery-capacity-group {
             display: none;
         }
     </style>
