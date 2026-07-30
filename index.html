@@ -1797,7 +1797,7 @@
                 </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group advanced-param" style="display: none;">
                 <label for="fit-price" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                     <span>💴 FIT売電単価（円/kWh）</span>
                     <span id="fit-price-val" style="font-weight: bold; color: var(--accent-color);">24.0</span>
@@ -1805,7 +1805,7 @@
                 <input type="range" id="fit-price" class="slider" min="5.0" max="42.0" step="0.1" value="24.0" oninput="updateSimulation()">
             </div>
 
-            <div class="form-group">
+            <div class="form-group advanced-param" style="display: none;">
                 <label for="post-fit-price" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                     <span>💴 卒FIT後想定買取単価（円/kWh）</span>
                     <span id="post-fit-price-val" style="font-weight: bold; color: var(--accent-color);">8.5</span>
@@ -1814,7 +1814,7 @@
             </div>
 
             <!-- 将来オプション設定（FIP転換・蓄電池併設） -->
-            <div class="form-group" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px;">
+            <div class="form-group advanced-param" style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px; display: none;">
                 <label style="font-weight: 600; display: block; margin-bottom: 12px; color: var(--warning-color);">📌 将来オプション設定</label>
                 <div style="display: flex; flex-direction: column; gap: 12px;">
                     <!-- FIP転換トグル -->
@@ -1835,8 +1835,8 @@
                         </label>
                     </div>
                     
-                    <!-- 蓄電池容量 -->
-                    <div id="battery-capacity-group" style="background: rgba(16, 185, 129, 0.05); padding: 10px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.1); margin-top: 5px;">
+                    <!-- 蓄電池容量（トグルON時のみ表示） -->
+                    <div id="battery-capacity-group" style="display: none; background: rgba(16, 185, 129, 0.05); padding: 10px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.1); margin-top: 5px;">
                         <label style="font-size: 0.75rem; color: var(--text-secondary); display: flex; justify-content: space-between; margin-bottom: 5px;">
                             <span>🔋 蓄電池容量（kWh）</span>
                             <span><span id="battery-capacity-val">50</span></span>
