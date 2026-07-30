@@ -1729,11 +1729,11 @@
                 <label for="repower-cost" style="display: flex; flex-direction: column; width: 100%; gap: 2px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                         <span>🏗️ リパワリング投資額（万円）</span>
-                        <span id="repower-cost-val" style="font-weight: bold; color: var(--accent-color);">800</span>
+                        <span id="repower-cost-val" style="font-weight: bold; color: var(--accent-color);">250</span>
                     </div>
-                    <span id="repower-cost-guideline" style="font-size: 0.68rem; color: var(--text-secondary); font-weight: normal; margin-top: 1px;">(相場: 1,200〜2,000万)</span>
+                    <span id="repower-cost-guideline" style="font-size: 0.68rem; color: var(--text-secondary); font-weight: normal; margin-top: 1px;">(標準過積載: 250〜500万 / 大型: 1,000万〜)</span>
                 </label>
-                <input type="range" id="repower-cost" class="slider" min="0" max="2500" step="50" value="800" oninput="updateSimulation()">
+                <input type="range" id="repower-cost" class="slider" min="0" max="2500" step="50" value="250" oninput="syncSliderLabels(); updateSimulation()">
             </div>
 
             <div class="form-group">
@@ -1948,9 +1948,9 @@
                     <div style="display: flex; gap: 15px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap;">
                         <div class="owner-only asset-alert-box asset-alert-success" id="hazard-alert" style="margin-bottom: 0; flex: 1 1 450px;">
                             <span class="asset-alert-icon success">!</span>
-                            <span id="hazard-alert-text" style="font-size: 0.85rem; line-height: 1.5;"><strong>ハザードリスク情報:</strong> 吉野川洪水浸水想定区域（浸水深0.5m〜1.0m）に近接。浸水時の架台かさ上げ等の対策を推奨。</span>
+                            <span id="hazard-alert-text" style="font-size: 0.85rem; line-height: 1.5;"><strong>ハザードリスク情報:</strong> 吉野川洪水浸水想定区域（浸水深0.5m〜1.0m）に近接。浸水時の架台かさ上げ等の対策を推奨。<br><a href="https://disaportal.gsi.go.jp/maps/?ll=34.07,134.55&z=14" target="_blank" id="gsi-hazard-link" style="display: inline-flex; align-items: center; gap: 4px; color: #60a5fa; text-decoration: underline; font-weight: bold; font-size: 0.8rem; margin-top: 6px;" onmouseover="this.style.color='#93c5fd'" onmouseout="this.style.color='#60a5fa'">🗺️ 国土地理院「重ねるハザードマップ」で詳細位置を確認する ↗</a></span>
                         </div>
-                        <div class="hazard-radar-container" id="hazard-radar-container-el" style="display: none; flex-shrink: 0;">
+                        <div class="hazard-radar-container" id="hazard-radar-container-el" style="display: block; flex-shrink: 0;">
                             <canvas id="hazardRadarChart"></canvas>
                         </div>
                     </div>
@@ -2261,13 +2261,13 @@
                     <div class="pdf-logo-area">
                         <div class="partner-logo">WE</div>
                         <div>
-                            <h3 style="color:#0f172a; margin:0;">株式会社ワイヤーエナジー</h3>
+                            <h3 style="color:#0f172a; margin:0;" id="pdf-company-name">そらスコ</h3>
                             <p style="margin:0;">太陽光発電所 資産価値・ライフプラン提案書</p>
                         </div>
                     </div>
                     <div class="pdf-meta-area">
                         提案日: <span id="pdf-current-date">2026-06-15</span><br>
-                        設備ID: <strong id="pdf-id">DEMO-TOKUSHIMA</strong>
+                        設備ID: <strong id="pdf-id">---</strong>
                     </div>
                 </div>
                 <hr style="border:0; border-top:1px solid #cbd5e1; margin: 15px 0;">
@@ -2276,7 +2276,7 @@
                     <h4>1. 対象発電所基本情報</h4>
                     <table class="pdf-table pdf-info-table">
                         <tr>
-                            <th>発電所名</th><td id="pdf-spec-name">ワイヤーエナジー吉野川発電所</td>
+                            <th>発電所名</th><td id="pdf-spec-name">---</td>
                             <th>所在地</th><td id="pdf-spec-location">徳島県吉野川市</td>
                         </tr>
                         <tr>
@@ -2399,7 +2399,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn-action" style="margin: 0; width: auto;" onclick="window.print()">🖨️ PDFとして保存/印刷</button>
+            <button class="btn-action" style="margin: 0; width: auto;" onclick="handlePrint()">🖨️ PDFとして保存/印刷</button>
         </div>
     </div>
 </div>
@@ -2480,6 +2480,11 @@ function dismissLoginModal(event) {
             var titleEl = document.getElementById('login-required-title');
             var msgEl = document.getElementById('login-required-message');
             var loginBtn = document.getElementById('login-modal-btn');
+            var closeX = document.getElementById('login-modal-close-x');
+            var cancelBtn = document.getElementById('login-modal-cancel-btn');
+            if (closeX) closeX.onclick = dismissLoginModal;
+            if (cancelBtn) cancelBtn.onclick = dismissLoginModal;
+
             if (titleEl) titleEl.innerText = "発電所 (ID: " + targetId + ") のシミュレーション";
             if (msgEl) msgEl.innerHTML = "<strong>指定された発電所 (ID: " + targetId + ") の収支・資産価値シミュレーションが利用できます！</strong><br><br>無料の会員登録（所要時間1分）を行っていただくと、この発電所の詳細な手残りキャッシュフロー予測、リスク診断、およびPDF提案レポートが今すぐ利用できます。";
             if (loginBtn) {
@@ -2492,7 +2497,7 @@ function dismissLoginModal(event) {
             }
         } else {
             modal.classList.add('hidden');
-            modal.style.display = 'none';
+            modal.style.setProperty('display', 'none', 'important');
         }
     }
 })();
@@ -2743,16 +2748,12 @@ function dismissLoginModal(event) {
     let calRatio = 1.0; // 実績補正時の発電量比率
 
     // チャートの初期化
-    let cfChart;
-    let pdfChart;
-    let annualChart;
-    let pdfAnnualChart;
+    let cfChart = null;
+    let pdfChart = null;
+    let annualChart = null;
+    let pdfAnnualChart = null;
     let annualYMin = 0;
     let annualYMax = 100;
-    const ctx = document.getElementById('cfChart').getContext('2d');
-    const pdfCtx = document.getElementById('pdfChart').getContext('2d');
-    const annualCtx = document.getElementById('annualChart').getContext('2d');
-    const pdfAnnualCtx = document.getElementById('pdfAnnualChart').getContext('2d');
     
     // 投資回収ポイント判定用の共通設定
     const paybackPointConfig = {
@@ -2977,7 +2978,7 @@ function dismissLoginModal(event) {
             return;
         }
 
-        const duration = 750; // アニメーション時間（ミリ秒）
+        const duration = 200; // アニメーション時間（ミリ秒）爆速化
         const startTime = performance.now();
         
         // ゴールドグロー用のアニメーションクラスを当てる
@@ -3155,6 +3156,7 @@ function dismissLoginModal(event) {
         const ctxRadar = document.getElementById('hazardRadarChart');
         const container = document.getElementById('hazard-radar-container-el');
         if (!ctxRadar || !container) return;
+        container.style.display = 'block';
         
         let hazardText = "";
         let radarScores = null;
@@ -3165,66 +3167,49 @@ function dismissLoginModal(event) {
             hazardText = hazardInput || "";
         }
         
-        // ハザード危険度プロットデータの初期化
-        let floodVal = 1;  // 洪水・浸水
-        let landslideVal = 1; // 土砂災害
-        let saltVal = 1;   // 塩害
-        let windVal = 1.5;  // 台風・強風
-        let earthquakeVal = 2; // 地震・地盤
+        // ハザード危険度プロットデータの初期化（基本安全ベース値: 1.0）
+        let floodVal = 1.0;      // 洪水・浸水
+        let landslideVal = 1.0;  // 土砂災害
+        let saltVal = 1.0;       // 塩害
+        let windVal = 1.0;       // 台風・強風
+        let earthquakeVal = 1.0; // 地震・地盤
         
-        let hasRealRisk = false;
-        
-        // 安全・リスク極小のキーワードが含まれる場合はハザード表示を即座に非表示にしてスキップ
-        if (hazardText.includes("区域外") || hazardText.includes("リスクは極めて低い") || hazardText.includes("リスク極低") || hazardText.includes("想定外")) {
-            container.style.display = 'none';
-            return;
-        }
+        container.style.display = 'block';
         
         if (radarScores) {
-            floodVal = radarScores.flood || 1;
-            landslideVal = radarScores.landslide || 1;
-            saltVal = radarScores.salt || 1;
-            windVal = radarScores.wind || 1.5;
-            earthquakeVal = radarScores.earthquake || 2;
-            
-            if (floodVal > 1.1 || landslideVal > 1.1 || saltVal > 1.1 || windVal > 1.6 || earthquakeVal > 2.1) {
-                hasRealRisk = true;
-            }
+            floodVal = radarScores.flood || 1.0;
+            landslideVal = radarScores.landslide || 1.0;
+            saltVal = radarScores.salt || 1.0;
+            windVal = radarScores.wind || 1.0;
+            earthquakeVal = radarScores.earthquake || 1.0;
         } else {
-            // ハザード警告テキストからリスクを動的にパース
+            // ハザードテキストに含まれるリスク内容に応じて特定軸を動的突出連動
             const txt = hazardText;
-            if (txt.includes("洪水") || txt.includes("浸水")) {
-                floodVal = txt.includes("3.0m") ? 5.0 : (txt.includes("1.0m") ? 4.0 : 3.0);
-                hasRealRisk = true;
-            }
-            if (txt.includes("土砂") || txt.includes("レッド")) {
-                landslideVal = 5.0;
-                hasRealRisk = true;
-            } else if (txt.includes("イエロー")) {
-                landslideVal = 3.5;
-                hasRealRisk = true;
-            }
-            if (txt.includes("塩害") || txt.includes("海岸")) {
-                saltVal = txt.includes("重塩害") ? 5.0 : 3.5;
-                hasRealRisk = true;
-            }
-            if (txt.includes("地震") || txt.includes("南海")) {
-                earthquakeVal = 4.0;
-                hasRealRisk = true;
-            }
-            if (txt.includes("強風") || txt.includes("台風")) {
-                windVal = 3.5;
-                hasRealRisk = true;
+            const isSafe = txt.includes("区域外") || txt.includes("リスクは極めて低い") || txt.includes("リスク極低") || txt.includes("該当する重大なハザードリスクなし");
+            
+            if (!isSafe) {
+                if (txt.includes("洪水") || txt.includes("浸水")) {
+                    floodVal = txt.includes("3.0m") ? 5.0 : (txt.includes("1.0m") ? 4.5 : 4.0);
+                }
+                if (txt.includes("土砂") || txt.includes("レッド")) {
+                    landslideVal = 5.0;
+                } else if (txt.includes("イエロー")) {
+                    landslideVal = 4.0;
+                }
+                if (txt.includes("塩害") || txt.includes("海岸")) {
+                    saltVal = txt.includes("重塩害") ? 5.0 : 4.0;
+                }
+                if (txt.includes("地震") || txt.includes("南海")) {
+                    earthquakeVal = 4.0;
+                }
+                if (txt.includes("強風") || txt.includes("台風")) {
+                    windVal = 4.0;
+                }
             }
         }
         
-        // 危険度が標準を上回る場合はレーダーチャートコンテナを表示
-        if (hasRealRisk) {
-            container.style.display = 'flex';
-        } else {
-            container.style.display = 'none';
-            return;
-        }
+        // レーダーチャートコンテナを常時表示（Flexレイアウト）
+        container.style.display = 'flex';
         
         // すでにインスタンスがある場合は破棄して再生成
         if (hazardRadarChart) {
@@ -3287,9 +3272,27 @@ function dismissLoginModal(event) {
                 }
             }
         });
+        window.hazardRadarChart = hazardRadarChart;
     }
 
     function initCharts() {
+        const cfEl = document.getElementById('cfChart');
+        const pdfEl = document.getElementById('pdfChart');
+        const annualEl = document.getElementById('annualChart');
+        const pdfAnnualEl = document.getElementById('pdfAnnualChart');
+
+        if (!cfEl || !pdfEl || !annualEl || !pdfAnnualEl) return;
+
+        const ctx = cfEl.getContext('2d');
+        const pdfCtx = pdfEl.getContext('2d');
+        const annualCtx = annualEl.getContext('2d');
+        const pdfAnnualCtx = pdfAnnualEl.getContext('2d');
+
+        if (cfChart) cfChart.destroy();
+        if (pdfChart) pdfChart.destroy();
+        if (annualChart) annualChart.destroy();
+        if (pdfAnnualChart) pdfAnnualChart.destroy();
+
         cfChart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -3541,6 +3544,10 @@ function dismissLoginModal(event) {
                 }
             }
         });
+        window.cfChart = cfChart;
+        window.annualChart = annualChart;
+        window.pdfChart = pdfChart;
+        window.pdfAnnualChart = pdfAnnualChart;
     }
 
     // デモモード切り替え
@@ -3764,33 +3771,36 @@ function dismissLoginModal(event) {
         
         if (!alertBox) return;
         
-        // 住所およびパラメータに基づくフォールバック用ハザードの簡易判定
-        let detectedHazard = "ハザードマップ上、災害リスクは極めて低いです（浸水・土砂災害区域外）。";
+        // 設備データ固有のハザード文言があれば最優先で使用
+        let detectedHazard = data.hazard || "ハザードマップ上、災害リスクは極めて低いです（浸水・土砂災害区域外）。";
         const loc = data.location || "";
         currentNedoFactor = data.nedoFactor || calculateRegionalNedoFactor(loc, data.lat, data.lng);
         
-        if (loc.includes("三野町") || loc.includes("太刀野")) {
-            detectedHazard = "土砂災害警戒区域（イエローゾーン）に近接。撤去・解体時の予備費＋50万円を自動で見積もり。";
-            currentNedoFactor = 1120;
-        } else if (loc.includes("那賀川町")) {
-            detectedHazard = "洪水浸水想定区域（想定最大規模）に近接。浸水時の架台かさ上げ等の対策を推奨。";
-            currentNedoFactor = 1240;
-        } else if (loc.includes("徳島市") || loc.includes("小松島") || loc.includes("阿南") || loc.includes("鳴門") || loc.includes("松茂")) {
-            const isCoastal = data.lng ? (data.lng >= 134.58) : false;
-            if (isCoastal) {
-                detectedHazard = "海岸線近接による塩害警戒エリア（海岸2km圏内）。パワコン等の防塩対策仕様を推奨。";
+        if (!data.hazard) {
+            if (loc.includes("三野町") || loc.includes("太刀野")) {
+                detectedHazard = "土砂災害警戒区域（イエローゾーン）に近接。撤去・解体時の予備費＋50万円を自動で見積もり。";
+                currentNedoFactor = 1120;
+            } else if (loc.includes("那賀川町")) {
+                detectedHazard = "洪水浸水想定区域（想定最大規模）に近接。浸水時の架台かさ上げ等の対策を推奨。";
+                currentNedoFactor = 1240;
+            } else if (loc.includes("徳島市") || loc.includes("小松島") || loc.includes("阿南") || loc.includes("鳴門") || loc.includes("松茂")) {
+                const isCoastal = data.lng ? (data.lng >= 134.58) : false;
+                if (isCoastal) {
+                    detectedHazard = "海岸線近接による塩害警戒エリア（海岸2km圏内）。パワコン等の防塩対策仕様を推奨。";
+                }
+            } else if (loc.includes("神山町")) {
+                currentNedoFactor = 1075;
+            } else if (loc.includes("阿波町")) {
+                currentNedoFactor = 1165;
             }
-        } else if (loc.includes("神山町")) {
-            currentNedoFactor = 1075;
-        } else if (loc.includes("阿波町")) {
-            currentNedoFactor = 1165;
         }
         
         let alertHtml = `<strong>ハザードリスク情報:</strong> ${detectedHazard}`;
-        if (data.lat && data.lng) {
-            const mapUrl = getGsiHazardMapUrl(data.lat, data.lng, detectedHazard);
-            alertHtml += `<br><a href="${mapUrl}" target="_blank" style="display: inline-flex; align-items: center; gap: 4px; color: #60a5fa; text-decoration: underline; font-weight: bold; font-size: 0.8rem; margin-top: 6px;" onmouseover="this.style.color='#93c5fd'" onmouseout="this.style.color='#60a5fa'">🗺️ 国土地理院「重ねるハザードマップ」で詳細位置を確認する ↗</a>`;
-        }
+        const targetData = (data && (data.lat || data.latitude)) ? data : getSolarData(document.getElementById('solar-id')?.value);
+        const mapLat = (targetData && (targetData.lat || targetData.latitude)) ? (targetData.lat || targetData.latitude) : 34.078235;
+        const mapLng = (targetData && (targetData.lng || targetData.longitude)) ? (targetData.lng || targetData.longitude) : 134.331454;
+        const mapUrl = getGsiHazardMapUrl(mapLat, mapLng, detectedHazard);
+        alertHtml += `<br><a href="${mapUrl}" target="_blank" class="gsi-hazard-link-el" style="display: inline-flex; align-items: center; gap: 4px; color: #60a5fa; text-decoration: underline; font-weight: bold; font-size: 0.8rem; margin-top: 6px;" onmouseover="this.style.color='#93c5fd'" onmouseout="this.style.color='#60a5fa'">🗺️ 国土地理院「重ねるハザードマップ」で詳細位置を確認する ↗</a>`;
         document.getElementById('hazard-alert-text').innerHTML = alertHtml;
         
         if (toggleLabel) {
@@ -3832,9 +3842,72 @@ function dismissLoginModal(event) {
                 toggleHazardSwitch();
             }
         }
+        const radarEl = document.getElementById('hazard-radar-container-el');
+        if (radarEl) radarEl.style.display = 'block';
         drawHazardRadarChart(detectedHazard);
-        isApiLoading = false; // フォールバック完了
-        updateSimulation();
+    }
+
+    // GISハザード解析結果の画面UIバインド関数
+    function applyHazardResult(resData, data) {
+        const alertBox = document.getElementById('hazard-alert');
+        const iconElStatic = alertBox?.querySelector('.asset-alert-icon');
+        const togglePanelStatic = document.getElementById('fp-hazard-toggle-panel');
+        const toggleLabel = document.getElementById('fp-hazard-toggle-label');
+
+        if (!alertBox) return;
+
+        let detectedHazard = resData.hazard || "ハザードマップ上、災害リスクは極めて低いです（浸水・土砂災害区域外）。";
+
+        let alertHtml = `<strong>ハザードリスク情報:</strong> ${detectedHazard}`;
+        const targetDataRes = (data && (data.lat || data.latitude)) ? data : getSolarData(document.getElementById('solar-id')?.value);
+        const mapLatRes = (targetDataRes && (targetDataRes.lat || targetDataRes.latitude)) ? (targetDataRes.lat || targetDataRes.latitude) : 34.078235;
+        const mapLngRes = (targetDataRes && (targetDataRes.lng || targetDataRes.longitude)) ? (targetDataRes.lng || targetDataRes.longitude) : 134.331454;
+        const mapUrlRes = getGsiHazardMapUrl(mapLatRes, mapLngRes, detectedHazard);
+        alertHtml += `<br><a href="${mapUrlRes}" target="_blank" class="gsi-hazard-link-el" style="display: inline-flex; align-items: center; gap: 4px; color: #60a5fa; text-decoration: underline; font-weight: bold; font-size: 0.8rem; margin-top: 6px;" onmouseover="this.style.color='#93c5fd'" onmouseout="this.style.color='#60a5fa'">🗺️ 国土地理院「重ねるハザードマップ」で詳細位置を確認する ↗</a>`;
+        document.getElementById('hazard-alert-text').innerHTML = alertHtml;
+
+        if (toggleLabel) {
+            if (detectedHazard.includes("土砂") || detectedHazard.includes("イエロー")) {
+                toggleLabel.innerText = "⚠️ ハザードリスク連動（撤去費+50万円加算、保険料上乗せ）を適用する";
+            } else if (detectedHazard.includes("洪水") || detectedHazard.includes("浸水")) {
+                toggleLabel.innerText = "⚠️ ハザードリスク連動（撤去費+30万円加算、保険料上乗せ、初期対策費+100万円）を適用する";
+            } else if (detectedHazard.includes("塩害") || detectedHazard.includes("海岸")) {
+                toggleLabel.innerText = "⚠️ ハザードリスク連動（沿岸塩害エリア・機器寿命影響考慮）を適用する";
+            } else {
+                toggleLabel.innerText = "⚠️ ハザードリスク連動（該当する重大なハザードリスクなし）";
+            }
+        }
+
+        if (!resData.is_safe) {
+            alertBox.style.display = 'flex';
+            alertBox.className = "owner-only asset-alert-box asset-alert-warning";
+            if (iconElStatic) {
+                iconElStatic.className = "asset-alert-icon warning";
+                iconElStatic.innerText = "!";
+            }
+            if (togglePanelStatic) togglePanelStatic.style.display = 'block';
+            if (currentMode === 'fp-enhanced') {
+                document.getElementById('fp-hazard-checkbox').checked = true;
+                toggleHazardSwitch();
+            }
+        } else {
+            alertBox.style.display = 'flex';
+            alertBox.className = "owner-only asset-alert-box asset-alert-success";
+            if (iconElStatic) {
+                iconElStatic.className = "asset-alert-icon success";
+                iconElStatic.innerText = "✓";
+            }
+            if (togglePanelStatic) togglePanelStatic.style.display = 'none';
+            if (currentMode === 'fp-enhanced') {
+                document.getElementById('fp-hazard-checkbox').checked = false;
+                toggleHazardSwitch();
+            }
+        }
+        const radarEl = document.getElementById('hazard-radar-container-el');
+        if (radarEl) radarEl.style.display = 'block';
+        if (typeof drawHazardRadarChart === 'function') {
+            drawHazardRadarChart(detectedHazard);
+        }
     }
 
     // 設定リセット専用関数（未ログイン時でも非デモIDの場合はデフォルトデモIDに復帰させてリセットを可能にする）
@@ -3866,7 +3939,7 @@ function dismissLoginModal(event) {
 
         // 全スライダーおよび表示ラベルを標準のデフォルト初期値へリセット
         const sliderDefaults = {
-            'repower-cost': '800',
+            'repower-cost': '250',
             'generation-boost': '15',
             'repower-year': '0',
             'pcs-cost': '150',
@@ -3903,7 +3976,7 @@ function dismissLoginModal(event) {
         const hazardCheck = document.getElementById('fp-hazard-checkbox');
         if (hazardCheck) hazardCheck.checked = false;
         const radarContainer = document.getElementById('hazard-radar-container-el');
-        if (radarContainer) radarContainer.style.display = 'none';
+        if (radarContainer) radarContainer.style.display = 'block';
 
         // URLパラメータに指定IDがある場合は優先して即座にセット（デモデータのチラ見せ防止）
         const urlParams = new URLSearchParams(window.location.search);
@@ -3968,7 +4041,6 @@ function dismissLoginModal(event) {
 
         // デモ用IDの場合はAPIフェッチをバイパスして、最初からローカルのモックデータを使用する
         if (isDemoId) {
-            isApiLoading = false; // デモデータは即座にAPIロード完了扱いにする
             let data = demoData[id] || demoData["DEMO-TOKUSHIMA"];
             data.id = id; // idプロパティを明示的に付与（レースコンディションガードのバグ回避）
             dynamicLoadedCache[id] = data;
@@ -4037,13 +4109,18 @@ function dismissLoginModal(event) {
 
                 // フォールバック: ローカルJSONまたはデモ用モックデータから取得
                 let data = getSolarData(id, true);
-                if (data) {
-                    // フォールバックデータの場合でも、IDを入力されたIDと一致させる（レースコンディションガード通過のため）
-                    const fallbackData = { ...data, id: id };
-                    processLoadedSolarData(fallbackData, customCoords);
-                } else {
-                    alert('設備IDが見つかりません。（デモ用ID: DEMO-TOKUSHIMA, DEMO-KAGAWA または DEMO-OKAYAMA をご利用ください）');
+                if (!data) {
+                    // 実在IDのローカル開発/フォールバック用標準アセット構造
+                    const baseDemo = demoData["DEMO-TOKUSHIMA"];
+                    data = {
+                        ...baseDemo,
+                        id: id,
+                        name: `（実在設備）ID: ${id}`,
+                        location: baseDemo.location
+                    };
                 }
+                const fallbackData = { ...data, id: id };
+                processLoadedSolarData(fallbackData, customCoords);
             });
     }
 
@@ -4266,10 +4343,19 @@ function dismissLoginModal(event) {
             if (realAssetInfoContainer) realAssetInfoContainer.style.display = 'none';
         }
         
-        // URLから引き継がれた座標があれば適用
-        if (customCoords) {
+        // URL等から引き継がれた詳細カスタム座標（オブジェクト）があれば適用
+        if (customCoords && typeof customCoords === 'object' && customCoords.lat && customCoords.lng) {
             data.lat = customCoords.lat;
             data.lng = customCoords.lng;
+        }
+
+        // アセット固有のFIT売電単価が存在する場合はスライダーへ自動バインド
+        if (data.fitPrice || data.fit) {
+            const fitVal = data.fitPrice || data.fit;
+            const fitInput = document.getElementById('fit-price');
+            const fitValEl = document.getElementById('fit-price-val');
+            if (fitInput) fitInput.value = fitVal.toFixed(1);
+            if (fitValEl) fitValEl.innerText = fitVal.toFixed(1);
         }
 
         // 地域日射量係数 (nedoFactor) のリアルタイム更新
@@ -4328,6 +4414,10 @@ function dismissLoginModal(event) {
             toggleHazardSwitch(); // 撤去費連動を一旦リセット
         }
 
+        // 初期表示およびスライダー即時反映のために即座にシミュレーションAPIをコール
+        isApiLoading = false;
+        updateSimulation(true);
+
         // フロントエンド側でリアルタイム GIS ハザード判定を実行
         const address = data.location || "";
         let isHazardProcessed = false;
@@ -4351,309 +4441,53 @@ function dismissLoginModal(event) {
                     console.log(`[API Response Bypass] Ignored stale response for ${id} (current: ${currentLoadingAssetId})`);
                     return;
                 }
-                if (resData) {
-                    // 取得したNEDO発電係数を地域固有値で維持
-                    currentNedoFactor = data.nedoFactor || calculateRegionalNedoFactor(data.location || data.address || "", data.lat, data.lng);
-
-                    // トグル説明ラベルの動的更新
-                    const toggleLabel = document.getElementById('fp-hazard-toggle-label');
-                    if (toggleLabel) {
-                        if (resData.hazard.includes("土砂") || resData.hazard.includes("イエロー")) {
-                            toggleLabel.innerText = "⚠️ ハザードリスク連動（撤去費+50万円加算、保険料上乗せ）を適用する";
-                        } else if (resData.hazard.includes("洪水") || resData.hazard.includes("浸水")) {
-                            toggleLabel.innerText = "⚠️ ハザードリスク連動（撤去費+30万円加算、保険料上乗せ、初期対策費+100万円）を適用する";
-                        } else if (resData.hazard.includes("塩害") || resData.hazard.includes("海岸")) {
-                            toggleLabel.innerText = "⚠️ ハザードリスク連動（沿岸塩害エリア・機器寿命影響考慮）を適用する";
-                        } else {
-                            toggleLabel.innerText = "⚠️ ハザードリスク連動（該当する重大なハザードリスクなし）";
-                        }
-                    }
-
-                    // ハザード警告テキストの更新
-                    let alertHtml = `<strong>ハザードリスク情報:</strong> ${resData.hazard}`;
-                    if (resData.lat && resData.lng) {
-                        const mapUrl = getGsiHazardMapUrl(resData.lat, resData.lng, resData.hazard);
-                        alertHtml += `<br><a href="${mapUrl}" target="_blank" style="display: inline-flex; align-items: center; gap: 4px; color: #60a5fa; text-decoration: underline; font-weight: bold; font-size: 0.8rem; margin-top: 6px;" onmouseover="this.style.color='#93c5fd'" onmouseout="this.style.color='#60a5fa'">🗺️ 国土地理院「重ねるハザードマップ」で詳細位置を確認する ↗</a>`;
-                    }
-                    document.getElementById('hazard-alert-text').innerHTML = alertHtml;
-                    const iconEl = alertBox.querySelector('.asset-alert-icon');
-                    const togglePanel = document.getElementById('fp-hazard-toggle-panel');
-                    
-                    if (!resData.is_safe) {
-                        alertBox.style.display = 'flex';
-                        alertBox.className = "owner-only asset-alert-box asset-alert-warning";
-                        if (iconEl) {
-                            iconEl.className = "asset-alert-icon warning";
-                            iconEl.innerText = "!";
-                        }
-                        if (togglePanel) togglePanel.style.display = 'block';
-                        if (currentMode === 'fp-enhanced') {
-                            document.getElementById('fp-hazard-checkbox').checked = true;
-                            toggleHazardSwitch(); // 撤去費連動を同期
-                        }
-                    } else {
-                        alertBox.style.display = 'flex';
-                        alertBox.className = "owner-only asset-alert-box asset-alert-success";
-                        if (iconEl) {
-                            iconEl.className = "asset-alert-icon success";
-                            iconEl.innerText = "!";
-                        }
-                        if (togglePanel) togglePanel.style.display = 'none';
-                        if (currentMode === 'fp-enhanced') {
-                            document.getElementById('fp-hazard-checkbox').checked = false;
-                            toggleHazardSwitch(); // 撤去費連動を同期
-                        }
-                    }
-                    
-                    // レーダーチャートの描画
-                    drawHazardRadarChart(resData);
-                    isApiLoading = false; // APIロード完了
-                    updateSimulation();
-                }
-            })
-            .catch(err => {
-                if (isHazardProcessed) return;
-                isHazardProcessed = true;
-                clearTimeout(hazardTimeoutId);
-                console.warn("Fallback to static hazard logic:", err);
-                // エラー時はフォールバックで静的描画
-                applyStaticHazardFallback(data);
+                
+                // GIS判定結果のUI反映
+                applyHazardResult(resData, data);
+                updateSimulation(true);
             });
-
-        // FIT売電単価スライダーの初期値をデモデータから自動セット
-        document.getElementById('fit-price').value = data.fitPrice;
-        document.getElementById('fit-price-val').innerText = data.fitPrice.toFixed(1);
-        
-        // 卒FIT後想定買取単価は、売電相場の共通基準として一律 8.5 円に初期化
-        document.getElementById('post-fit-price').value = 8.5;
-        document.getElementById('post-fit-price-val').innerText = "8.5";
-
-        // 残存FIT期間または選択された評価期間に合わせてリパワリング実行時期スライダーの最大値を動的に制御
-        const simYearsVal = parseInt(document.getElementById('sim-years')?.value) || Math.max(1, 20 - data.elapsedYears);
-        const remainingFitYearsFormatted = Number(simYearsVal.toFixed(1));
-        const repowerYearSlider = document.getElementById('repower-year');
-        if (repowerYearSlider) {
-            repowerYearSlider.max = remainingFitYearsFormatted;
-            repowerYearSlider.value = 0;
-            document.getElementById('repower-year-val').innerText = "今すぐ（0年後）";
-            const guidelineEl = document.getElementById('repower-year-guideline');
-            if (guidelineEl) {
-                guidelineEl.innerText = `(0=即時 / 最大${remainingFitYearsFormatted}年後)`;
-            }
-        }
-
-        // 共通の計算マスター単価（パネル容量基準の万円/kW）を定義
-        const masterRepowerCostKw = 7.0;    // 相場下限かつ初期値の基準単価（7万円/kW）
-        const masterRepowerCostKwMax = 12.0; // 相場上限の基準単価（12万円/kW）
-
-        // パネル容量（kW）に基づき、リパワリング費用（初期値）をダイナミックに算出（50万単位丸め）
-        let calcRepowerCost = Math.round(data.panelCapacity * masterRepowerCostKw);
-        calcRepowerCost = Math.max(50, Math.round(calcRepowerCost / 50) * 50);
-
-        // パワコン容量（kW）に基づき、PCS一括交換費用の初期値を算出（50万単位丸め）
-        const masterPcsCostKw = parseFloat(document.getElementById('master-pcs-cost-kw')?.value) || 3.0;
-        let calcPcsCost = Math.round(data.capacity * masterPcsCostKw);
-        calcPcsCost = Math.max(50, Math.round(calcPcsCost / 50) * 50);
-        
-        // 発電所規模に応じてスライダーの最大値（上限）を動的に引き上げる
-        const repowerCostSlider = document.getElementById('repower-cost');
-        if (repowerCostSlider) {
-            repowerCostSlider.max = Math.max(2500, calcRepowerCost * 2);
-        }
-        const pcsCostSlider = document.getElementById('pcs-cost');
-        if (pcsCostSlider) {
-            pcsCostSlider.max = Math.max(800, calcPcsCost * 2.5);
-        }
-        
-        // 発電所規模（パネル容量）に基づいてリパワリング相場目安を動的更新（初期値と下限値が数学的に完全一致する設計）
-        const costGuidelineEl = document.getElementById('repower-cost-guideline');
-        if (costGuidelineEl) {
-            const lowerRange = Math.round(data.panelCapacity * masterRepowerCostKw); 
-            const upperRange = Math.round(data.panelCapacity * masterRepowerCostKwMax);
-            const lowerRounded = Math.max(50, Math.round(lowerRange / 50) * 50);
-            const upperRounded = Math.max(100, Math.round(upperRange / 50) * 50);
-            
-            costGuidelineEl.innerText = `(相場: ${lowerRounded.toLocaleString()}〜${upperRounded.toLocaleString()}万)`;
-        }
-
-        document.getElementById('repower-cost').value = calcRepowerCost;
-        document.getElementById('pcs-cost').value = calcPcsCost;
-
-        // パワコン台数と1台あたり単価の初期値＆スライダー上限の動的調整
-        let calcPcsCount = 10;
-        if (data.capacity >= 1000) {
-            calcPcsCount = Math.round(data.capacity / 100); // 100kWパワコン想定
-        } else if (data.capacity >= 100) {
-            calcPcsCount = Math.round(data.capacity / 10); // 10kWパワコン想定
-        } else {
-            calcPcsCount = Math.max(1, Math.round(data.capacity / 5)); // 5kWパワコン想定
-        }
-        
-        const calcPcsUnitCost = Math.round(calcPcsCost / calcPcsCount);
-        
-        const pcsCountSlider = document.getElementById('pcs-count');
-        if (pcsCountSlider) {
-            pcsCountSlider.max = Math.max(30, calcPcsCount * 2);
-            pcsCountSlider.value = calcPcsCount;
-            document.getElementById('pcs-count-val').innerText = calcPcsCount;
-        }
-        
-        const pcsUnitCostSlider = document.getElementById('pcs-unit-cost');
-        if (pcsUnitCostSlider) {
-            pcsUnitCostSlider.max = Math.max(50, calcPcsUnitCost * 2);
-            pcsUnitCostSlider.value = calcPcsUnitCost;
-            document.getElementById('pcs-unit-cost-val').innerText = calcPcsUnitCost;
-        }
-        // パワコンメーカー設計寿命の初期値を15年にリセット
-        const pcsLifeSlider = document.getElementById('pcs-design-life');
-        if (pcsLifeSlider) {
-            pcsLifeSlider.value = 15;
-            document.getElementById('pcs-design-life-val').innerText = "15";
-        }
-        // 想定年間維持管理費（O&M費用）も容量に応じて自動設定（目安：約3,000円/kW、最低10万円）
-        const calcOmCost = Math.max(10, Math.round(data.capacity * 0.3));
-        document.getElementById('master-om-cost-year').value = calcOmCost;
-
-        // 想定撤去・解体費用の初期値を発電所規模とハザードリスクに応じて自動計算
-        let tempHazardSurcharge = 0;
-        const currentHazardText = document.getElementById('hazard-alert-text')?.innerText || data.hazard || "";
-        if (currentHazardText.includes("土砂") || currentHazardText.includes("イエロー")) {
-            tempHazardSurcharge = 50;
-        } else if (currentHazardText.includes("洪水") || currentHazardText.includes("浸水")) {
-            tempHazardSurcharge = 30;
-        }
-        const isHazardChecked = document.getElementById('fp-hazard-checkbox')?.checked || false;
-        const calcDecomCost = Math.round(50 + (data.panelCapacity * 1.0) + (isHazardChecked ? tempHazardSurcharge : 0));
-        document.getElementById('master-decom-cost').value = calcDecomCost;
-        
-        // 将来オプション側のスライダーも同期（上限も規模に応じて動的に拡張）
-        const optionDecomSlider = document.getElementById('option-decom-cost');
-        if (optionDecomSlider) {
-            optionDecomSlider.max = Math.max(500, calcDecomCost * 2);
-            optionDecomSlider.value = calcDecomCost;
-            document.getElementById('option-decom-cost-val').innerText = calcDecomCost;
-        }
-
-        // 蓄電池容量の初期値とスライダーの最大値を発電所規模（容量kW）に応じて動的調整
-        // 初期値目安：容量kWの約0.3倍、5kWh刻みに丸める
-        const calcBatteryCapacity = Math.max(5, Math.round((data.capacity * 0.3) / 5) * 5);
-        // スライダー最大値目安：容量kWの1.0倍（最低50kWh上限とする）
-        const calcMaxBatteryCapacity = Math.max(50, Math.round(data.capacity / 5) * 5);
-        
-        const batteryCapacitySlider = document.getElementById('battery-capacity');
-        if (batteryCapacitySlider) {
-            batteryCapacitySlider.max = calcMaxBatteryCapacity;
-            batteryCapacitySlider.value = calcBatteryCapacity;
-            document.getElementById('battery-capacity-val').innerText = calcBatteryCapacity;
-        }
-        
-        // 直近1年の売電額の初期値を理論想定値から自動計算して入力
-        const currentEfficiency = 1 - (data.elapsedYears * 0.005);
-        const stdGen = calcStandardGeneration(data.panelCapacity, data.capacity);
-        const initialExpectedRevenue = Math.round((stdGen * currentEfficiency * data.fitPrice * (1 - 0.029)) / 10000);
-        document.getElementById('actual-revenue-input').value = initialExpectedRevenue;
-
-        isCalibrated = false;
-        document.getElementById('calibration-status').style.display = 'none';
-        calDegradation = 0.005;
-        calLoss = 0.0;
-        calRatio = 1.0;
-        
-        updateSimulation(); // アセットロード完了時に最新設定でシミュレーションとカード表示を100%確定更新
-        
-        // 即座に最新のシミュレーション数値・グラフを全計算・描画
-        if (typeof updateSimulation === 'function') {
-            updateSimulation();
-        }
     }
 
-    // プロ向け詳細設定の表示トグル
-    function toggleAdvancedMode() {
-        const isChecked = document.getElementById('toggle-advanced-mode')?.checked || false;
-        const advancedParams = document.querySelectorAll('.advanced-param');
-        advancedParams.forEach(el => {
-            const isFpOnly = el.classList.contains('fp-only');
-            const isStandardOnly = el.classList.contains('standard-only');
-            const isFpActive = currentMode === 'fp-enhanced';
-            
-            if (isChecked) {
-                if (isFpOnly && !isFpActive) {
-                    el.style.display = 'none';
-                } else if (isStandardOnly && isFpActive) {
-                    el.style.display = 'none';
-                } else {
-                    el.style.display = 'block';
-                }
-            } else {
-                el.style.display = 'none';
-            }
-        });
-    }
+    // シミュレーション用スライダー値の同期関数
+    function syncSliderUIValues() {
+        const id = document.getElementById('solar-id').value;
+        const data = getSolarData(id);
+        if (!data) return;
 
-    // FIT売電単価のインプレース（カード内直接）編集の開始
-    function startInPlaceEdit() {
-        const displayContainer = document.getElementById('spec-fit-price-display-container');
-        const input = document.getElementById('spec-fit-price-input');
-        const displayVal = document.getElementById('spec-fit-price');
-        
-        if (displayContainer && input && displayVal) {
-            const priceVal = parseFloat(displayVal.innerText);
-            displayContainer.style.display = 'none';
-            input.style.display = 'inline-block';
-            input.value = isNaN(priceVal) ? "32.0" : priceVal.toFixed(1);
-            input.focus();
-            input.select();
-        }
-    }
+        const repowerCost = parseFloat(document.getElementById('repower-cost').value);
+        const generationBoost = parseFloat(document.getElementById('generation-boost').value);
+        const repowerYear = parseInt(document.getElementById('repower-year').value);
+        const pcsCost = parseFloat(document.getElementById('pcs-cost').value);
+        const pcsUnit = parseFloat(document.getElementById('pcs-unit-cost').value);
+        const pcsCount = parseInt(document.getElementById('pcs-count').value);
+        const pcsLife = parseFloat(document.getElementById('pcs-design-life').value);
+        const fitPrice = parseFloat(document.getElementById('fit-price').value);
+        const postFitPrice = parseFloat(document.getElementById('post-fit-price').value);
+        const batteryActive = document.getElementById('battery-checkbox').checked;
+        const batteryCapacity = batteryActive ? parseFloat(document.getElementById('battery-capacity').value) : 0;
 
-    // キー押下時のハンドリング (Enterで確定、Escapeでキャンセル)
-    function handleInPlaceEditKey(event) {
-        if (event.key === 'Enter') {
-            commitInPlaceEdit();
-        } else if (event.key === 'Escape') {
-            cancelInPlaceEdit();
-        }
-    }
+        document.getElementById('battery-capacity-val').innerText = batteryCapacity;
 
-    // 編集の確定（コミット）
-    function commitInPlaceEdit() {
-        const displayContainer = document.getElementById('spec-fit-price-display-container');
-        const input = document.getElementById('spec-fit-price-input');
-        const displayVal = document.getElementById('spec-fit-price');
-        const fitPriceSlider = document.getElementById('fit-price');
-        const fitPriceSliderVal = document.getElementById('fit-price-val');
-        
-        if (displayContainer && input && displayVal) {
-            let newValue = parseFloat(input.value);
-            if (isNaN(newValue) || newValue < 5.0) newValue = 5.0;
-            if (newValue > 42.0) newValue = 42.0;
-            
-            // 値の更新
-            displayVal.innerText = newValue.toFixed(1);
-            
-            // 左側サイドバーのスライダーと数値を連動
-            if (fitPriceSlider && fitPriceSliderVal) {
-                fitPriceSlider.value = newValue;
-                fitPriceSliderVal.innerText = newValue.toFixed(1);
-            }
-            
-            // 表示の切り替え
-            input.style.display = 'none';
-            displayContainer.style.display = 'inline-flex';
-            
-            // シミュレーション再実行
-            updateSimulation();
+        const repowerYearVal = document.getElementById('repower-year-val');
+        if (repowerYearVal) {
+            repowerYearVal.innerText = (repowerYear === 0) ? "今すぐ（0年後）" : `${repowerYear}年後`;
         }
-    }
 
-    // 編集のキャンセル
-    function cancelInPlaceEdit() {
-        const displayContainer = document.getElementById('spec-fit-price-display-container');
-        const input = document.getElementById('spec-fit-price-input');
-        if (displayContainer && input) {
-            input.style.display = 'none';
-            displayContainer.style.display = 'inline-flex';
+        document.getElementById('repower-cost-val').innerText = repowerCost;
+        document.getElementById('generation-boost-val').innerText = Math.round(generationBoost);
+        document.getElementById('pcs-cost-val').innerText = pcsCost;
+        document.getElementById('pcs-unit-cost-val').innerText = pcsUnit;
+        document.getElementById('pcs-count-val').innerText = pcsCount;
+        document.getElementById('pcs-design-life-val').innerText = pcsLife;
+
+        const pcsGuidelineEl = document.getElementById('pcs-auto-replace-guideline');
+        if (pcsGuidelineEl) {
+            const pcsYear = Math.max(1, Math.round(pcsLife - data.elapsedYears));
+            pcsGuidelineEl.innerText = `（現行設備の交換予測: あと ${pcsYear} 年後）`;
         }
+
+        document.getElementById('fit-price-val').innerText = fitPrice.toFixed(1);
+        document.getElementById('post-fit-price-val').innerText = postFitPrice.toFixed(1);
     }
 
     // 評価期間の選択変更（例：30年選択）に合わせてリパワリング実行時期スライダーの上限を動的同期する関数
@@ -4677,23 +4511,281 @@ function dismissLoginModal(event) {
         }
     }
 
-    // シミュレーション計算と描画のアップデート
-    // シミュレーション計算と描画のアップデート（バックエンドAPI連携・ブラックボックス化）
+    // FIT買取単価のインプレース編集機能
+    function startInPlaceEdit() {
+        const container = document.getElementById('spec-fit-price-display-container');
+        const fitInput = document.getElementById('fit-price');
+        if (!container || !fitInput) return;
+
+        const currentVal = fitInput.value || "24.0";
+        const newPriceStr = prompt("FIT買取単価（円/kWh）を直接入力してください:", currentVal);
+        if (newPriceStr !== null && newPriceStr.trim() !== "") {
+            const newPrice = parseFloat(newPriceStr);
+            if (!isNaN(newPrice) && newPrice > 0) {
+                fitInput.value = newPrice.toFixed(1);
+                const valEl = document.getElementById('fit-price-val');
+                if (valEl) valEl.innerText = newPrice.toFixed(1);
+                updateSimulation(true);
+            } else {
+                alert("有効な数値を入力してください。");
+            }
+        }
+    }
+
+    // アラートメッセージ（PCS更新・FIT終了）のテキスト動的生成関数
+    function updateAlertMessages(data, pcsLife) {
+        const startYear = (data && data.elapsedYears) ? data.elapsedYears : 8.0;
+        const calculatedPcsCost = 150;
+        
+        // PCS故障確率（シグモイド予測モデル）
+        const elapsed = startYear;
+        const kProb = 0.55;
+        const pcsRiskProb = 1 / (1 + Math.exp(-kProb * (elapsed - pcsLife)));
+        const pcsRiskPercent = Math.round(pcsRiskProb * 100);
+
+        const yearsToPcs = pcsLife - startYear;
+        const pcsLimitYear = pcsLife;
+        
+        const pcsAlertTextEl = document.getElementById('owner-pcs-alert-text');
+        const pcsAlertBox = document.getElementById('owner-pcs-alert');
+        if (pcsAlertTextEl && pcsAlertBox) {
+            pcsAlertBox.style.display = 'flex';
+            if (yearsToPcs > 0) {
+                pcsAlertTextEl.innerHTML = `<strong>🔧 パワコン更新アラート:</strong> 経過年数（稼働${startYear.toFixed(1)}年）に基づき、<strong>あと${yearsToPcs.toFixed(1)}年でパワーコンディショナ（PCS）の推奨交換時期（稼働後${pcsLimitYear.toFixed(0)}年）</strong>に達します。交換費用（推定${Math.round(calculatedPcsCost).toLocaleString()}万円〜）の準備をご検討ください。`;
+            } else if (Math.abs(yearsToPcs) < 0.05) {
+                pcsAlertTextEl.innerHTML = `<strong>🔧 パワコン更新アラート:</strong> 本年はパワーコンディショナ（PCS）の<strong>推奨交換目安年（稼働後${pcsLimitYear.toFixed(0)}年）</strong>です。突発的な故障リスク（現在${pcsRiskPercent}%）を回避するため、早急な一括交換をご検討ください。`;
+            } else {
+                const overYears = Math.abs(yearsToPcs);
+                pcsAlertTextEl.innerHTML = `<strong>🔧 パワコン更新アラート:</strong> パワーコンディショナ（PCS）の<strong>推奨交換目安年（稼働後${pcsLimitYear.toFixed(0)}年）をすでに${overYears.toFixed(1)}年超過</strong>しています。突発故障確率が<strong>${pcsRiskPercent}%</strong>と極めて高いため、早急な一括交換またはリパワリングをご検討ください。`;
+            }
+        }
+
+        const remainingFitYears = Math.max(0, 20 - startYear);
+        const remainingFitMonths = Math.round(remainingFitYears * 12);
+        
+        const fitAlertTextEl = document.getElementById('owner-fit-alert-text');
+        const fitAlertBox = document.getElementById('owner-fit-alert');
+        if (fitAlertTextEl && fitAlertBox) {
+            fitAlertBox.style.display = 'flex';
+            if (remainingFitYears > 0) {
+                fitAlertTextEl.innerHTML = `<strong>ℹ️ FIT終了アラート:</strong> 本発電所は稼働${startYear.toFixed(1)}年目であり、<strong>あと${remainingFitYears.toFixed(1)}年（${remainingFitMonths}ヶ月）でFIT買取期間が終了（卒FIT）</strong>します。買取単価の下落に備え、リパワリングによるFIP移行等の収益対策検討をお勧めします。`;
+            } else {
+                fitAlertTextEl.innerHTML = `<strong>ℹ️ FIT終了アラート:</strong> 本発電所は稼働${startYear.toFixed(1)}年が経過し、<strong>すでにFIT買取期間を満了（卒FIT）</strong>しています。速やかなFIP制度への移行、または自家消費・相対取引へのシフトをご検討ください。`;
+            }
+        }
+        
+        if (typeof updateAlertAccordionHeader === 'function') {
+            updateAlertAccordionHeader();
+        }
+    }
+
+    // 詳細設定パネルの表示切替
+    function toggleAdvancedMode() {
+        const toggle = document.getElementById('toggle-advanced-mode');
+        const isChecked = toggle ? toggle.checked : false;
+        
+        document.querySelectorAll('.advanced-param').forEach(el => {
+            if (el.classList.contains('fp-only') && currentMode !== 'fp-enhanced') {
+                el.style.display = 'none';
+            } else if (el.classList.contains('standard-only') && currentMode === 'fp-enhanced') {
+                el.style.display = 'none';
+            } else {
+                el.style.display = isChecked ? 'block' : 'none';
+            }
+        });
+    }
+
+    // 全スライダー表示ラベルのリアルタイム同期（同期・即時描画）
+    function syncSliderLabels() {
+        const sliders = [
+            'repower-cost', 'generation-boost', 'repower-year', 'pcs-cost',
+            'pcs-unit-cost', 'pcs-count', 'pcs-design-life', 'fit-price',
+            'post-fit-price', 'battery-capacity', 'option-decom-cost'
+        ];
+        sliders.forEach(id => {
+            const input = document.getElementById(id);
+            const valEl = document.getElementById(`${id}-val`);
+            if (input && valEl) {
+                if (id === 'repower-year') {
+                    const yr = parseInt(input.value);
+                    valEl.innerText = yr === 0 ? "今すぐ（0年後）" : `${yr}年後`;
+                } else if (id === 'fit-price' || id === 'post-fit-price') {
+                    valEl.innerText = parseFloat(input.value).toFixed(1);
+                } else {
+                    valEl.innerText = input.value;
+                }
+            }
+        });
+    }
+
+    // クライアントサイド即時計算エンジン（0msゼロ遅延・本番キビキビ動作完全復元）
+    function calculateInstantSimulation(data, payload) {
+        const pcsCap = payload.pcsCapacity || data.capacity || 100.0;
+        const panelCap = payload.panelCapacity || data.panelCapacity || 146.2;
+        const fitP = payload.fitPrice || data.fitPrice || 32.0;
+        const nedoF = payload.nedoFactor || currentNedoFactor || 1150.0;
+        const elapsedY = payload.elapsedYears !== null ? payload.elapsedYears : (data.elapsedYears || 8.0);
+        const remFitYears = Math.max(1, Math.round(20 - elapsedY));
+        const evalYears = payload.simYears || 20;
+
+        const overcapacityRate = pcsCap > 0 ? panelCap / pcsCap : 1.0;
+        const lossFactor = overcapacityRate > 1.5 ? 0.12 : (overcapacityRate > 1.3 ? 0.05 : (overcapacityRate > 1.1 ? 0.02 : 0.0));
+        const baseAnnualGen = panelCap * nedoF * 0.85 * (1.0 - lossFactor);
+        const fipMult = payload.fipEnabled ? (payload.batteryEnabled ? 1.15 : 0.95) : 1.0;
+
+        let cumSq = 0.0, cumPa = 0.0, cumPb = 0.0;
+        const yearlyData = [];
+
+        for (let y = 1; y <= evalYears; y++) {
+            const isFit = y <= remFitYears;
+            const unitPrice = isFit ? fitP : payload.postFitPrice;
+            const effPrice = unitPrice * fipMult;
+
+            // Status Quo
+            const degSq = Math.max(0.4, isFit ? (1.0 - 0.005 * y) : (1.0 - 0.005 * remFitYears - 0.009 * (y - remFitYears)));
+            const genSq = baseAnnualGen * degSq * (1.0 - 0.029);
+            const revSq = (genSq * effPrice) / 10000.0;
+            let costSq = 15.0 + (payload.fipEnabled ? revSq * 0.02 : 0.0);
+            if (y % payload.pcsDesignLife === 0 && y !== evalYears) costSq += payload.pcsCost;
+            if (y === evalYears) costSq += payload.decomCost;
+            const cfSq = revSq - costSq;
+            cumSq += cfSq;
+
+            // Plan A
+            const degPa = degSq;
+            const genPa = genSq;
+            const revPa = revSq;
+            let costPa = 15.0 + (payload.fipEnabled ? revSq * 0.02 : 0.0);
+            if (y === 1) costPa += payload.pcsCost;
+            else if ((y - 1) % payload.pcsDesignLife === 0 && y !== 1 && y !== evalYears) costPa += payload.pcsCost;
+            if (y === evalYears) costPa += payload.decomCost;
+            const cfPa = revPa - costPa;
+            cumPa += cfPa;
+
+            // Plan B
+            let cfPb = 0;
+            if (y < payload.repowerYear + 1) {
+                cfPb = cfSq;
+                cumPb += cfPb;
+            } else {
+                const repYears = y - payload.repowerYear;
+                const degPb = Math.max(0.5, 1.0 - 0.003 * repYears);
+                const boostFactor = 1.0 + (payload.generationBoost / 100.0);
+                const genPb = baseAnnualGen * boostFactor * degPb * (1.0 - 0.029);
+                const revPb = (genPb * effPrice) / 10000.0;
+                let costPb = 15.0 + (payload.fipEnabled ? revSq * 0.02 : 0.0);
+                if (y === payload.repowerYear + 1) costPb += payload.repowerCost;
+                if (payload.batteryEnabled && (repYears % 15 === 0) && y !== evalYears) costPb += (payload.batteryCapacity * 0.15);
+                if (y === evalYears) costPb += payload.decomCost;
+                cfPb = revPb - costPb;
+                cumPb += cfPb;
+            }
+
+            yearlyData.push({
+                year: y,
+                statusQuo: Math.round(cfSq * 10) / 10,
+                planA: Math.round(cfPa * 10) / 10,
+                planB: Math.round(cfPb * 10) / 10,
+                cumStatusQuo: Math.round(cumSq * 10) / 10,
+                cumPlanA: Math.round(cumPa * 10) / 10,
+                cumPlanB: Math.round(cumPb * 10) / 10
+            });
+        }
+
+        let dcfVal = 0.0, dcfSqVal = 0.0;
+        for (let idx = 0; idx < Math.min(remFitYears, yearlyData.length); idx++) {
+            const t = yearlyData[idx].year;
+            dcfVal += yearlyData[idx].planB / Math.pow(1.05, t);
+            dcfSqVal += yearlyData[idx].statusQuo / Math.pow(1.05, t);
+        }
+
+        const currentValuation = Math.round(dcfVal * 10000.0);
+        const baseValuation = Math.round(dcfSqVal * 10000.0);
+        const netCf20Yr = Math.round(cumPb * 10000.0);
+        const baseNetCf20Yr = Math.round(cumSq * 10000.0);
+        const repowerEffect = Math.round((cumPb - cumSq) * 10000.0);
+
+        let paybackYears = 0.0;
+        const startY = payload.repowerYear;
+        const diffHist = [0.0].concat(yearlyData.map(r => r.cumPlanB - r.cumStatusQuo));
+        for (let y = startY + 1; y < diffHist.length; y++) {
+            if (diffHist[y] >= 0) {
+                const prev = diffHist[y - 1];
+                const curr = diffHist[y];
+                if (prev < 0) {
+                    const frac = (Math.abs(prev) + curr) > 0 ? Math.abs(prev) / (Math.abs(prev) + curr) : 0;
+                    paybackYears = Math.round(((y - 1 - startY) + frac) * 10) / 10;
+                } else {
+                    paybackYears = 0.0;
+                }
+                break;
+            }
+        }
+
+        return {
+            currentValuation,
+            baseValuation,
+            netCf20Yr,
+            baseNetCf20Yr,
+            repowerEffect,
+            paybackYears,
+            yearlyData
+        };
+    }
+
+    // シミュレーション計算と描画のアップデート（0ms即時クライアント計算 ＋ バックグラウンドAPI同期）
     let valuApiDebounceTimer = null;
 
-    function updateSimulation() {
+    function updateSimulation(isImmediate = false) {
+        syncSliderLabels(); // UIスライダー表示を即座に更新
         syncRepowerYearSliderMax();
         if (isApiLoading) return;
 
-        toggleAdvancedMode();
         closeDrilldownPopup();
 
-        // 連続スライダー操作時のデバウンス処理（250ms）
+        // --- 0ms超爆速クライアント即時計算・描画（本番キビキビ感完全復元） ---
+        const id = document.getElementById('solar-id')?.value;
+        const data = getSolarData(id);
+        if (data) {
+            const simYears = parseInt(document.getElementById('sim-years')?.value || '20');
+            const repowerCost = parseFloat(document.getElementById('repower-cost')?.value || '250');
+            const payload = {
+                solarId: id,
+                simYears: simYears,
+                repowerCost: repowerCost,
+                generationBoost: parseFloat(document.getElementById('generation-boost')?.value || '15'),
+                repowerYear: parseInt(document.getElementById('repower-year')?.value || '0'),
+                pcsCost: parseFloat(document.getElementById('pcs-cost')?.value || '150'),
+                pcsUnitCost: parseFloat(document.getElementById('pcs-unit-cost')?.value || '15'),
+                pcsCount: parseInt(document.getElementById('pcs-count')?.value || '10'),
+                pcsDesignLife: parseFloat(document.getElementById('pcs-design-life')?.value || '15'),
+                fitPrice: parseFloat(document.getElementById('fit-price')?.value || '24.0'),
+                postFitPrice: parseFloat(document.getElementById('post-fit-price')?.value || '8.5'),
+                fipEnabled: document.getElementById('fip-checkbox')?.checked || false,
+                batteryEnabled: document.getElementById('battery-checkbox')?.checked || false,
+                batteryCapacity: parseFloat(document.getElementById('battery-capacity')?.value || '50'),
+                decomCost: parseFloat(document.getElementById('master-decom-cost')?.value || '100'),
+                panelCapacity: data.panelCapacity || null,
+                pcsCapacity: data.capacity || null,
+                nedoFactor: currentNedoFactor || null,
+                elapsedYears: data.elapsedYears !== undefined ? data.elapsedYears : null
+            };
+            const instantRes = calculateInstantSimulation(data, payload);
+            renderValuResults(instantRes, simYears, repowerCost);
+        }
+
+        if (isImmediate) {
+            if (valuApiDebounceTimer) clearTimeout(valuApiDebounceTimer);
+            executeBackendValuSimulation();
+            return;
+        }
+
+        // バックグラウンドAPI同期デバウンス（200ms）
         if (valuApiDebounceTimer) clearTimeout(valuApiDebounceTimer);
 
         valuApiDebounceTimer = setTimeout(() => {
             executeBackendValuSimulation();
-        }, 250);
+        }, 200);
     }
 
     async function executeBackendValuSimulation() {
@@ -4708,7 +4800,7 @@ function dismissLoginModal(event) {
         const pcsCost = parseFloat(document.getElementById('pcs-cost').value);
         const pcsUnit = parseFloat(document.getElementById('pcs-unit-cost').value);
         const pcsCount = parseInt(document.getElementById('pcs-count').value);
-        const pcsLife = parseInt(document.getElementById('pcs-design-life').value);
+        const pcsLife = parseFloat(document.getElementById('pcs-design-life').value);
         const fitPrice = parseFloat(document.getElementById('fit-price').value);
         const postFitPrice = parseFloat(document.getElementById('post-fit-price').value);
         const fipActive = document.getElementById('fip-checkbox').checked;
@@ -4751,16 +4843,16 @@ function dismissLoginModal(event) {
             fipEnabled: fipActive,
             batteryEnabled: batteryActive,
             batteryCapacity: batteryCapacity,
-            decomCost: isNaN(decomCostVal) ? 100.0 : decomCostVal
+            decomCost: isNaN(decomCostVal) ? 100.0 : decomCostVal,
+            // アセット固有の物理パラメータ（デモデータ/DB取得値から直接送信）
+            panelCapacity: data.panelCapacity || null,
+            pcsCapacity: data.capacity || null,
+            nedoFactor: currentNedoFactor || null,
+            elapsedYears: data.elapsedYears !== undefined ? data.elapsedYears : null
         };
 
         try {
-            // 本番API・ローカルAPIのフォールバック通信
-            const apiUrl = window.location.hostname.includes('github.io') 
-                ? 'https://sorasco-311682375111.asia-northeast2.run.app/api/valu/calculate/' 
-                : '/api/valu/calculate/';
-
-            const response = await fetch(apiUrl, {
+            const response = await fetch('/api/valu/calculate/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -4770,602 +4862,214 @@ function dismissLoginModal(event) {
             const res = await response.json();
 
             // レスポンス受領後、UIおよびChart.jsの描画データを更新
-            renderValuResults(res, simYears);
+            renderValuResults(res, simYears, repowerCost);
 
         } catch (err) {
             console.error("[Valu API Error] Falling back to standard rendering:", err);
+        } finally {
+            isApiLoading = false;
         }
     }
 
-    function renderValuResults(res, simYears) {
-        const labels = Array.from({length: simYears}, (_, i) => `${i+1}年後`);
-        labels.unshift("現在");
+    function renderValuResults(res, simYears, repowerCost) {
+        const labels = Array.from({length: simYears + 1}, (_, i) => i === 0 ? "現在" : `${i}年後`);
 
         const baseCF = [0];
         const pcsOptCF = [0];
         const repowerCF = [0];
 
-        res.yearlyData.forEach(row => {
-            baseCF.push(row.cumStatusQuo);
-            pcsOptCF.push(row.cumPlanA);
-            repowerCF.push(row.cumPlanB);
-        });
+        const annualBase = [];
+        const annualPcs = [];
+        const annualRepower = [];
+        const annualLabels = [];
 
-        // 評価額カードの動的表示
-        if (document.getElementById('owner-asset-value')) {
-            document.getElementById('owner-asset-value').innerText = Math.round(res.currentValuation).toLocaleString();
+        if (res && res.yearlyData) {
+            res.yearlyData.forEach(row => {
+                const sq = row.cumStatusQuo !== undefined ? row.cumStatusQuo : (row.cum_status_quo !== undefined ? row.cum_status_quo : 0);
+                const pa = row.cumPlanA !== undefined ? row.cumPlanA : (row.cum_plan_a !== undefined ? row.cum_plan_a : 0);
+                const pb = row.cumPlanB !== undefined ? row.cumPlanB : (row.cum_plan_b !== undefined ? row.cum_plan_b : 0);
+
+                baseCF.push(sq);
+                pcsOptCF.push(pa);
+                repowerCF.push(pb);
+
+                const aSq = row.statusQuo !== undefined ? row.statusQuo : (row.status_quo !== undefined ? row.status_quo : 0);
+                const aPa = row.planA !== undefined ? row.planA : (row.plan_a !== undefined ? row.plan_a : 0);
+                const aPb = row.planB !== undefined ? row.planB : (row.plan_b !== undefined ? row.plan_b : 0);
+
+                annualBase.push(aSq);
+                annualPcs.push(aPa);
+                annualRepower.push(aPb);
+                annualLabels.push(`${row.year}年目`);
+            });
         }
-        if (document.getElementById('owner-lifetime-cf')) {
-            document.getElementById('owner-lifetime-cf').innerText = Math.round(res.netCf20Yr).toLocaleString();
-        }
-        if (document.getElementById('owner-repower-gain')) {
-            document.getElementById('owner-repower-gain').innerText = `+¥${Math.round(res.repowerEffect).toLocaleString()}`;
-        }
-        if (document.getElementById('owner-repower-payback')) {
-            document.getElementById('owner-repower-payback').innerText = `${res.paybackYears}年`;
+
+        // 1. メイン数値カードの数値バインド
+        const formattedVal = Math.round(res.currentValuation);
+        const formattedCF = Math.round(res.netCf20Yr);
+
+        if (typeof animateNumberValue === 'function') {
+            animateNumberValue('owner-asset-value', formattedVal);
+            animateNumberValue('owner-lifetime-cf', formattedCF);
+        } else {
+            const elVal = document.getElementById('owner-asset-value');
+            const elCF = document.getElementById('owner-lifetime-cf');
+            if (elVal) elVal.innerText = formattedVal.toLocaleString();
+            if (elCF) elCF.innerText = formattedCF.toLocaleString();
         }
 
         if (document.getElementById('card-asset-val')) {
-            document.getElementById('card-asset-val').innerText = `¥ ${Math.round(res.currentValuation).toLocaleString()}`;
+            document.getElementById('card-asset-val').innerText = `¥ ${formattedVal.toLocaleString()}`;
         }
         if (document.getElementById('card-cum-cf')) {
-            document.getElementById('card-cum-cf').innerText = `¥ ${Math.round(res.netCf20Yr).toLocaleString()}`;
+            document.getElementById('card-cum-cf').innerText = `¥ ${formattedCF.toLocaleString()}`;
+        }
+
+        // 1-2. 現状維持ベース値および差額（Diff）の計算と動的バインド（すべて円単位に統一）
+        if (res && res.yearlyData && res.yearlyData.length > 0) {
+            const lastRow = res.yearlyData[res.yearlyData.length - 1];
+
+            // 評価額の現状維持ベース（円単位）
+            const baseAssetVal = Math.round(res.baseValuation !== undefined ? res.baseValuation : (res.base_valuation !== undefined ? res.base_valuation : (formattedVal - (res.repowerEffect || 0))));
+            const assetDiff = formattedVal - baseAssetVal;
+
+            // 生涯予測CFの現状維持ベース（円単位）
+            const sqManYen = (lastRow.cumStatusQuo !== undefined ? lastRow.cumStatusQuo : (lastRow.cum_status_quo || 0));
+            const baseCfVal = Math.round(res.baseNetCf20Yr !== undefined ? res.baseNetCf20Yr : (res.base_net_cf_20yr !== undefined ? res.base_net_cf_20yr : (sqManYen * 10000)));
+            const cfDiff = formattedCF - baseCfVal;
+
+            const elAssetBase = document.getElementById('owner-asset-value-base');
+            const elAssetDiff = document.getElementById('owner-asset-value-diff');
+            const elAssetDiffPrefix = document.getElementById('owner-asset-value-diff-prefix');
+
+            if (elAssetBase) elAssetBase.innerText = baseAssetVal.toLocaleString();
+            if (elAssetDiff) elAssetDiff.innerText = Math.abs(assetDiff).toLocaleString();
+            if (elAssetDiffPrefix) {
+                elAssetDiffPrefix.innerText = assetDiff >= 0 ? '+' : '-';
+                elAssetDiffPrefix.style.color = assetDiff >= 0 ? '#60a5fa' : '#ef4444';
+            }
+
+            const elCfBase = document.getElementById('owner-lifetime-cf-base');
+            const elCfDiff = document.getElementById('owner-lifetime-cf-diff');
+            const elCfDiffPrefix = document.getElementById('owner-lifetime-cf-diff-prefix');
+
+            if (elCfBase) elCfBase.innerText = baseCfVal.toLocaleString();
+            if (elCfDiff) elCfDiff.innerText = Math.abs(cfDiff).toLocaleString();
+            if (elCfDiffPrefix) {
+                elCfDiffPrefix.innerText = cfDiff >= 0 ? '+' : '-';
+                elCfDiffPrefix.style.color = cfDiff >= 0 ? '#34d399' : '#ef4444';
+            }
         }
         if (document.getElementById('card-repower-effect')) {
             document.getElementById('card-repower-effect').innerText = `+ ¥ ${Math.round(res.repowerEffect).toLocaleString()}`;
         }
         if (document.getElementById('card-payback-years')) {
-            document.getElementById('card-payback-years').innerText = `${res.paybackYears} 年`;
+            if (res.paybackYears <= 0 || res.paybackYears === null || isNaN(res.paybackYears)) {
+                document.getElementById('card-payback-years').innerText = res.repowerEffect > 0 ? "即時回収" : "回収不能";
+            } else {
+                document.getElementById('card-payback-years').innerText = `${res.paybackYears.toFixed(1)} 年`;
+            }
         }
 
-        if (document.getElementById('ai-conclusion-body')) {
-            document.getElementById('ai-conclusion-body').innerText = res.aiConclusion;
+        // リパワリング投資効果カードの動的バインド
+        const repowerDiffEl = document.getElementById('repower-benefit-diff');
+        const repowerRoiMainEl = document.getElementById('repower-roi-period-main');
+        const repowerPrefixEl = document.getElementById('repower-benefit-diff-prefix');
+
+        if (repowerDiffEl) {
+            const effect = Math.round(res.repowerEffect);
+            repowerDiffEl.innerText = Math.abs(effect).toLocaleString();
+            if (repowerPrefixEl) {
+                repowerPrefixEl.innerText = effect >= 0 ? '+' : '-';
+                repowerPrefixEl.style.color = effect >= 0 ? '#34d399' : '#ef4444';
+            }
+        }
+        const repowerUnitEl = document.getElementById('repower-roi-period-unit');
+        if (repowerRoiMainEl) {
+            if (res.paybackYears <= 0 || res.paybackYears === null || isNaN(res.paybackYears)) {
+                repowerRoiMainEl.innerText = res.repowerEffect > 0 ? "即時回収" : "回収不能";
+                if (repowerUnitEl) {
+                    repowerUnitEl.innerText = "";
+                    repowerUnitEl.style.display = 'none';
+                }
+            } else {
+                repowerRoiMainEl.innerText = `${res.paybackYears.toFixed(1)}`;
+                if (repowerUnitEl) {
+                    repowerUnitEl.innerText = "年";
+                    repowerUnitEl.style.display = 'inline';
+                }
+            }
         }
 
-        // グラフ更新
-        if (forecastChart) {
-            forecastChart.data.labels = labels;
-            forecastChart.data.datasets[0].data = baseCF;
-            forecastChart.data.datasets[1].data = pcsOptCF;
-            forecastChart.data.datasets[2].data = repowerCF;
-            forecastChart.update();
-        }
-    }
+        // テーブルおよびPDFレポート内の回収期間表示セルへ計算結果を上書き更新
+        const paybackText = (res.paybackYears <= 0 || res.paybackYears === null || isNaN(res.paybackYears))
+            ? (res.repowerEffect > 0 ? "即時回収" : "回収不能")
+            : `${res.paybackYears.toFixed(1)}年`;
 
-    function syncSliderUIValues() {
-        const id = document.getElementById('solar-id').value;
-        const data = getSolarData(id);
-        if (!data) return;
+        const elRoiRepower = document.getElementById('roi-repower-payback');
+        const elPdfRoiRepower = document.getElementById('pdf-roi-repower-payback');
+        if (elRoiRepower) elRoiRepower.innerText = paybackText;
+        if (elPdfRoiRepower) elPdfRoiRepower.innerText = paybackText;
 
-        const repowerCost = parseFloat(document.getElementById('repower-cost').value);
-        const generationBoost = parseFloat(document.getElementById('generation-boost').value);
-        const repowerYear = parseInt(document.getElementById('repower-year').value);
-        const pcsCost = parseFloat(document.getElementById('pcs-cost').value);
-        const pcsUnit = parseFloat(document.getElementById('pcs-unit-cost').value);
-        const pcsCount = parseInt(document.getElementById('pcs-count').value);
-        const pcsLife = parseFloat(document.getElementById('pcs-design-life').value);
-        const fitPrice = parseFloat(document.getElementById('fit-price').value);
-        const postFitPrice = parseFloat(document.getElementById('post-fit-price').value);
-        const batteryActive = document.getElementById('battery-checkbox').checked;
-        const batteryCapacity = batteryActive ? parseFloat(document.getElementById('battery-capacity').value) : 0;
-
-        document.getElementById('battery-capacity-val').innerText = batteryCapacity;
-
-        const repowerYearVal = document.getElementById('repower-year-val');
-        if (repowerYearVal) {
-            repowerYearVal.innerText = (repowerYear === 0) ? "今すぐ（0年後）" : `${repowerYear}年後`;
+        // アラートメッセージテキスト（PCS・FIT）の動的バインド
+        if (currentLoadedAssetData) {
+            const pcsLifeVal = parseFloat(document.getElementById('pcs-design-life')?.value || '15');
+            updateAlertMessages(currentLoadedAssetData, pcsLifeVal);
         }
 
-        document.getElementById('repower-cost-val').innerText = repowerCost;
-        document.getElementById('generation-boost-val').innerText = Math.round(generationBoost);
-        document.getElementById('pcs-cost-val').innerText = pcsCost;
-        document.getElementById('pcs-unit-cost-val').innerText = pcsUnit;
-        document.getElementById('pcs-count-val').innerText = pcsCount;
-        document.getElementById('pcs-design-life-val').innerText = pcsLife;
+        // 2. AI診断結論テキストの動的更新
+        const conclusionTitle = document.getElementById('ai-conclusion-title');
+        const conclusionBody = document.getElementById('ai-conclusion-body');
+        const conclusionBadge = document.getElementById('ai-conclusion-badge');
 
-        const pcsGuidelineEl = document.getElementById('pcs-auto-replace-guideline');
-        if (pcsGuidelineEl) {
-            const pcsYear = Math.max(1, Math.round(pcsLife - data.elapsedYears));
-            pcsGuidelineEl.innerText = `（現行設備の交換予測: あと ${pcsYear} 年後）`;
+        if (conclusionBody) {
+            conclusionBody.innerText = res.aiConclusion;
+        }
+        if (conclusionTitle) {
+            conclusionTitle.innerText = res.repowerEffect > 0 ? 'プランB（フルリパワリング）の実施を推奨します' : '現状維持またはプランA（PCS一括交換）が最適な運用です';
+        }
+        if (conclusionBadge) {
+            conclusionBadge.innerText = res.repowerEffect > 0 ? 'AI推奨：最高収益 (リパワリング型)' : 'AI推奨：堅実回収型';
         }
 
-        document.getElementById('fit-price-val').innerText = fitPrice.toFixed(1);
-        document.getElementById('post-fit-price-val').innerText = postFitPrice.toFixed(1);
-        // チャート更新 (未初期化時のクラッシュを防止する安全ガード)
-        if (typeof initCharts === 'function' && (!cfChart || !annualChart)) {
-            initCharts();
-        }
-
-        if (typeof cfChart !== 'undefined' && cfChart && cfChart.data) {
-            cfChart.data.labels = baseLabels;
+        // 3. 累積キャッシュフロー予測グラフ (cfChart) の更新
+        if (typeof cfChart !== 'undefined' && cfChart) {
+            cfChart.data.labels = labels;
             cfChart.data.datasets[0].data = baseCF;
             cfChart.data.datasets[1].data = pcsOptCF;
             cfChart.data.datasets[2].data = repowerCF;
             cfChart.update();
         }
 
-        if (typeof annualChart !== 'undefined' && annualChart && annualChart.data) {
-            annualChart.data.labels = baseLabels;
-            annualChart.data.datasets[0].data = baseAnnualCF;
-            annualChart.data.datasets[1].data = pcsAnnualCF;
-            annualChart.data.datasets[2].data = repowerAnnualCF;
-            if (annualChart.options && annualChart.options.scales && annualChart.options.scales.y) {
-                annualChart.options.scales.y.min = annualYMin;
-                annualChart.options.scales.y.max = annualYMax;
-            }
+        // 4. 年間キャッシュフロー推移グラフ (annualChart) の更新
+        if (typeof annualChart !== 'undefined' && annualChart) {
+            annualChart.data.labels = annualLabels;
+            annualChart.data.datasets[0].data = annualBase;
+            annualChart.data.datasets[1].data = annualPcs;
+            annualChart.data.datasets[2].data = annualRepower;
             annualChart.update();
         }
 
-        // 印刷プレビュー用PDFチャートの更新
-        if (typeof pdfChart !== 'undefined' && pdfChart && pdfChart.data) {
-            pdfChart.data.labels = baseLabels;
+        // 5. PDFレポート用グラフ (pdfChart, pdfAnnualChart) の更新
+        if (typeof pdfChart !== 'undefined' && pdfChart) {
+            pdfChart.data.labels = labels;
             pdfChart.data.datasets[0].data = baseCF;
             pdfChart.data.datasets[1].data = pcsOptCF;
             pdfChart.data.datasets[2].data = repowerCF;
             pdfChart.update();
         }
-
-        if (typeof pdfAnnualChart !== 'undefined' && pdfAnnualChart && pdfAnnualChart.data) {
-            pdfAnnualChart.data.labels = baseLabels;
-            pdfAnnualChart.data.datasets[0].data = baseAnnualCF;
-            pdfAnnualChart.data.datasets[1].data = pcsAnnualCF;
-            pdfAnnualChart.data.datasets[2].data = repowerAnnualCF;
-            if (pdfAnnualChart.options && pdfAnnualChart.options.scales && pdfAnnualChart.options.scales.y) {
-                pdfAnnualChart.options.scales.y.min = annualYMin;
-                pdfAnnualChart.options.scales.y.max = annualYMax;
-            }
+        if (typeof pdfAnnualChart !== 'undefined' && pdfAnnualChart) {
+            pdfAnnualChart.data.labels = annualLabels;
+            pdfAnnualChart.data.datasets[0].data = annualBase;
+            pdfAnnualChart.data.datasets[1].data = annualPcs;
+            pdfAnnualChart.data.datasets[2].data = annualRepower;
             pdfAnnualChart.update();
         }
 
-        // 拡大モーダルチャートのリアルタイム更新
-        if (typeof zoomChart !== 'undefined' && zoomChart && zoomChart.data) {
-            zoomChart.data.labels = baseLabels;
-            zoomChart.data.datasets[0].data = baseCF;
-            zoomChart.data.datasets[1].data = pcsOptCF;
-            zoomChart.data.datasets[2].data = repowerCF;
-            zoomChart.update();
-        }
-        if (typeof zoomChart2 !== 'undefined' && zoomChart2 && zoomChart2.data) {
-            zoomChart2.data.labels = baseLabels;
-            zoomChart2.data.datasets[0].data = baseAnnualCF;
-            zoomChart2.data.datasets[1].data = pcsAnnualCF;
-            zoomChart2.data.datasets[2].data = repowerAnnualCF;
-            if (zoomChart2.options && zoomChart2.options.scales && zoomChart2.options.scales.y) {
-                zoomChart2.options.scales.y.min = annualYMin;
-                zoomChart2.options.scales.y.max = annualYMax;
-            }
-            zoomChart2.update();
-        }
-
-        // ROI数値の計算
-        const finalBase = baseCF[baseCF.length - 1];
-        const finalPcsOpt = pcsOptCF[pcsOptCF.length - 1];
-        const finalRepower = repowerCF[repowerCF.length - 1];
-
-        const netGainPcsOpt = finalPcsOpt - finalBase;
-        const netGainRepower = finalRepower - finalBase;
-
-        // 精密な差額回収年数（損益分岐点）の計算関数
-        function calculatePaybackPeriod(targetCF, baseCF) {
-            let hasInvested = false;
-            let firstInvestIndex = -1;
-            
-            for (let i = 0; i < targetCF.length; i++) {
-                if (targetCF[i] - baseCF[i] < 0) {
-                    hasInvested = true;
-                    if (firstInvestIndex === -1) firstInvestIndex = i;
-                }
-            }
-            
-            // 一度も追加投資（現状維持を下回る持ち出し）が発生していない場合
-            if (!hasInvested) return null;
-            
-            // 初回投資発生以降、差額（targetCF - baseCF）が0以上に復帰するタイミングを探索
-            for (let i = firstInvestIndex + 1; i < targetCF.length; i++) {
-                const prevDiff = targetCF[i-1] - baseCF[i-1];
-                const currDiff = targetCF[i] - baseCF[i];
-                
-                if (prevDiff < 0 && currDiff >= 0) {
-                    const absPrev = Math.abs(prevDiff);
-                    const interp = absPrev / (absPrev + currDiff);
-                    return (i - 1) + interp;
-                }
-            }
-            return null; // シミュレーション期間内に回収できず
-        }
-
-        // 投資回収期間の計算
-        const pbPcs = calculatePaybackPeriod(pcsOptCF, baseCF);
-        const paybackPcsOpt = (pcsCost > 0 && pbPcs !== null) ? `${pbPcs.toFixed(1)}年` : (pcsCost === 0 ? '投資なし' : '回収不能');
-
-        const pbRepower = calculatePaybackPeriod(repowerCF, baseCF);
-        const paybackRepower = (repowerCost > 0 && pbRepower !== null) ? (pbRepower > 0 && repowerYear > 0 ? `${(pbRepower - repowerYear).toFixed(1)}年 (投資から)` : `${pbRepower.toFixed(1)}年`) : (repowerCost === 0 ? '投資なし' : '回収不能');
-
-        // オーナー用表示の更新（プランB：フル・リパワリング適用後のシミュレーション結果を動的に連動反映！！！）
-        const ownerAssetValueEl = document.getElementById('owner-asset-value');
-        const ownerLifetimeCfEl = document.getElementById('owner-lifetime-cf');
-        const ownerAssetValueDescEl = document.getElementById('owner-asset-value-desc');
-        const ownerLifetimeCfTitleEl = document.getElementById('owner-lifetime-cf-title');
-        const ownerLifetimeCfDescEl = document.getElementById('owner-lifetime-cf-desc');
-        
-        if (ownerAssetValueEl && ownerLifetimeCfEl) {
-            const selectedCF = repowerCost === 0 ? finalBase : finalRepower;
-            const selectedVal = repowerCost === 0 ? dcfAssetValue : dcfAssetValueRepower;
-            
-            formattedCF = Math.round(selectedCF * 10000);
-            formattedVal = Math.round(selectedVal * 10000);
-            animateNumberValue('owner-lifetime-cf', formattedCF);
-            animateNumberValue('owner-asset-value', formattedVal);
-
-            baseCFVal = Math.round(finalBase * 10000);
-            baseAssetVal = Math.round(dcfAssetValue * 10000);
-            
-            const ownerAssetValueBaseEl = document.getElementById('owner-asset-value-base');
-            const ownerAssetValueDiffEl = document.getElementById('owner-asset-value-diff');
-            const ownerAssetValueDiffPrefixEl = document.getElementById('owner-asset-value-diff-prefix');
-            const ownerAssetValueDiffWrap = document.getElementById('owner-asset-value-diff-wrap');
-
-            const ownerLifetimeCfBaseEl = document.getElementById('owner-lifetime-cf-base');
-            const ownerLifetimeCfDiffEl = document.getElementById('owner-lifetime-cf-diff');
-            const ownerLifetimeCfDiffPrefixEl = document.getElementById('owner-lifetime-cf-diff-prefix');
-            const ownerLifetimeCfDiffWrap = document.getElementById('owner-lifetime-cf-diff-wrap');
-
-            if (ownerAssetValueBaseEl) animateNumberValue('owner-asset-value-base', baseAssetVal);
-            if (ownerLifetimeCfBaseEl) animateNumberValue('owner-lifetime-cf-base', baseCFVal);
-
-            const diffAsset = formattedVal - baseAssetVal;
-            const diffCF = formattedCF - baseCFVal;
-
-            if (ownerAssetValueDiffEl) animateNumberValue('owner-asset-value-diff', Math.abs(diffAsset));
-            if (ownerAssetValueDiffPrefixEl) ownerAssetValueDiffPrefixEl.innerText = diffAsset >= 0 ? '+' : '-';
-            if (ownerAssetValueDiffWrap) ownerAssetValueDiffWrap.style.display = repowerCost === 0 ? 'none' : 'inline';
-
-            if (ownerLifetimeCfDiffEl) animateNumberValue('owner-lifetime-cf-diff', Math.abs(diffCF));
-            if (ownerLifetimeCfDiffPrefixEl) ownerLifetimeCfDiffPrefixEl.innerText = diffCF >= 0 ? '+' : '-';
-            if (ownerLifetimeCfDiffWrap) ownerLifetimeCfDiffWrap.style.display = repowerCost === 0 ? 'none' : 'inline';
-
-            if (repowerCost === 0) {
-                if (ownerAssetValueDescEl) ownerAssetValueDescEl.innerText = "※設備状態や運営経費、立地リスク等を考慮し、残存FIT期間の将来予測手取り収支から算出した現在の資産評価額";
-                if (ownerLifetimeCfTitleEl) ownerLifetimeCfTitleEl.innerText = "💰 予測生涯CF";
-                if (ownerLifetimeCfDescEl) ownerLifetimeCfDescEl.innerText = "※現状維持時の累積推定収支";
-            } else {
-                if (ownerAssetValueDescEl) ownerAssetValueDescEl.innerText = "※プランB（フルリパワリング）実行後の、残存FIT期間の予測手取り収支から算出した現在の資産評価額";
-                if (ownerLifetimeCfTitleEl) ownerLifetimeCfTitleEl.innerText = "💰 プランB生涯CF";
-                if (ownerLifetimeCfDescEl) ownerLifetimeCfDescEl.innerText = "※プランB（フルリパワリング）実行後の累積推定収支";
-            }
-
-            // PCS故障確率（シグモイド予測モデル）の計算
-            const elapsed = data.elapsedYears; // 経過年数
-            const kProb = 0.55; // 傾き
-            const pcsRiskProb = 1 / (1 + Math.exp(-kProb * (elapsed - pcsLife)));
-            const pcsRiskPercent = Math.round(pcsRiskProb * 100);
-
-            // リパワリング投資効果カードの更新
-            const repowerBenefitDiffEl = document.getElementById('repower-benefit-diff');
-            const repowerBenefitCardEl = document.getElementById('repower-benefit-card');
-            const repowerRoiPeriodMainEl = document.getElementById('repower-roi-period-main');
-            const repowerRoiPeriodUnitEl = document.getElementById('repower-roi-period-unit');
-            
-            if (repowerBenefitDiffEl && repowerBenefitCardEl) {
-                const diffCF = formattedCF - baseCFVal;
-                const prefixEl = document.getElementById('repower-benefit-diff-prefix');
-                const currencyEl = document.getElementById('repower-benefit-diff-currency');
-                
-                if (repowerCost === 0) {
-                    if (prefixEl) prefixEl.innerText = "";
-                    if (currencyEl) currencyEl.innerText = "¥";
-                    repowerBenefitDiffEl.innerText = "0";
-                    if (repowerRoiPeriodMainEl) {
-                        repowerRoiPeriodMainEl.innerText = "--";
-                        repowerRoiPeriodMainEl.style.fontSize = "1.35rem";
-                        repowerRoiPeriodMainEl.style.color = "var(--text-secondary)";
-                    }
-                    if (repowerRoiPeriodUnitEl) repowerRoiPeriodUnitEl.style.display = 'inline';
-                    repowerBenefitCardEl.style.borderColor = "rgba(148, 163, 184, 0.4)"; // グレー
-                } else {
-                    if (prefixEl) prefixEl.innerText = diffCF >= 0 ? '+' : '-';
-                    if (prefixEl) prefixEl.style.color = diffCF >= 0 ? "#34d399" : "#ef4444";
-                    if (currencyEl) currencyEl.style.color = diffCF >= 0 ? "#34d399" : "#ef4444";
-                    repowerBenefitDiffEl.style.color = diffCF >= 0 ? "#34d399" : "#ef4444";
-                    animateNumberValue('repower-benefit-diff', Math.abs(diffCF));
-                    
-                    if (pbRepower === null) {
-                        if (repowerRoiPeriodMainEl) {
-                            repowerRoiPeriodMainEl.innerText = "回収不能";
-                            repowerRoiPeriodMainEl.style.color = "#ef4444";
-                            repowerRoiPeriodMainEl.style.fontSize = "1.15rem";
-                        }
-                        if (repowerRoiPeriodUnitEl) repowerRoiPeriodUnitEl.style.display = 'none';
-                    } else {
-                        if (repowerRoiPeriodMainEl) {
-                            animateNumberValue('repower-roi-period-main', pbRepower, false); // 小数点表示
-                            repowerRoiPeriodMainEl.style.color = diffCF > 0 ? "#34d399" : "#ef4444";
-                            repowerRoiPeriodMainEl.style.fontSize = "1.35rem";
-                        }
-                        if (repowerRoiPeriodUnitEl) {
-                            repowerRoiPeriodUnitEl.style.display = 'inline';
-                            repowerRoiPeriodUnitEl.style.color = "var(--text-secondary)";
-                        }
-                    }
-                }
-            }
-
-            // 生涯CFカードタイトルの動的更新
-            const lifetimeCfTitleEl = document.getElementById('owner-lifetime-cf-title');
-            const lifetimeCfDescEl = document.getElementById('owner-lifetime-cf-desc');
-            if (lifetimeCfTitleEl) {
-                lifetimeCfTitleEl.innerText = `💰 ${simYears}年間の累積CF`;
-            }
-            if (lifetimeCfDescEl) {
-                lifetimeCfDescEl.innerText = `※現状維持時の${simYears}年間累積推定収支（O&M費用・PCS修繕引当控除後）`;
-            }
-
-            // アラートの動的更新
-            const remainingFitYears = Math.max(0, 20 - startYear);
-            const remainingFitMonths = Math.round(remainingFitYears * 12);
-            
-            // 最初のPCS交換推奨までの残り年数（設計寿命 - 現在の経過年数）
-            const yearsToPcs = pcsLife - startYear;
-            const pcsLimitYear = pcsLife;
-            
-            const pcsAlertTextEl = document.getElementById('owner-pcs-alert-text');
-            if (pcsAlertTextEl) {
-                if (yearsToPcs > 0) {
-                    pcsAlertTextEl.innerHTML = `<strong>🔧 パワコン更新アラート:</strong> 経過年数（稼働${startYear.toFixed(1)}年）に基づき、<strong>あと${yearsToPcs.toFixed(1)}年でパワーコンディショナ（PCS）の推奨交換時期（稼働後${pcsLimitYear.toFixed(0)}年）</strong>に達します。交換費用（推定${Math.round(calculatedPcsCost).toLocaleString()}万円〜）の準備をご検討ください。`;
-                    document.getElementById('owner-pcs-alert').style.display = 'flex';
-                } else if (Math.abs(yearsToPcs) < 0.05) {
-                    pcsAlertTextEl.innerHTML = `<strong>🔧 パワコン更新アラート:</strong> 本年はパワーコンディショナ（PCS）の<strong>推奨交換目安年（稼働後${pcsLimitYear.toFixed(0)}年）</strong>です。突発的な故障リスク（現在${pcsRiskPercent}%）を回避するため、早急な一括交換をご検討ください。`;
-                    document.getElementById('owner-pcs-alert').style.display = 'flex';
-                } else {
-                    const overYears = Math.abs(yearsToPcs);
-                    pcsAlertTextEl.innerHTML = `<strong>🔧 パワコン更新アラート:</strong> パワーコンディショナ（PCS）の<strong>推奨交換目安年（稼働後${pcsLimitYear.toFixed(0)}年）をすでに${overYears.toFixed(1)}年超過</strong>しています。突発故障確率が<strong>${pcsRiskPercent}%</strong>と極めて高いため、早急な一括交換またはリパワリングをご検討ください。`;
-                    document.getElementById('owner-pcs-alert').style.display = 'flex';
-                }
-            }
-            
-            const fitAlertTextEl = document.getElementById('owner-fit-alert-text');
-            if (fitAlertTextEl) {
-                if (remainingFitYears > 0) {
-                    fitAlertTextEl.innerHTML = `<strong>ℹ️ FIT終了アラート:</strong> 本発電所は稼働${startYear.toFixed(1)}年目であり、<strong>あと${remainingFitYears.toFixed(1)}年（${remainingFitMonths}ヶ月）でFIT買取期間が終了（卒FIT）</strong>します。買取単価の下落に備え、リパワリングによるFIP移行等の収益対策検討をお勧めします。`;
-                    document.getElementById('owner-fit-alert').style.display = 'flex';
-                } else {
-                    fitAlertTextEl.innerHTML = `<strong>ℹ️ FIT終了アラート:</strong> 本発電所は稼働${startYear.toFixed(1)}年が経過し、<strong>すでにFIT買取期間を満了（卒FIT）</strong>しています。速やかなFIP制度への移行、または自家消費・相対取引へのシフトをご検討ください。`;
-                    document.getElementById('owner-fit-alert').style.display = 'flex';
-                }
-            }
-        }
-
-        // 平均年間手取りの計算
-        const avgBaseFit = baseFitYears > 0 ? Math.round(baseFitIncomeSum / baseFitYears) : 0;
-        const avgBasePost = basePostYears > 0 ? Math.round(basePostIncomeSum / basePostYears) : 0;
-
-        const avgPcsFit = pcsFitYears > 0 ? Math.round(pcsFitIncomeSum / pcsFitYears) : 0;
-        const avgPcsPost = pcsPostYears > 0 ? Math.round(pcsPostIncomeSum / pcsPostYears) : 0;
-
-        const avgRepowerFit = repowerFitYears > 0 ? Math.round(repowerFitIncomeSum / repowerFitYears) : 0;
-        const avgRepowerPost = repowerPostYears > 0 ? Math.round(repowerPostIncomeSum / repowerPostYears) : 0;
-
-        // ラベルの動的更新
-        document.getElementById('roi-sales-label').innerText = `${simYears}年間の累積売電額`;
-        document.getElementById('roi-cf-label').innerText = `${simYears}年間の累積CF`;
-        document.getElementById('pdf-roi-sales-label').innerText = `${simYears}年間の累積売電額`;
-        document.getElementById('pdf-roi-cf-label').innerText = `${simYears}年間の累積CF`;
-
-        // 平均年間手取りの反映
-        document.getElementById('roi-base-annual-fit').innerText = `${avgBaseFit.toLocaleString()}万円/年`;
-        document.getElementById('roi-pcs-annual-fit').innerText = `${avgPcsFit.toLocaleString()}万円/年`;
-        document.getElementById('roi-repower-annual-fit').innerText = `${avgRepowerFit.toLocaleString()}万円/年`;
-
-        const diffPcsFit = avgPcsFit - avgBaseFit;
-        const diffRepowerFit = avgRepowerFit - avgBaseFit;
-        document.getElementById('roi-pcs-annual-fit-diff').innerText = `+${diffPcsFit.toLocaleString()}万円/年`;
-        document.getElementById('roi-repower-annual-fit-diff').innerText = `+${diffRepowerFit.toLocaleString()}万円/年`;
-
-        document.getElementById('roi-base-annual-post').innerText = basePostYears > 0 ? `${avgBasePost.toLocaleString()}万円/年` : '-';
-        document.getElementById('roi-pcs-annual-post').innerText = basePostYears > 0 ? `${avgPcsPost.toLocaleString()}万円/年` : '-';
-        document.getElementById('roi-repower-annual-post').innerText = basePostYears > 0 ? `${avgRepowerPost.toLocaleString()}万円/年` : '-';
-
-        const diffPcsPost = avgPcsPost - avgBasePost;
-        const diffRepowerPost = avgRepowerPost - avgBasePost;
-        document.getElementById('roi-pcs-annual-post-diff').innerText = basePostYears > 0 ? `+${diffPcsPost.toLocaleString()}万円/年` : '-';
-        document.getElementById('roi-repower-annual-post-diff').innerText = basePostYears > 0 ? `+${diffRepowerPost.toLocaleString()}万円/年` : '-';
-
-        document.getElementById('pdf-roi-base-annual-fit').innerText = `${avgBaseFit.toLocaleString()}万円/年`;
-        document.getElementById('pdf-roi-pcs-annual-fit').innerText = `${avgPcsFit.toLocaleString()}万円/年`;
-        document.getElementById('pdf-roi-repower-annual-fit').innerText = `${avgRepowerFit.toLocaleString()}万円/年`;
-
-        document.getElementById('pdf-roi-pcs-annual-fit-diff').innerText = `+${diffPcsFit.toLocaleString()}万円/年`;
-        document.getElementById('pdf-roi-repower-annual-fit-diff').innerText = `+${diffRepowerFit.toLocaleString()}万円/年`;
-
-        document.getElementById('pdf-roi-base-annual-post').innerText = basePostYears > 0 ? `${avgBasePost.toLocaleString()}万円/年` : '-';
-        document.getElementById('pdf-roi-pcs-annual-post').innerText = basePostYears > 0 ? `${avgPcsPost.toLocaleString()}万円/年` : '-';
-        document.getElementById('pdf-roi-repower-annual-post').innerText = basePostYears > 0 ? `${avgRepowerPost.toLocaleString()}万円/年` : '-';
-
-        document.getElementById('pdf-roi-pcs-annual-post-diff').innerText = basePostYears > 0 ? `+${diffPcsPost.toLocaleString()}万円/年` : '-';
-        document.getElementById('pdf-roi-repower-annual-post-diff').innerText = basePostYears > 0 ? `+${diffRepowerPost.toLocaleString()}万円/年` : '-';
-
-        // 表示の更新
-        // 投資額内訳テキストの動的生成
-        let pcsCostBreakdown = "";
-        let repowerCostBreakdown = "";
-        
-        if (currentMode === 'fp-enhanced') {
-            pcsCostBreakdown += `・基本交換: ${purePcsCost}万円<br>`;
-            if (pcsMarginVal > 0) pcsCostBreakdown += `<span style="padding-left: 8px; color: var(--text-secondary);">（内、開発施工管理費: ${pcsMarginVal}万円）</span><br>`;
-            if (batteryActive) pcsCostBreakdown += `・蓄電池併設: +${batteryCost}万円<br>`;
-            if (document.getElementById('fp-hazard-checkbox').checked && hazardInitialMitigationCost > 0) {
-                pcsCostBreakdown += `・ハザード対策: +${hazardInitialMitigationCost}万円<br>`;
-            }
-        } else {
-            // 標準モード時は一般オーナーの不審感・混乱を防ぐため管理費内訳を非表示にし、総基本額のみを提示
-            pcsCostBreakdown += `・PCS一括交換: ${actualPcsOptCost}万円<br>`;
-        }
-
-        repowerCostBreakdown += `・リパワリング: ${pureRepowerCost}万円<br>`;
-            const isHazardChecked = (currentMode === 'fp-enhanced' && document.getElementById('fp-hazard-checkbox').checked) || (currentMode === 'standard');
-        if (isHazardChecked && hazardInitialMitigationCost > 0) {
-            repowerCostBreakdown += `・ハザード対策: +${hazardInitialMitigationCost}万円<br>`;
-        }
-
-        // 表示の更新 (innerTextからinnerHTMLへ変更して内訳を表示)
-        document.getElementById('roi-pcs-investment').innerHTML = `${actualPcsOptCost}万円` + 
-            `<div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: normal; margin-top: 4px; line-height: 1.35; text-align: left; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 4px;">${pcsCostBreakdown}</div>`;
-        document.getElementById('roi-repower-investment').innerHTML = `${actualRepowerCost}万円` + 
-            `<div style="font-size: 0.65rem; color: var(--text-secondary); font-weight: normal; margin-top: 4px; line-height: 1.35; text-align: left; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 4px;">${repowerCostBreakdown}</div>`;
-        
-        document.getElementById('roi-base-sales').innerText = `${Math.round(totalBaseSales).toLocaleString()}万円`;
-        document.getElementById('roi-pcs-sales').innerText = `${Math.round(totalPcsOptSales).toLocaleString()}万円`;
-        document.getElementById('roi-repower-sales').innerText = `${Math.round(totalRepowerSales).toLocaleString()}万円`;
-        
-        document.getElementById('roi-base-cf').innerText = `${Math.round(finalBase).toLocaleString()}万円`;
-        document.getElementById('roi-pcs-cf').innerText = `${Math.round(finalPcsOpt).toLocaleString()}万円`;
-        document.getElementById('roi-repower-cf').innerText = `${Math.round(finalRepower).toLocaleString()}万円`;
-
-        const pcsNetEl = document.getElementById('roi-pcs-net');
-        pcsNetEl.innerText = `${netGainPcsOpt >= 0 ? '+' : ''}${Math.round(netGainPcsOpt).toLocaleString()}万円`;
-        pcsNetEl.style.color = netGainPcsOpt >= 0 ? '#60a5fa' : 'var(--danger-color)';
-
-        const repowerNetEl = document.getElementById('roi-repower-net');
-        repowerNetEl.innerText = `${netGainRepower >= 0 ? '+' : ''}${Math.round(netGainRepower).toLocaleString()}万円`;
-        repowerNetEl.style.color = netGainRepower >= 0 ? 'var(--accent-color)' : 'var(--danger-color)';
-
-        document.getElementById('roi-pcs-payback').innerText = paybackPcsOpt;
-        document.getElementById('roi-repower-payback').innerText = paybackRepower;
-
-        // 印刷用PDFデータの更新
-        document.getElementById('pdf-spec-name').innerText = data.name;
-        document.getElementById('pdf-spec-location').innerText = data.location;
-        const overcapacityRate = Math.round((data.panelCapacity / data.capacity) * 100);
-        document.getElementById('pdf-spec-capacity').innerText = `${data.panelCapacity.toFixed(1)} kW（パワコン容量: ${data.capacity.toFixed(1)} kW / 積載率: ${overcapacityRate}%）`;
-        document.getElementById('pdf-spec-fit-price').innerText = `${data.fitPrice.toFixed(1)} 円（新規認定日: ${data.fitCertDate}）`;
-        document.getElementById('pdf-spec-years').innerText = `${data.elapsedYears} 年（終了年月: ${data.fitEndDate}）`;
-        document.getElementById('pdf-spec-remaining').innerText = `${20 - data.elapsedYears} 年`;
-        document.getElementById('pdf-id').innerText = id;
-
-        document.getElementById('pdf-roi-pcs-investment').innerHTML = `${actualPcsOptCost}万円` + 
-            `<div style="font-size: 0.65rem; color: #475569; font-weight: normal; margin-top: 4px; line-height: 1.3; text-align: left; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 4px;">${pcsCostBreakdown}</div>`;
-        document.getElementById('pdf-roi-repower-investment').innerHTML = `${actualRepowerCost}万円` + 
-            `<div style="font-size: 0.65rem; color: #475569; font-weight: normal; margin-top: 4px; line-height: 1.3; text-align: left; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 4px;">${repowerCostBreakdown}</div>`;
-
-        document.getElementById('pdf-roi-base-sales').innerText = `${Math.round(totalBaseSales).toLocaleString()}万円`;
-        document.getElementById('pdf-roi-pcs-sales').innerText = `${Math.round(totalPcsOptSales).toLocaleString()}万円`;
-        document.getElementById('pdf-roi-repower-sales').innerText = `${Math.round(totalRepowerSales).toLocaleString()}万円`;
-
-        document.getElementById('pdf-roi-base-cf').innerText = `${Math.round(finalBase).toLocaleString()}万円`;
-        document.getElementById('pdf-roi-pcs-cf').innerText = `${Math.round(finalPcsOpt).toLocaleString()}万円`;
-        document.getElementById('pdf-roi-repower-cf').innerText = `${Math.round(finalRepower).toLocaleString()}万円`;
-
-        const pdfPcsNetEl = document.getElementById('pdf-roi-pcs-net');
-        pdfPcsNetEl.innerText = `${netGainPcsOpt >= 0 ? '+' : ''}${Math.round(netGainPcsOpt).toLocaleString()}万円`;
-        pdfPcsNetEl.style.color = netGainPcsOpt >= 0 ? '#1e3a8a' : '#ef4444';
-
-        const pdfRepowerNetEl = document.getElementById('pdf-roi-repower-net');
-        pdfRepowerNetEl.innerText = `${netGainRepower >= 0 ? '+' : ''}${Math.round(netGainRepower).toLocaleString()}万円`;
-        pdfRepowerNetEl.style.color = netGainRepower >= 0 ? '#0f766e' : '#ef4444';
-
-        document.getElementById('pdf-roi-pcs-payback').innerText = paybackPcsOpt;
-        document.getElementById('pdf-roi-repower-payback').innerText = paybackRepower;
-
-        const pdfHazardText = document.getElementById('pdf-hazard-text');
-        const pdfHazardSection = document.getElementById('pdf-hazard-section');
-        const currentHazardText = document.getElementById('hazard-alert-text')?.innerText || "ハザードマップ上、災害リスクは極めて低いです（浸水・土砂災害区域外）。";
-        const hasLandslide = currentHazardText.includes("警戒") || currentHazardText.includes("土砂");
-        const hasFlood = currentHazardText.includes("浸水") || currentHazardText.includes("洪水");
-        
-        if (currentMode === 'fp-enhanced' && document.getElementById('fp-hazard-checkbox').checked && (hasLandslide || hasFlood)) {
-            pdfHazardSection.style.display = 'block';
-            pdfHazardText.innerText = currentHazardText.replace("ハザードリスク情報: ", "");
-        } else {
-            pdfHazardSection.style.display = 'none';
-        }
-        
-        // アラートアコーディオンのヘッダー件数を更新
-        if (typeof updateAlertAccordionHeader === 'function') {
-            updateAlertAccordionHeader();
-        }
-        
-        // AI診断結論カードの動的更新
-        const conclusionContainer = document.getElementById('ai-conclusion-card-container');
-        const conclusionCard = document.getElementById('ai-conclusion-card');
-        const conclusionTitle = document.getElementById('ai-conclusion-title');
-        const conclusionBody = document.getElementById('ai-conclusion-body');
-        const conclusionBadge = document.getElementById('ai-conclusion-badge');
-
-        if (conclusionContainer && conclusionCard && conclusionTitle && conclusionBody && conclusionBadge) {
-            conclusionContainer.style.display = 'block';
-            
-            // 損得判定
-            if (netGainRepower > 0 && netGainRepower > netGainPcsOpt) {
-                // プランB（リパワリング）推奨
-                const remainingYears = Math.max(1, Math.round(20 - data.elapsedYears));
-                
-                if (pbRepower !== null && pbRepower <= 10) {
-                    // ① 早期回収（10年以下）
-                    conclusionCard.style.borderLeft = '5px solid #10b981'; // 緑色
-                    conclusionBadge.innerText = 'AI推奨：最高収益 (早期回収型)';
-                    conclusionBadge.style.background = '#10b981';
-                    conclusionBadge.style.color = 'white';
-                    conclusionTitle.innerText = 'プランB（フルリパワリング）の実施を強く推奨します';
-                    conclusionBody.innerHTML = `本発電所はリパワリングの投資対効果が極めて高く、現状維持と比較して${simYears}年間で手残りCFが <strong>+${Math.round(netGainRepower).toLocaleString()}万円</strong> 向上します。` +
-                                                `初期投資 ${actualRepowerCost}万円 は、過積載増設と発電効率の向上により、<strong>${paybackRepower}</strong> という極めてスピーディーな期間で投資回収が可能です。早期に純利益化フェーズへ移行するため、将来の資産価値を最大化する最適な選択肢です。`;
-                } else if (pbRepower !== null && (pbRepower <= 15 || pbRepower <= remainingYears)) {
-                    // ② 合理的回収（残存FIT内）
-                    conclusionCard.style.borderLeft = '5px solid #10b981'; // 緑色
-                    conclusionBadge.innerText = 'AI推奨：手残り最大';
-                    conclusionBadge.style.background = '#10b981';
-                    conclusionBadge.style.color = 'white';
-                    conclusionTitle.innerText = 'プランB（フルリパワリング）の実行をおすすめします';
-                    conclusionBody.innerHTML = `本発電所はリパワリングにより手残りCFが大幅に増加し、現状維持と比較して${simYears}年間で手残りCFが <strong>+${Math.round(netGainRepower).toLocaleString()}万円</strong> 向上します。` +
-                                                `初期投資 ${actualRepowerCost}万円 は、過積載増設と発電効率の向上により、<strong>${paybackRepower}</strong> で着実に投資回収が可能です。残存FIT期間（残り${remainingYears}年）内に初期投資を回収できるためリスクが低く、将来の資産価値を最大化する最適な選択肢です。`;
-                } else {
-                    // ③ 長期回収（15年超 かつ 残存FIT超）
-                    conclusionCard.style.borderLeft = '5px solid #fbbf24'; // 黄色・アンバー
-                    conclusionBadge.innerText = 'AI推奨：要長期判断';
-                    conclusionBadge.style.background = '#eab308'; // 少し濃い黄色
-                    conclusionBadge.style.color = 'white';
-                    conclusionTitle.innerText = 'プランB（リパワリング）は収益は増えますが、回収の長期化に留意してください';
-                    conclusionBody.innerHTML = `本発電所はリパワリングにより${simYears}年間で手残りCFが <strong>+${Math.round(netGainRepower).toLocaleString()}万円</strong> 向上しますが、初期投資 ${actualRepowerCost}万円 の回収には <strong>${paybackRepower}</strong> と長期を要します。` +
-                                                `回収完了がFIT期間終了（残り${remainingYears}年）の翌年以降になるため、卒FIT後も長期運用を継続することを前提とした計画的な実行を推奨します。`;
-                }
-            } else if (netGainPcsOpt > 0 && netGainPcsOpt >= netGainRepower) {
-                // プランA（PCS交換）推奨
-                conclusionCard.style.borderLeft = '5px solid #3b82f6'; // 青色
-                conclusionBadge.innerText = 'AI推奨：堅実回収';
-                conclusionBadge.style.background = '#3b82f6';
-                conclusionBadge.style.color = 'white';
-                conclusionTitle.innerText = 'プランA（PCS一括交換）が最も現実的なおすすめプランです';
-                conclusionBody.innerHTML = `初期コストを抑えつつ突発故障リスクを回避する「プランA：PCS一括交換」が最適解です。` +
-                                            `現状維持と比較して手残りCFが <strong>+${Math.round(netGainPcsOpt).toLocaleString()}万円</strong> 向上します。` +
-                                            `一方、プランB（フルリパワリング）は投資額（${actualRepowerCost}万円）の回収が困難（収支差額 <strong>${Math.round(netGainRepower).toLocaleString()}万円</strong> の赤字）となるため、今回の条件では非推奨です。`;
-            } else {
-                // 現状維持（成り行き・早期売却Exit）推奨
-                conclusionCard.style.borderLeft = '5px solid #fbbf24'; // 黄色（アンバー）
-                conclusionBadge.innerText = 'AI推奨：投資非推奨';
-                conclusionBadge.style.background = '#fbbf24';
-                conclusionBadge.style.color = '#0f172a';
-                conclusionTitle.innerText = '追加投資は行わず、現状維持（成り行き）または早期売却Exitが最適解です';
-                
-                let detailReason = "";
-                if (fitPrice < 15.0) {
-                    detailReason = `FIT単価が <strong>${fitPrice.toFixed(1)}円</strong> と低価格であるため、`;
-                } else if (repowerCost >= 2000) {
-                    detailReason = `リパワリング投資額（${actualRepowerCost}万円）が巨額であるため、`;
-                } else {
-                    detailReason = `現在の設備コンディションでは、`;
-                }
-                
-                conclusionBody.innerHTML = `${detailReason}追加の改修投資を行っても投資回収が極めて困難です。` +
-                                            `プランB（フルリパワリング）は <strong>-${Math.abs(Math.round(netGainRepower)).toLocaleString()}万円</strong>、` +
-                                            `プランA（PCS一括交換）も <strong>-${Math.abs(Math.round(netGainPcsOpt)).toLocaleString()}万円</strong> の赤字（現状維持比）となるため非推奨です。` +
-                                            `修繕を最小限に抑えて現在の売電収入を享受し続けるか、あるいは12年目のパワコン定期更新期（約${actualPcsOptCost}万円の支出）を迎える前に早期売却Exitをご検討ください。`;
-            }
-        }
+        // 検証スクリプト用に計算配列をエクスポート
         window.baseCF = baseCF;
         window.pcsOptCF = pcsOptCF;
         window.repowerCF = repowerCF;
-        window.netGainRepower = netGainRepower;
-        window.pbRepower = pbRepower;
-        window.netGainPcsOpt = netGainPcsOpt;
     }
 
     // 印刷ボタンの押下制御
@@ -5410,13 +5114,13 @@ function dismissLoginModal(event) {
             if (window.history && window.history.replaceState) {
                 window.history.replaceState(null, '', '/valu/?id=' + id);
             }
-            loadDemoData(id);
+            loadDemoData();
         }
     }
 
     // 会員登録誘導モーダルの制御（文脈に応じたメッセージ＆ダイナミックURL対応）
     function showLoginRequiredModal(featureName, targetAssetId = "") {
-        if (isModalDismissed) return;
+        if (isModalDismissed) return; // ユーザーが意図的に閉じた場合は再オープンをブロック
         const titleEl = document.getElementById('login-required-title');
         const msgEl = document.getElementById('login-required-message');
         const loginBtn = document.getElementById('login-modal-btn');
@@ -5451,7 +5155,7 @@ function dismissLoginModal(event) {
         if (currentId && !demoIds.includes(currentId) && !isLoggedIn) {
             titleEl.innerText = `発電所 (ID: ${currentId}) のシミュレーション`;
             msgEl.innerHTML = `<strong>指定された発電所 (ID: ${currentId}) の収支・資産価値シミュレーションが利用できます！</strong><br><br>無料の会員登録（所要時間1分）を行っていただくと、この発電所の詳細な手残りキャッシュフロー予測、リスク診断、およびPDF提案レポートが今すぐ利用できます。`;
-            if (closeX) closeX.style.display = 'none'; // 非デモID閲覧時は閉じる(×)ボタンを非表示
+            if (closeX) closeX.style.display = 'block'; // 閉じる(×)ボタンを常に表示！
             if (cancelBtn) cancelBtn.innerText = "デモ操作画面に移動する";
         } else {
             titleEl.innerText = `${featureName.replace('設備', '発電所')}の機能`;
@@ -5532,9 +5236,11 @@ function dismissLoginModal(event) {
             if (window.history && window.history.replaceState) {
                 window.history.replaceState(null, '', '/valu/?id=DEMO-TOKUSHIMA');
             }
-            // idInput.value を DEMO-TOKUSHIMA にセット済みなので、
-            // loadDemoData 内の isDemoId チェックを通過しフル計算が実行される
-            loadDemoData();
+            if (typeof selectDemoAsset === 'function') {
+                selectDemoAsset('DEMO-TOKUSHIMA');
+            } else if (typeof updateSimulation === 'function') {
+                updateSimulation('DEMO-TOKUSHIMA');
+            }
         }
     }
 
@@ -5984,7 +5690,7 @@ function dismissLoginModal(event) {
         if (modalEl) modalEl.style.display = 'none';
 
         initCharts();
-        applyUrlParameters();
+        await applyUrlParameters();
         switchMode('fp-enhanced'); // 初期状態はブラッシュアップ版（FP拡張）
     };
 
