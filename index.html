@@ -3919,6 +3919,12 @@ function dismissLoginModal(event) {
         if (!isLoggedIn && idInput && !demoIds.includes(idInput.value)) {
             idInput.value = "DEMO-TOKUSHIMA";
         }
+
+        // 実績補正（キャリブレーション）の完全初期化
+        isCalibrated = false;
+        calRatio = 1.0;
+        calDegradation = 0.005;
+        calLoss = 0.0;
         
         // キャリブレーション入力およびEPCマスタ入力を初期化
         const actualInput = document.getElementById('actual-revenue-input');
@@ -4513,9 +4519,8 @@ function dismissLoginModal(event) {
 
     // FIT買取単価のインプレース編集機能
     function startInPlaceEdit() {
-        const container = document.getElementById('spec-fit-price-display-container');
         const fitInput = document.getElementById('fit-price');
-        if (!container || !fitInput) return;
+        if (!fitInput) return;
 
         const currentVal = fitInput.value || "24.0";
         const newPriceStr = prompt("FIT買取単価（円/kWh）を直接入力してください:", currentVal);
@@ -4525,10 +4530,34 @@ function dismissLoginModal(event) {
                 fitInput.value = newPrice.toFixed(1);
                 const valEl = document.getElementById('fit-price-val');
                 if (valEl) valEl.innerText = newPrice.toFixed(1);
+                const specFitEl = document.getElementById('spec-fit-price');
+                if (specFitEl) specFitEl.innerText = newPrice.toFixed(1);
                 updateSimulation(true);
             } else {
                 alert("有効な数値を入力してください。");
             }
+        }
+    }
+
+    function commitInPlaceEdit() {
+        const editInput = document.getElementById('spec-fit-price-input');
+        if (editInput) {
+            const newPrice = parseFloat(editInput.value);
+            if (!isNaN(newPrice) && newPrice > 0) {
+                const fitInput = document.getElementById('fit-price');
+                if (fitInput) fitInput.value = newPrice.toFixed(1);
+                const valEl = document.getElementById('fit-price-val');
+                if (valEl) valEl.innerText = newPrice.toFixed(1);
+                const specFitEl = document.getElementById('spec-fit-price');
+                if (specFitEl) specFitEl.innerText = newPrice.toFixed(1);
+                updateSimulation(true);
+            }
+        }
+    }
+
+    function handleInPlaceEditKey(event) {
+        if (event && (event.key === 'Enter' || event.keyCode === 13)) {
+            commitInPlaceEdit();
         }
     }
 
@@ -5011,6 +5040,64 @@ function dismissLoginModal(event) {
         if (elRoiRepower) elRoiRepower.innerText = paybackText;
         if (elPdfRoiRepower) elPdfRoiRepower.innerText = paybackText;
 
+        // 「シミュレーションプラン比較概要」テーブルの平均年間手取り(FIT中/FIT後)データバインド
+        if (res && res.yearlyData && res.yearlyData.length > 0) {
+            const solarIdVal = document.getElementById('solar-id')?.value;
+            const assetInfoData = getSolarData(solarIdVal);
+            const elapsedY = (assetInfoData && assetInfoData.elapsedYears !== undefined) ? assetInfoData.elapsedYears : 8.0;
+            const remFit = Math.max(1, Math.round(20 - elapsedY));
+
+            const fitRows = res.yearlyData.filter(r => r.year <= remFit);
+            const postRows = res.yearlyData.filter(r => r.year > remFit);
+
+            if (fitRows.length > 0) {
+                const sqFitAvg = Math.round(fitRows.reduce((sum, r) => sum + (r.statusQuo !== undefined ? r.statusQuo : (r.status_quo || 0)), 0) / fitRows.length);
+                const paFitAvg = Math.round(fitRows.reduce((sum, r) => sum + (r.planA !== undefined ? r.planA : (r.plan_a || 0)), 0) / fitRows.length);
+                const pbFitAvg = Math.round(fitRows.reduce((sum, r) => sum + (r.planB !== undefined ? r.planB : (r.plan_b || 0)), 0) / fitRows.length);
+
+                const elSqFit = document.getElementById('roi-base-annual-fit');
+                const elPaFit = document.getElementById('roi-pcs-annual-fit');
+                const elPbFit = document.getElementById('roi-repower-annual-fit');
+                const elPaFitDiff = document.getElementById('roi-pcs-annual-fit-diff');
+                const elPbFitDiff = document.getElementById('roi-repower-annual-fit-diff');
+
+                if (elSqFit) elSqFit.innerText = `${sqFitAvg.toLocaleString()}万円`;
+                if (elPaFit) elPaFit.innerText = `${paFitAvg.toLocaleString()}万円`;
+                if (elPbFit) elPbFit.innerText = `${pbFitAvg.toLocaleString()}万円`;
+
+                const paDiff = paFitAvg - sqFitAvg;
+                const pbDiff = pbFitAvg - sqFitAvg;
+                if (elPaFitDiff) elPaFitDiff.innerText = `${paDiff >= 0 ? '+' : ''}${paDiff.toLocaleString()}万円`;
+                if (elPbFitDiff) elPbFitDiff.innerText = `${pbDiff >= 0 ? '+' : ''}${pbDiff.toLocaleString()}万円`;
+            }
+
+            if (postRows.length > 0) {
+                const sqPostAvg = Math.round(postRows.reduce((sum, r) => sum + (r.statusQuo !== undefined ? r.statusQuo : (r.status_quo || 0)), 0) / postRows.length);
+                const paPostAvg = Math.round(postRows.reduce((sum, r) => sum + (r.planA !== undefined ? r.planA : (r.plan_a || 0)), 0) / postRows.length);
+                const pbPostAvg = Math.round(postRows.reduce((sum, r) => sum + (r.planB !== undefined ? r.planB : (r.plan_b || 0)), 0) / postRows.length);
+
+                const elSqPost = document.getElementById('roi-base-annual-post');
+                const elPaPost = document.getElementById('roi-pcs-annual-post');
+                const elPbPost = document.getElementById('roi-repower-annual-post');
+                const elPaPostDiff = document.getElementById('roi-pcs-annual-post-diff');
+                const elPbPostDiff = document.getElementById('roi-repower-annual-post-diff');
+
+                if (elSqPost) elSqPost.innerText = `${sqPostAvg.toLocaleString()}万円`;
+                if (elPaPost) elPaPost.innerText = `${paPostAvg.toLocaleString()}万円`;
+                if (elPbPost) elPbPost.innerText = `${pbPostAvg.toLocaleString()}万円`;
+
+                const paPostDiff = paPostAvg - sqPostAvg;
+                const pbPostDiff = pbPostAvg - sqPostAvg;
+                if (elPaPostDiff) elPaPostDiff.innerText = `${paPostDiff >= 0 ? '+' : ''}${paPostDiff.toLocaleString()}万円`;
+                if (elPbPostDiff) elPbPostDiff.innerText = `${pbPostDiff >= 0 ? '+' : ''}${pbPostDiff.toLocaleString()}万円`;
+            } else {
+                ['roi-base-annual-post', 'roi-pcs-annual-post', 'roi-repower-annual-post', 'roi-pcs-annual-post-diff', 'roi-repower-annual-post-diff'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerText = "-";
+                });
+            }
+        }
+
         // アラートメッセージテキスト（PCS・FIT）の動的バインド
         if (currentLoadedAssetData) {
             const pcsLifeVal = parseFloat(document.getElementById('pcs-design-life')?.value || '15');
@@ -5072,6 +5159,55 @@ function dismissLoginModal(event) {
         window.repowerCF = repowerCF;
     }
 
+    // PDFレポートプレビューの動的データ同期
+    function renderPDFReport() {
+        const id = document.getElementById('solar-id')?.value;
+        const data = getSolarData(id);
+        if (!data) return;
+
+        const todayStr = new Date().toISOString().split('T')[0];
+        const pdfDate = document.getElementById('pdf-current-date');
+        if (pdfDate) pdfDate.innerText = todayStr;
+
+        const pdfId = document.getElementById('pdf-id');
+        if (pdfId) pdfId.innerText = id;
+
+        const pdfName = document.getElementById('pdf-spec-name');
+        if (pdfName) pdfName.innerText = data.name || data.id;
+
+        const pdfLoc = document.getElementById('pdf-spec-location');
+        if (pdfLoc) pdfLoc.innerText = data.location || "---";
+
+        const pdfCap = document.getElementById('pdf-spec-capacity');
+        if (pdfCap) {
+            const overcap = Math.round((data.panelCapacity / data.capacity) * 100);
+            pdfCap.innerText = `${data.panelCapacity.toFixed(1)} kW（パワコン容量: ${data.capacity.toFixed(1)} kW / 積載率: ${overcap}%）`;
+        }
+
+        const fitPrice = parseFloat(document.getElementById('fit-price')?.value || '24.0');
+        const pdfFit = document.getElementById('pdf-spec-fit-price');
+        if (pdfFit) pdfFit.innerText = `${fitPrice.toFixed(1)} 円`;
+
+        const elapsed = data.elapsedYears || 0;
+        const remaining = Math.max(1, Math.round(20 - elapsed));
+        const pdfYears = document.getElementById('pdf-spec-years');
+        if (pdfYears) pdfYears.innerText = `${elapsed} 年`;
+        const pdfRem = document.getElementById('pdf-spec-remaining');
+        if (pdfRem) pdfRem.innerText = `${remaining} 年`;
+
+        const repowerCost = document.getElementById('repower-cost')?.value || "250";
+        const pdfCost = document.getElementById('pdf-roi-repower-investment');
+        if (pdfCost) pdfCost.innerText = `${repowerCost}万円`;
+
+        const assetVal = document.getElementById('owner-asset-value')?.innerText || "---";
+        const pdfAsset = document.getElementById('pdf-roi-repower-cf');
+        if (pdfAsset) pdfAsset.innerText = `¥${assetVal}`;
+
+        const roiVal = document.getElementById('repower-roi-period-main-wrap')?.innerText || "---";
+        const pdfRoi = document.getElementById('pdf-roi-repower-payback');
+        if (pdfRoi) pdfRoi.innerText = roiVal;
+    }
+
     // 印刷ボタンの押下制御
     function handlePrint() {
         const isLoggedIn = !!localStorage.getItem('sorasco-access-token');
@@ -5080,11 +5216,11 @@ function dismissLoginModal(event) {
             return;
         }
 
+        renderPDFReport(); // 最新のアセット・シミュレーションデータをPDFへバインド
+
         if (currentMode === 'standard') {
-            // 初期バージョン時はそのままブラウザの標準印刷を実行
             window.print();
         } else {
-            // FP拡張バージョン時はモーダル表示
             document.getElementById('pdf-modal').style.display = 'flex';
         }
     }
