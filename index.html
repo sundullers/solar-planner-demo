@@ -2141,7 +2141,7 @@
                                 </tr>
                                 <tr style="background: rgba(59, 130, 246, 0.05); font-size: 0.85rem;">
                                     <td style="padding-left: 20px; color: var(--text-secondary);">↳ 維持比での年間追加手取り</td>
-                                    <td style="color: var(--text-secondary);">-</td>
+                                    <td style="color: var(--text-secondary); font-size: 0.8rem;">基準</td>
                                     <td id="roi-pcs-annual-fit-diff" style="color: #60a5fa; font-weight: bold;">-</td>
                                     <td id="roi-repower-annual-fit-diff" style="color: var(--accent-color); font-weight: bold;">-</td>
                                 </tr>
@@ -2153,7 +2153,7 @@
                                 </tr>
                                 <tr style="background: rgba(59, 130, 246, 0.05); font-size: 0.85rem;">
                                     <td style="padding-left: 20px; color: var(--text-secondary);">↳ 維持比での年間追加手取り</td>
-                                    <td style="color: var(--text-secondary);">-</td>
+                                    <td style="color: var(--text-secondary); font-size: 0.8rem;">基準</td>
                                     <td id="roi-pcs-annual-post-diff" style="color: #60a5fa; font-weight: bold;">-</td>
                                     <td id="roi-repower-annual-post-diff" style="color: var(--accent-color); font-weight: bold;">-</td>
                                 </tr>
@@ -2165,13 +2165,13 @@
                                 </tr>
                                 <tr>
                                     <td>実質純増収 (維持比)</td>
-                                    <td style="color: var(--text-secondary);">-</td>
+                                    <td style="color: var(--text-secondary); font-size: 0.8rem;">基準</td>
                                     <td id="roi-pcs-net" style="color: #60a5fa; font-weight: bold;">+150万円</td>
                                     <td id="roi-repower-net" style="color: var(--accent-color); font-weight: bold;">+300万円</td>
                                 </tr>
                                 <tr>
                                     <td>投資回収期間</td>
-                                    <td style="color: var(--text-secondary);">-</td>
+                                    <td style="color: var(--text-secondary); font-size: 0.8rem;">基準 (投資0)</td>
                                     <td id="roi-pcs-payback">5.2年</td>
                                     <td id="roi-repower-payback">6.8年</td>
                                 </tr>
@@ -2346,7 +2346,7 @@
                             </tr>
                             <tr style="background: rgba(59, 130, 246, 0.05); font-size: 0.85rem;">
                                 <td style="text-align: left; padding-left: 20px; color: #475569;">↳ 維持比での年間追加手取り</td>
-                                <td style="color: #64748b;">-</td>
+                                <td style="color: #64748b;">基準</td>
                                 <td id="pdf-roi-pcs-annual-fit-diff" style="color: #1e3a8a; font-weight: bold;">-</td>
                                 <td id="pdf-roi-repower-annual-fit-diff" style="color: #0f766e; font-weight: bold;">-</td>
                             </tr>
@@ -2358,7 +2358,7 @@
                             </tr>
                             <tr style="background: rgba(16, 185, 129, 0.05); font-size: 0.85rem;">
                                 <td style="text-align: left; padding-left: 20px; color: #475569;">↳ 維持比での年間追加手取り</td>
-                                <td style="color: #64748b;">-</td>
+                                <td style="color: #64748b;">基準</td>
                                 <td id="pdf-roi-pcs-annual-post-diff" style="color: #1e3a8a; font-weight: bold;">-</td>
                                 <td id="pdf-roi-repower-annual-post-diff" style="color: #0f766e; font-weight: bold;">-</td>
                             </tr>
@@ -2370,13 +2370,13 @@
                             </tr>
                             <tr>
                                 <td style="text-align: left; font-weight: bold;">実質純増収（維持比）</td>
-                                <td style="color: #64748b;">-</td>
+                                <td style="color: #64748b;">基準</td>
                                 <td id="pdf-roi-pcs-net" style="color: #1e3a8a; font-weight: bold;">+150万円</td>
                                 <td id="pdf-roi-repower-net" style="color: #0f766e; font-weight: bold;">+300万円</td>
                             </tr>
                             <tr>
                                 <td style="text-align: left; font-weight: bold;">投資回収期間</td>
-                                <td style="color: #64748b;">-</td>
+                                <td style="color: #64748b;">基準 (投資0)</td>
                                 <td id="pdf-roi-pcs-payback">5.2年</td>
                                 <td id="pdf-roi-repower-payback">6.8年</td>
                             </tr>
@@ -5091,10 +5091,17 @@ function dismissLoginModal(event) {
                 if (elPaPostDiff) elPaPostDiff.innerText = `${paPostDiff >= 0 ? '+' : ''}${paPostDiff.toLocaleString()}万円`;
                 if (elPbPostDiff) elPbPostDiff.innerText = `${pbPostDiff >= 0 ? '+' : ''}${pbPostDiff.toLocaleString()}万円`;
             } else {
-                ['roi-base-annual-post', 'roi-pcs-annual-post', 'roi-repower-annual-post', 'roi-pcs-annual-post-diff', 'roi-repower-annual-post-diff'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.innerText = "-";
-                });
+                const labelText = "対象外 (FIT期間内)";
+                const elSqPost = document.getElementById('roi-base-annual-post');
+                const elPaPost = document.getElementById('roi-pcs-annual-post');
+                const elPbPost = document.getElementById('roi-repower-annual-post');
+                const elPaPostDiff = document.getElementById('roi-pcs-annual-post-diff');
+                const elPbPostDiff = document.getElementById('roi-repower-annual-post-diff');
+                if (elSqPost) elSqPost.innerText = labelText;
+                if (elPaPost) elPaPost.innerText = labelText;
+                if (elPbPost) elPbPost.innerText = labelText;
+                if (elPaPostDiff) elPaPostDiff.innerText = labelText;
+                if (elPbPostDiff) elPbPostDiff.innerText = labelText;
             }
         }
 
