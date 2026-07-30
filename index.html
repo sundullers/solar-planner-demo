@@ -1582,8 +1582,11 @@
         .advanced-param .form-group-sub,
         .accordion-body,
         #accordion-body,
-        #battery-capacity-group {
-            display: none;
+        #battery-capacity-group,
+        .fp-only.advanced-param,
+        .standard-only.advanced-param,
+        #fp-master-accordion.advanced-param {
+            display: none !important;
         }
     </style>
 </head>
@@ -4728,14 +4731,14 @@ function dismissLoginModal(event) {
             
             if (isChecked) {
                 if (isFpOnly && !isFpActive) {
-                    el.style.display = 'none';
+                    el.style.setProperty('display', 'none', 'important');
                 } else if (isStandardOnly && isFpActive) {
-                    el.style.display = 'none';
+                    el.style.setProperty('display', 'none', 'important');
                 } else {
-                    el.style.display = 'block';
+                    el.style.setProperty('display', 'block', 'important');
                 }
             } else {
-                el.style.display = 'none';
+                el.style.setProperty('display', 'none', 'important');
             }
         });
     }
