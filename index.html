@@ -4792,10 +4792,31 @@ function dismissLoginModal(event) {
         });
 
         // 評価額カードの動的表示
-        document.getElementById('card-asset-val').innerText = `¥ ${Math.round(res.currentValuation).toLocaleString()}`;
-        document.getElementById('card-cum-cf').innerText = `¥ ${Math.round(res.netCf20Yr).toLocaleString()}`;
-        document.getElementById('card-repower-effect').innerText = `+ ¥ ${Math.round(res.repowerEffect).toLocaleString()}`;
-        document.getElementById('card-payback-years').innerText = `${res.paybackYears} 年`;
+        if (document.getElementById('owner-asset-value')) {
+            document.getElementById('owner-asset-value').innerText = Math.round(res.currentValuation).toLocaleString();
+        }
+        if (document.getElementById('owner-lifetime-cf')) {
+            document.getElementById('owner-lifetime-cf').innerText = Math.round(res.netCf20Yr).toLocaleString();
+        }
+        if (document.getElementById('owner-repower-gain')) {
+            document.getElementById('owner-repower-gain').innerText = `+¥${Math.round(res.repowerEffect).toLocaleString()}`;
+        }
+        if (document.getElementById('owner-repower-payback')) {
+            document.getElementById('owner-repower-payback').innerText = `${res.paybackYears}年`;
+        }
+
+        if (document.getElementById('card-asset-val')) {
+            document.getElementById('card-asset-val').innerText = `¥ ${Math.round(res.currentValuation).toLocaleString()}`;
+        }
+        if (document.getElementById('card-cum-cf')) {
+            document.getElementById('card-cum-cf').innerText = `¥ ${Math.round(res.netCf20Yr).toLocaleString()}`;
+        }
+        if (document.getElementById('card-repower-effect')) {
+            document.getElementById('card-repower-effect').innerText = `+ ¥ ${Math.round(res.repowerEffect).toLocaleString()}`;
+        }
+        if (document.getElementById('card-payback-years')) {
+            document.getElementById('card-payback-years').innerText = `${res.paybackYears} 年`;
+        }
 
         if (document.getElementById('ai-conclusion-body')) {
             document.getElementById('ai-conclusion-body').innerText = res.aiConclusion;
