@@ -4708,7 +4708,7 @@ function dismissLoginModal(event) {
         const pcsCost = parseFloat(document.getElementById('pcs-cost').value);
         const pcsUnit = parseFloat(document.getElementById('pcs-unit-cost').value);
         const pcsCount = parseInt(document.getElementById('pcs-count').value);
-        const pcsLife = parseFloat(document.getElementById('pcs-design-life').value);
+        const pcsLife = parseInt(document.getElementById('pcs-design-life').value);
         const fitPrice = parseFloat(document.getElementById('fit-price').value);
         const postFitPrice = parseFloat(document.getElementById('post-fit-price').value);
         const fipActive = document.getElementById('fip-checkbox').checked;
@@ -4850,36 +4850,6 @@ function dismissLoginModal(event) {
 
         document.getElementById('fit-price-val').innerText = fitPrice.toFixed(1);
         document.getElementById('post-fit-price-val').innerText = postFitPrice.toFixed(1);
-    }
-        
-        // リパワリングしない（repowerCost === 0）の場合の完全な現状維持同期処理
-        if (repowerCost === 0) {
-            for (let k = 0; k <= simYears; k++) {
-                repowerCF[k] = baseCF[k];
-                repowerAnnualCF[k] = baseAnnualCF[k];
-            }
-        }
-
-        // 投資回収ポイント（0円を超えるポイント）のハイライト関数
-        // 年間手取りのY軸スケールの動的調整（初期投資等の巨大マイナスがはみ出るのを防止）
-        const allAnnualValues = [...baseAnnualCF, ...pcsAnnualCF, ...repowerAnnualCF];
-        const minAnnualVal = Math.min(...allAnnualValues);
-        const maxAnnualVal = Math.max(...allAnnualValues);
-        
-        // 50万円単位できれいに丸めてマージンを持たせる
-        annualYMin = minAnnualVal < 0 ? Math.floor(minAnnualVal * 1.15 / 50) * 50 : 0;
-        annualYMax = maxAnnualVal > 0 ? Math.ceil(maxAnnualVal * 1.15 / 50) * 50 : 100;
-
-        // ドリルダウンポップアップ用に計算結果の年次明細データをグローバル退避
-        lastSimDetailData = {
-            baseSales: baseSalesData,
-            baseExpense: baseExpenseData,
-            pcsOptSales: pcsOptSalesData,
-            pcsOptExpense: pcsOptExpenseData,
-            repowerSales: repowerSalesData,
-            repowerExpense: repowerExpenseData
-        };
-
         // チャート更新 (未初期化時のクラッシュを防止する安全ガード)
         if (typeof initCharts === 'function' && (!cfChart || !annualChart)) {
             initCharts();
