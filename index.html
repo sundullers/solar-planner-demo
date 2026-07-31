@@ -1584,6 +1584,43 @@
                 border-bottom: 2px solid #22c55e !important;
             }
         }
+
+        /* 高級スケルトン・シマーローダーエフェクト */
+        .skeleton-shimmer {
+            position: relative;
+            display: inline-block;
+            min-width: 90px;
+            height: 1.1em;
+            background: linear-gradient(90deg, rgba(226, 232, 240, 0.5) 25%, rgba(203, 213, 225, 0.9) 50%, rgba(226, 232, 240, 0.5) 75%);
+            background-size: 200% 100%;
+            animation: shimmerPulse 1.2s infinite linear;
+            border-radius: 6px;
+            vertical-align: middle;
+            margin: 0 4px;
+        }
+        @keyframes shimmerPulse {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* AIリアルタイム解析演出バッジ */
+        .ai-scan-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 10px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(16, 185, 129, 0.12));
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #2563eb;
+            animation: aiGlowPulse 1.5s infinite ease-in-out;
+        }
+        @keyframes aiGlowPulse {
+            0%, 100% { box-shadow: 0 0 4px rgba(59, 130, 246, 0.2); }
+            50% { box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+        }
     </style>
 </head>
 <body>
@@ -4111,7 +4148,7 @@ function dismissLoginModal(event) {
         // APIロード状態を開始
         isApiLoading = true;
         
-        // 金額カウント表示を一旦リセット（API結果待ちのローディング状態）
+        // 金額カウント表示を一旦リセット（API結果待ち・シミュレーション解析中の高級スケルトンシマー演出）
         const elementsToReset = [
             'owner-lifetime-cf', 'owner-asset-value', 'owner-asset-value-base', 
             'owner-lifetime-cf-base', 'owner-asset-value-diff', 'owner-lifetime-cf-diff',
@@ -4119,7 +4156,7 @@ function dismissLoginModal(event) {
         ];
         elementsToReset.forEach(resetId => {
             const el = document.getElementById(resetId);
-            if (el) el.innerText = "---";
+            if (el) el.innerHTML = '<span class="skeleton-shimmer"></span>';
         });
 
         // デモ用IDの場合はAPIフェッチをバイパスして、最初からローカルのモックデータを使用する
