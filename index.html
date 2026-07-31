@@ -2891,9 +2891,8 @@ function dismissLoginModal(event) {
     const tokushimaPreloadPromise = preloadTokushimaData();
 
     // 状態管理
-    let currentMode = 'fp-enhanced';
+    let currentMode = 'standard';
     let currentLoadingAssetId = ''; // レースコンディション（競合）対策用
-    let isInitialLoading = true; // 初期化途中の複数回二重描画を完全防ぐフラグ
     let isCalibrated = false;
     let calDegradation = 0.005; // 劣化率
     let calLoss = 0.0; // 影等のその他の損失
@@ -3110,40 +3109,60 @@ function dismissLoginModal(event) {
     // 各DOM要素のアクティブなアニメーションフレームIDを管理するオブジェクト
     const activeAnimations = {};
 
-    // ギミック1: 数値の超滑らか200ms高速カウントアップ表示
+    // ギミック1: 数値の高速カウントアップ ＆ ゴールドグロー効果
     function animateNumberValue(id, targetVal, isCurrency = true) {
         const obj = document.getElementById(id);
         if (!obj) return;
         
-        const endVal = targetVal;
-        const newText = isCurrency ? Math.round(endVal).toLocaleString() : endVal.toFixed(1);
-        if (obj.innerText === newText) return; // 重複描画の物理防止
-
+        // 既にアニメーションが走っている場合はキャンセル
+        if (activeAnimations[id]) {
+            cancelAnimationFrame(activeAnimations[id]);
+            activeAnimations[id] = null;
+        }
+        
+        // 直近の数値をパースして開始値とする（なければ0）
         const currentText = obj.innerText.replace(/,/g, '').trim();
         let startVal = parseFloat(currentText) || 0;
         if (isNaN(startVal)) startVal = 0;
+        
+        // 目標値
+        const endVal = targetVal;
+        if (startVal === endVal) {
+            // 値が変わらない場合はフォーマットだけして即ゴールドグローを一瞬当てて終わる
+            obj.innerText = isCurrency ? Math.round(endVal).toLocaleString() : endVal.toFixed(1);
+            return;
+        }
 
-        // 200ms の爆速・ヌルヌルアニメーション
-        const duration = 200;
+        const duration = 750; // アニメーション時間（ミリ秒）
         const startTime = performance.now();
+        
+        // ゴールドグロー用のアニメーションクラスを当てる
+        obj.classList.add('gold-glow-active');
 
         function updateNumber(now) {
             const elapsed = now - startTime;
             const progress = Math.min(elapsed / duration, 1);
-            const easeProgress = progress * (2 - progress); // easeOutQuad
-            const currentVal = startVal + (endVal - startVal) * easeProgress;
+            // イージング関数 (easeOutQuad)
+            const easeProgress = progress * (2 - progress);
             
+            const currentVal = startVal + (endVal - startVal) * easeProgress;
             obj.innerText = isCurrency ? Math.round(currentVal).toLocaleString() : currentVal.toFixed(1);
-
+            
             if (progress < 1) {
                 activeAnimations[id] = requestAnimationFrame(updateNumber);
             } else {
-                obj.innerText = newText;
+                obj.innerText = isCurrency ? Math.round(endVal).toLocaleString() : endVal.toFixed(1);
                 activeAnimations[id] = null;
+                // アニメーション完了後、1.5秒後にグローを自然にフェードアウト
+                setTimeout(() => {
+                    // 新たに次のアニメーションが始まっていない場合のみフェードアウトを実行
+                    if (!activeAnimations[id]) {
+                        obj.classList.remove('gold-glow-active');
+                    }
+                }, 1500);
             }
         }
         
-        if (activeAnimations[id]) cancelAnimationFrame(activeAnimations[id]);
         activeAnimations[id] = requestAnimationFrame(updateNumber);
     }
 
@@ -3698,11 +3717,7 @@ function dismissLoginModal(event) {
             alertBox.style.display = 'flex';
         } else if (mode === 'fp-enhanced') {
             document.getElementById('mode-fp').classList.add('active');
-            document.querySelectorAll('.fp-only').forEach(el => {
-                if (!el.classList.contains('advanced-param')) {
-                    el.style.display = '';
-                }
-            });
+            document.querySelectorAll('.fp-only').forEach(el => el.style.display = 'block');
             document.querySelectorAll('.owner-only').forEach(el => el.style.display = '');
             document.querySelectorAll('.owner-hide').forEach(el => el.style.display = '');
             document.querySelectorAll('.standard-only').forEach(el => el.style.display = 'none');
@@ -3728,7 +3743,7 @@ function dismissLoginModal(event) {
     }
 
     // ハザードスイッチのトグル
-    function toggleHazardSwitch(skipUpdate = false) {
+    function toggleHazardSwitch() {
         if (currentMode !== 'fp-enhanced') return;
         const isChecked = document.getElementById('fp-hazard-checkbox').checked;
 
@@ -3756,9 +3771,7 @@ function dismissLoginModal(event) {
         }
 
         updateAlertAccordionHeader();
-        if (!skipUpdate) {
-            updateSimulation();
-        }
+        updateSimulation();
     }
 
     // 想定撤去・解体費用の双方向同期
@@ -3977,6 +3990,7 @@ function dismissLoginModal(event) {
         }
         drawHazardRadarChart(detectedHazard);
         isApiLoading = false; // フォールバック完了
+        updateSimulation();
     }
 
     // 設定リセット専用関数（未ログイン時でも非デモIDの場合はデフォルトデモIDに復帰させてリセットを可能にする）
@@ -4000,9 +4014,7 @@ function dismissLoginModal(event) {
 
     // デモデータおよび本番データの非同期ロード
     function loadDemoData(customCoords) {
-        isInitialLoading = true; // ロード完了までの重複描画を抑止
         closeDrilldownPopup(); // アセット変更時に古いポップアップを閉じる
-        toggleAdvancedMode(); // アコーディオン・プロ詳細設定パラメータの開閉状態を完全確定
         // オプションのリセット
         document.getElementById('fip-checkbox').checked = false;
         document.getElementById('battery-checkbox').checked = false;
@@ -4010,7 +4022,7 @@ function dismissLoginModal(event) {
 
         // 全スライダーおよび表示ラベルを標準のデフォルト初期値へリセット
         const sliderDefaults = {
-            'repower-cost': '1000',
+            'repower-cost': '800',
             'generation-boost': '15',
             'repower-year': '0',
             'pcs-cost': '150',
@@ -4467,7 +4479,7 @@ function dismissLoginModal(event) {
         if (currentMode === 'fp-enhanced') {
             const hzCheck = document.getElementById('fp-hazard-checkbox');
             if (hzCheck) hzCheck.checked = false; // 一旦チェックをOFFにして中立化
-            toggleHazardSwitch(true); // 撤去費連動を一旦リセット (二重描画を防止)
+            toggleHazardSwitch(); // 撤去費連動を一旦リセット
         }
 
         // フロントエンド側でリアルタイム GIS ハザード判定を実行
@@ -4531,7 +4543,7 @@ function dismissLoginModal(event) {
                         if (togglePanel) togglePanel.style.display = 'block';
                         if (currentMode === 'fp-enhanced') {
                             document.getElementById('fp-hazard-checkbox').checked = true;
-                            toggleHazardSwitch(); // ハザードON数値を同期反映
+                            toggleHazardSwitch(); // 撤去費連動を同期
                         }
                     } else {
                         alertBox.style.display = 'flex';
@@ -4543,13 +4555,14 @@ function dismissLoginModal(event) {
                         if (togglePanel) togglePanel.style.display = 'none';
                         if (currentMode === 'fp-enhanced') {
                             document.getElementById('fp-hazard-checkbox').checked = false;
-                            toggleHazardSwitch(); // ハザードOFF数値を同期反映
+                            toggleHazardSwitch(); // 撤去費連動を同期
                         }
                     }
                     
                     // レーダーチャートの描画
                     drawHazardRadarChart(resData);
                     isApiLoading = false; // APIロード完了
+                    updateSimulation();
                 }
             })
             .catch(err => {
@@ -4700,8 +4713,7 @@ function dismissLoginModal(event) {
         calLoss = 0.0;
         calRatio = 1.0;
         
-        isInitialLoading = false; // 全データ初期化完了につき描画ロック解除
-        updateSimulation(); // アセットロード完了時に最新設定でシミュレーションとカード表示をたった1回100%確定描画
+        updateSimulation(); // アセットロード完了時に最新設定でシミュレーションとカード表示を100%確定更新
     }
 
     // プロ向け詳細設定の表示トグル
@@ -4816,12 +4828,16 @@ function dismissLoginModal(event) {
 
     // シミュレーション計算と描画のアップデート
     function updateSimulation() {
-        if (isInitialLoading) return; // 初期化途中の複数回無駄描画を物理遮断
-        console.log("[updateSimulation Executed]");
-        
         // 評価期間スライダーMaxはAPIロード状態に関わらず即座に同期
         syncRepowerYearSliderMax();
 
+        // API照会中の場合は実行を保留し、二重上書きによるカクツキを防ぐ
+        if (isApiLoading) {
+            console.log("[updateSimulation Bypass] Deferring execution until GSI API fetch resolves.");
+            return;
+        }
+
+        toggleAdvancedMode(); // 表示モードの動的同期
         closeDrilldownPopup(); // スライダー等操作時に古いポップアップを閉じる
         
         // カード間のスコープ共有用変数（ReferenceError防止）
