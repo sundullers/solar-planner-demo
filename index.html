@@ -4836,12 +4836,6 @@ function dismissLoginModal(event) {
         // 評価期間スライダーMaxはAPIロード状態に関わらず即座に同期
         syncRepowerYearSliderMax();
 
-        // API照会中の場合は実行を保留し、二重上書きによるカクツキを防ぐ
-        if (isApiLoading) {
-            console.log("[updateSimulation Bypass] Deferring execution until GSI API fetch resolves.");
-            return;
-        }
-
         closeDrilldownPopup(); // スライダー等操作時に古いポップアップを閉じる
         
         // カード間のスコープ共有用変数（ReferenceError防止）
