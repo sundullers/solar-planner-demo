@@ -58,27 +58,13 @@
             document.body.appendChild(div);
         };
     <meta charset="UTF-8">
-    <!-- 最速0ms FOUC（チラつき）物理防護クリティカルCSS ＆ フェードインガード -->
+    <!-- 最速0ms FOUC（チラつき）物理防護CSS -->
     <style id="fouc-guard-style">
-        body {
-            opacity: 0 !important;
-            transition: opacity 0.15s ease-in !important;
-        }
         .advanced-param,
         #battery-capacity-group {
-            display: none !important;
+            display: none;
         }
     </style>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            if (typeof toggleAdvancedMode === 'function') {
-                toggleAdvancedMode();
-            }
-            requestAnimationFrame(function() {
-                document.body.style.setProperty('opacity', '1', 'important');
-            });
-        });
-    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>そらバリュ・シミュレーター - B2B2C営業支援モックアップ</title>
     <!-- Google Fonts -->
@@ -1597,11 +1583,6 @@
                 border-bottom: 2px solid #22c55e !important;
             }
         }
-        /* 初期非表示要素のCSSによる初期隠蔽 (JavaScript実行前のチラつきFOUC完全防護) */
-        .advanced-param,
-        #battery-capacity-group {
-            display: none;
-        }
     </style>
 </head>
 <body>
@@ -2909,7 +2890,7 @@ function dismissLoginModal(event) {
     const tokushimaPreloadPromise = preloadTokushimaData();
 
     // 状態管理
-    let currentMode = 'standard';
+    let currentMode = 'fp-enhanced';
     let currentLoadingAssetId = ''; // レースコンディション（競合）対策用
     let isCalibrated = false;
     let calDegradation = 0.005; // 劣化率
