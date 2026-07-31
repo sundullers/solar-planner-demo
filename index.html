@@ -2893,6 +2893,7 @@ function dismissLoginModal(event) {
     // 状態管理
     let currentMode = 'fp-enhanced';
     let currentLoadingAssetId = ''; // レースコンディション（競合）対策用
+    let isInitialLoading = true; // 初期化途中の複数回二重描画を完全防ぐフラグ
     let isCalibrated = false;
     let calDegradation = 0.005; // 劣化率
     let calLoss = 0.0; // 影等のその他の損失
@@ -3109,61 +3110,16 @@ function dismissLoginModal(event) {
     // 各DOM要素のアクティブなアニメーションフレームIDを管理するオブジェクト
     const activeAnimations = {};
 
-    // ギミック1: 数値の高速カウントアップ ＆ ゴールドグロー効果
+    // ギミック1: 数値の即時バシッと確定表示
     function animateNumberValue(id, targetVal, isCurrency = true) {
         const obj = document.getElementById(id);
         if (!obj) return;
         
-        // 既にアニメーションが走っている場合はキャンセル
-        if (activeAnimations[id]) {
-            cancelAnimationFrame(activeAnimations[id]);
-            activeAnimations[id] = null;
+        const newText = isCurrency ? Math.round(targetVal).toLocaleString() : targetVal.toFixed(1);
+        if (obj.innerText === newText) {
+            return; // 既に同じ数値が表示されている場合はDOMを書き換えず重複表示を100%完全遮断
         }
-        
-        // 直近の数値をパースして開始値とする（なければ0）
-        const currentText = obj.innerText.replace(/,/g, '').trim();
-        let startVal = parseFloat(currentText) || 0;
-        if (isNaN(startVal)) startVal = 0;
-        
-        // 目標値
-        const endVal = targetVal;
-        if (startVal === endVal) {
-            // 値が変わらない場合はフォーマットだけして即ゴールドグローを一瞬当てて終わる
-            obj.innerText = isCurrency ? Math.round(endVal).toLocaleString() : endVal.toFixed(1);
-            return;
-        }
-
-        const duration = 750; // アニメーション時間（ミリ秒）
-        const startTime = performance.now();
-        
-        // ゴールドグロー用のアニメーションクラスを当てる
-        obj.classList.add('gold-glow-active');
-
-        function updateNumber(now) {
-            const elapsed = now - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            // イージング関数 (easeOutQuad)
-            const easeProgress = progress * (2 - progress);
-            
-            const currentVal = startVal + (endVal - startVal) * easeProgress;
-            obj.innerText = isCurrency ? Math.round(currentVal).toLocaleString() : currentVal.toFixed(1);
-            
-            if (progress < 1) {
-                activeAnimations[id] = requestAnimationFrame(updateNumber);
-            } else {
-                obj.innerText = isCurrency ? Math.round(endVal).toLocaleString() : endVal.toFixed(1);
-                activeAnimations[id] = null;
-                // アニメーション完了後、1.5秒後にグローを自然にフェードアウト
-                setTimeout(() => {
-                    // 新たに次のアニメーションが始まっていない場合のみフェードアウトを実行
-                    if (!activeAnimations[id]) {
-                        obj.classList.remove('gold-glow-active');
-                    }
-                }, 1500);
-            }
-        }
-        
-        activeAnimations[id] = requestAnimationFrame(updateNumber);
+        obj.innerText = newText;
     }
 
     // ギミック2: グラフの点クリックによるドリルダウン年次収支ポップアップ
@@ -3747,7 +3703,7 @@ function dismissLoginModal(event) {
     }
 
     // ハザードスイッチのトグル
-    function toggleHazardSwitch() {
+    function toggleHazardSwitch(skipUpdate = false) {
         if (currentMode !== 'fp-enhanced') return;
         const isChecked = document.getElementById('fp-hazard-checkbox').checked;
 
@@ -3775,7 +3731,9 @@ function dismissLoginModal(event) {
         }
 
         updateAlertAccordionHeader();
-        updateSimulation();
+        if (!skipUpdate) {
+            updateSimulation();
+        }
     }
 
     // 想定撤去・解体費用の双方向同期
@@ -3994,7 +3952,6 @@ function dismissLoginModal(event) {
         }
         drawHazardRadarChart(detectedHazard);
         isApiLoading = false; // フォールバック完了
-        updateSimulation();
     }
 
     // 設定リセット専用関数（未ログイン時でも非デモIDの場合はデフォルトデモIDに復帰させてリセットを可能にする）
@@ -4018,6 +3975,7 @@ function dismissLoginModal(event) {
 
     // デモデータおよび本番データの非同期ロード
     function loadDemoData(customCoords) {
+        isInitialLoading = true; // ロード完了までの重複描画を抑止
         closeDrilldownPopup(); // アセット変更時に古いポップアップを閉じる
         toggleAdvancedMode(); // アコーディオン・プロ詳細設定パラメータの開閉状態を完全確定
         // オプションのリセット
@@ -4484,7 +4442,7 @@ function dismissLoginModal(event) {
         if (currentMode === 'fp-enhanced') {
             const hzCheck = document.getElementById('fp-hazard-checkbox');
             if (hzCheck) hzCheck.checked = false; // 一旦チェックをOFFにして中立化
-            toggleHazardSwitch(); // 撤去費連動を一旦リセット
+            toggleHazardSwitch(true); // 撤去費連動を一旦リセット (二重描画を防止)
         }
 
         // フロントエンド側でリアルタイム GIS ハザード判定を実行
@@ -4548,7 +4506,7 @@ function dismissLoginModal(event) {
                         if (togglePanel) togglePanel.style.display = 'block';
                         if (currentMode === 'fp-enhanced') {
                             document.getElementById('fp-hazard-checkbox').checked = true;
-                            toggleHazardSwitch(); // 撤去費連動を同期
+                            toggleHazardSwitch(true); // 撤去費連動を同期 (二重描画を防止)
                         }
                     } else {
                         alertBox.style.display = 'flex';
@@ -4560,14 +4518,13 @@ function dismissLoginModal(event) {
                         if (togglePanel) togglePanel.style.display = 'none';
                         if (currentMode === 'fp-enhanced') {
                             document.getElementById('fp-hazard-checkbox').checked = false;
-                            toggleHazardSwitch(); // 撤去費連動を同期
+                            toggleHazardSwitch(true); // 撤去費連動を同期 (二重描画を防止)
                         }
                     }
                     
                     // レーダーチャートの描画
                     drawHazardRadarChart(resData);
                     isApiLoading = false; // APIロード完了
-                    updateSimulation();
                 }
             })
             .catch(err => {
@@ -4718,7 +4675,8 @@ function dismissLoginModal(event) {
         calLoss = 0.0;
         calRatio = 1.0;
         
-        updateSimulation(); // アセットロード完了時に最新設定でシミュレーションとカード表示を100%確定更新
+        isInitialLoading = false; // 全データ初期化完了につき描画ロック解除
+        updateSimulation(); // アセットロード完了時に最新設定でシミュレーションとカード表示をたった1回100%確定描画
     }
 
     // プロ向け詳細設定の表示トグル
@@ -4833,6 +4791,9 @@ function dismissLoginModal(event) {
 
     // シミュレーション計算と描画のアップデート
     function updateSimulation() {
+        if (isInitialLoading) return; // 初期化途中の複数回無駄描画を物理遮断
+        console.log("[updateSimulation Executed]");
+        
         // 評価期間スライダーMaxはAPIロード状態に関わらず即座に同期
         syncRepowerYearSliderMax();
 
