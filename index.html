@@ -1577,7 +1577,7 @@
                 border-bottom: 2px solid #22c55e !important;
             }
         }
-        /* 初期非表示要素のCSSによる初期隠蔽 (親の.advanced-param非表示で子要素も連動隠蔽) */
+        /* 初期非表示要素のCSSによる初期隠蔽 (JavaScript実行前のチラつきFOUC完全防護) */
         .advanced-param,
         #battery-capacity-group {
             display: none;
@@ -4013,6 +4013,7 @@ function dismissLoginModal(event) {
     // デモデータおよび本番データの非同期ロード
     function loadDemoData(customCoords) {
         closeDrilldownPopup(); // アセット変更時に古いポップアップを閉じる
+        toggleAdvancedMode(); // アコーディオン・プロ詳細設定パラメータの開閉状態を完全確定
         // オプションのリセット
         document.getElementById('fip-checkbox').checked = false;
         document.getElementById('battery-checkbox').checked = false;
