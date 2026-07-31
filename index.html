@@ -4185,14 +4185,18 @@ function dismissLoginModal(event) {
                 dynamicLoadedCache[data.id] = data; // 動的ロードキャッシュに保存
                 processLoadedSolarData(data, customCoords);
             })
-            .catch(err => {
+            .catch(async err => {
                 console.log("Using static local data fallback due to:", err.message);
                 if (id !== currentLoadingAssetId) return;
 
-                // フォールバック: ローカルJSONまたはデモ用モックデータから取得
+                // フォールバック: ローカルJSONの非同期ロード完了を待機
+                if (tokushimaPreloadPromise) {
+                    await tokushimaPreloadPromise;
+                }
+
                 let data = getSolarData(id, true);
                 if (data) {
-                    // フォールバックデータの場合でも、IDを入力されたIDと一致させる（レースコンディションガード通過のため）
+                    // フォールバックデータの場合でも、IDを入力されたIDと一致させる
                     const fallbackData = { ...data, id: id };
                     processLoadedSolarData(fallbackData, customCoords);
                 } else {
