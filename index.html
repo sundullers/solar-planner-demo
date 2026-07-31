@@ -57,8 +57,28 @@
                              <pre style="margin-top:10px; white-space:pre-wrap;">${stackStr}</pre>`;
             document.body.appendChild(div);
         };
-    </script>
     <meta charset="UTF-8">
+    <!-- 最速0ms FOUC（チラつき）物理防護クリティカルCSS ＆ フェードインガード -->
+    <style id="fouc-guard-style">
+        body {
+            opacity: 0 !important;
+            transition: opacity 0.15s ease-in !important;
+        }
+        .advanced-param,
+        #battery-capacity-group {
+            display: none !important;
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (typeof toggleAdvancedMode === 'function') {
+                toggleAdvancedMode();
+            }
+            requestAnimationFrame(function() {
+                document.body.style.setProperty('opacity', '1', 'important');
+            });
+        });
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>そらバリュ・シミュレーター - B2B2C営業支援モックアップ</title>
     <!-- Google Fonts -->
