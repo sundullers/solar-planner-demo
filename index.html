@@ -3717,7 +3717,11 @@ function dismissLoginModal(event) {
             alertBox.style.display = 'flex';
         } else if (mode === 'fp-enhanced') {
             document.getElementById('mode-fp').classList.add('active');
-            document.querySelectorAll('.fp-only').forEach(el => el.style.display = 'block');
+            document.querySelectorAll('.fp-only').forEach(el => {
+                if (!el.classList.contains('advanced-param')) {
+                    el.style.display = '';
+                }
+            });
             document.querySelectorAll('.owner-only').forEach(el => el.style.display = '');
             document.querySelectorAll('.owner-hide').forEach(el => el.style.display = '');
             document.querySelectorAll('.standard-only').forEach(el => el.style.display = 'none');
@@ -4838,7 +4842,6 @@ function dismissLoginModal(event) {
             return;
         }
 
-        toggleAdvancedMode(); // 表示モードの動的同期
         closeDrilldownPopup(); // スライダー等操作時に古いポップアップを閉じる
         
         // カード間のスコープ共有用変数（ReferenceError防止）
