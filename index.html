@@ -5975,19 +5975,7 @@ function dismissLoginModal(event) {
         document.getElementById('guide-modal').style.display = 'none';
     }
 
-    // ロジック解説書モーダルの制御（PW保護付き）
-    function openLogicGuideWithPassword() {
-        const pw = prompt("ロジック解説書を開くには、関係者用のパスワードを入力してください。");
-        if (pw === "wire8181") {
-            document.getElementById('logic-guide-modal').style.display = 'flex';
-        } else if (pw !== null) {
-            alert("パスワードが正しくありません。");
-        }
-    }
 
-    function closeLogicGuideModal() {
-        document.getElementById('logic-guide-modal').style.display = 'none';
-    }
 
     // ガイド内のタブ切り替え
     function switchGuideTab(tabName) {
